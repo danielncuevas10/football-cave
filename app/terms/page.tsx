@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default function TermsPage() {
-  const lastUpdated = "June 5, 2025";
+  const lastUpdated = "June 5, 2026";
 
   return (
     <div className="min-h-screen bg-[#1B1B1B] text-white">
