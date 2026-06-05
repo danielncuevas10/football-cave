@@ -33,4 +33,8 @@ The objective was to transform raw, complex sports data streams into an intuitiv
 - **Advanced Match Filtering:** A bespoke desktop layout allowing users to instantly filter live matches by league, status, or statistical variance.
 - **Desktop-First Architecture:** A robust, wide-screen dashboard layout that maximizes data density while gracefully adapting to smaller breakpoints.
 
+## License
+
+This project is licensed under the MIT License - see the MIT License file for details.
+
 ## Live Demo
