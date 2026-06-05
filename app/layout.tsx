@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     siteName: "Football Cave",
     images: [
       {
-        url: "/images/Banner.jpg",
+        url: "/icon.jpg",
         width: 1200,
         height: 630,
         alt: "Football Cave – Live Scores",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Football Cave",
     description: "Check the latest matches",
-    images: ["/images/Banner.jpg"],
+    images: ["/icon.jpg"],
   },
   icons: {
     icon: "/icon.svg",
@@ -63,10 +63,18 @@ export default async function RootLayout({
       lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <meta name="google-adsense-account" content="ca-pub-9195927112430047" />
+      </head>
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <TopNav />
           {children}
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9195927112430047"
+            crossOrigin="anonymous"
+          ></script>
           <Footer />
           <Analytics />
         </NextIntlClientProvider>

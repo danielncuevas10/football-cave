@@ -1,3 +1,5 @@
+# Football Cave
+
 **Football API Dashboard** is a premium, data-driven analytics platform designed for football enthusiasts and analysts. Moving away from cluttered, generic sports portals, this project delivers a highly curated, desktop-first interface that visualizes real-time match statistics, league standings, and player performance metrics with fluid, high-fidelity interactions.
 
 ## The Goal
@@ -23,7 +25,6 @@ The objective was to transform raw, complex sports data streams into an intuitiv
 ## Key Features
 
 - **Real-Time Data Pipeline:** Automated polling mechanisms that fetch, normalize, and render live match data with zero perceived latency.
-- **Fluid Micro-Interactions:**
 - **Advanced Match Filtering:** A bespoke desktop layout allowing users to instantly filter live matches by league, status, or statistical variance.
 - **Desktop-First Architecture:** A robust, wide-screen dashboard layout that maximizes data density while gracefully adapting to smaller breakpoints.
 
@@ -32,3 +33,5 @@ The objective was to transform raw, complex sports data streams into an intuitiv
 This project is licensed under the MIT License - see the MIT License file for details.
 
 ## Live Demo
+
+https://football-cave.com/
