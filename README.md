@@ -1,9 +1,3 @@
-Here is a professional, high-end README tailored for your **Football API Dashboard**. It follows your desktop-first philosophy, keeps explanations punchy, and incorporates the performance tools you love.
-
----
-
-# Football API Dashboard
-
 **Football API Dashboard** is a premium, data-driven analytics platform designed for football enthusiasts and analysts. Moving away from cluttered, generic sports portals, this project delivers a highly curated, desktop-first interface that visualizes real-time match statistics, league standings, and player performance metrics with fluid, high-fidelity interactions.
 
 ## The Goal
