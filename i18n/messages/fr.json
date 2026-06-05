@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "live": "En direct",
+    "standings": "Classement",
+    "scorers": "Buteurs",
+    "signOut": "Se déconnecter"
+  },
+  "matchTabs": {
+    "events": "Événements",
+    "stats": "Statistiques",
+    "lineups": "Compositions",
+    "standings": "Classement",
+    "noInfo": "Pas d'information encore"
+  },
+  "matchEvents": {
+    "matchStarted": "Match commencé",
+    "halfTimeBreak": "Mi-temps",
+    "secondHalfStarts": "Début de la seconde mi-temps",
+    "noNotableActions": "Aucune action notable",
+    "matchFinished": "Match terminé",
+    "halfTime": "Mi-temps",
+    "regularTimeFinished": "Temps réglementaire terminé",
+    "extraTimeStartsSoon": "Les prolongations commencent bientôt",
+    "firstHalfExtraTimeStarts": "Première mi-temps des prolongations",
+    "extraTimeHalfTime": "Mi-temps des prolongations",
+    "ftScore": "Score final"
+  },
+  "matchDetails": {
+    "matchOverview": "Résumé du match",
+    "comingSoon": "Bientôt disponible...",
+    "noInfoYet": "Pas d'information disponible encore"
+  },
+  "lineups": {
+    "confirmedLineups": "Compositions confirmées",
+    "substitutes": "Remplaçants",
+    "manager": "Entraîneur",
+    "formation": "Formation",
+    "notAvailableYet": "Pas d'information disponible encore"
+  },
+  "liveBadge": {
+    "days": "J",
+    "hours": "H",
+    "minutes": "M",
+    "followNews": "Suivez les dernières nouvelles de la Coupe du Monde",
+    "worldCup": "Coupe du Monde 2026"
+  },
+  "statLabels": {
+    "ballPossession": "Possession",
+    "shotsOnGoal": "Tirs cadrés",
+    "totalShots": "Tirs totaux",
+    "cornerKicks": "Corners",
+    "fouls": "Fautes",
+    "totalPasses": "Passes totales",
+    "passesPercent": "Passes %",
+    "goalkeeperSaves": "Arrêts du gardien"
+  }
+}

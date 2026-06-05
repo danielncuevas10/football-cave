@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "live": "Canlı",
+    "standings": "Puan Durumu",
+    "scorers": "Gol Krallığı",
+    "signOut": "Çıkış yap"
+  },
+  "matchTabs": {
+    "events": "Olaylar",
+    "stats": "İstatistikler",
+    "lineups": "Kadrolar",
+    "standings": "Puan Durumu",
+    "noInfo": "Henüz bilgi yok"
+  },
+  "matchEvents": {
+    "matchStarted": "Maç başladı",
+    "halfTimeBreak": "Devre arası",
+    "secondHalfStarts": "İkinci yarı başlıyor",
+    "noNotableActions": "Önemli bir gelişme yok",
+    "matchFinished": "Maç bitti",
+    "halfTime": "Devre arası",
+    "regularTimeFinished": "Normal süre bitti",
+    "extraTimeStartsSoon": "Uzatma devirleri başlıyor",
+    "firstHalfExtraTimeStarts": "Uzatmanın ilk yarısı başlıyor",
+    "extraTimeHalfTime": "Uzatma devre arası",
+    "ftScore": "Maç sonu skoru"
+  },
+  "matchDetails": {
+    "matchOverview": "Maç Özeti",
+    "comingSoon": "Yakında...",
+    "noInfoYet": "Henüz bilgi mevcut değil"
+  },
+  "lineups": {
+    "confirmedLineups": "Onaylanan Kadrolar",
+    "substitutes": "Yedekler",
+    "manager": "Teknik direktör",
+    "formation": "Diziliş",
+    "notAvailableYet": "Henüz bilgi mevcut değil"
+  },
+  "liveBadge": {
+    "days": "G",
+    "hours": "S",
+    "minutes": "D",
+    "followNews": "Dünya Kupası haberlerini takip edin",
+    "worldCup": "2026 Dünya Kupası"
+  },
+  "statLabels": {
+    "ballPossession": "Top Hakimiyeti",
+    "shotsOnGoal": "İsabetli Şut",
+    "totalShots": "Toplam Şut",
+    "cornerKicks": "Köşe Vuruşu",
+    "fouls": "Faul",
+    "totalPasses": "Toplam Pas",
+    "passesPercent": "Pas %",
+    "goalkeeperSaves": "Kaleci Kurtarışı"
+  }
+}

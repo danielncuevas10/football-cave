@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "live": "Uživo",
+    "standings": "Tabela",
+    "scorers": "Strijelci",
+    "signOut": "Odjava"
+  },
+  "matchTabs": {
+    "events": "Događaji",
+    "stats": "Statistika",
+    "lineups": "Postave",
+    "standings": "Tabela",
+    "noInfo": "Nema informacija još"
+  },
+  "matchEvents": {
+    "matchStarted": "Utakmica počela",
+    "halfTimeBreak": "Poluvrijeme",
+    "secondHalfStarts": "Početak drugog poluvremena",
+    "noNotableActions": "Nema značajnih akcija",
+    "matchFinished": "Utakmica završena",
+    "halfTime": "Poluvrijeme",
+    "regularTimeFinished": "Regularno vrijeme završeno",
+    "extraTimeStartsSoon": "Produžetci uskoro počinju",
+    "firstHalfExtraTimeStarts": "Početak prvog produžetka",
+    "extraTimeHalfTime": "Pauza produžetaka",
+    "ftScore": "Konačan rezultat"
+  },
+  "matchDetails": {
+    "matchOverview": "Pregled utakmice",
+    "comingSoon": "Uskoro...",
+    "noInfoYet": "Nema dostupnih informacija još"
+  },
+  "lineups": {
+    "confirmedLineups": "Potvrđene postave",
+    "substitutes": "Rezerve",
+    "manager": "Trener",
+    "formation": "Formacija",
+    "notAvailableYet": "Nema dostupnih informacija još"
+  },
+  "liveBadge": {
+    "days": "D",
+    "hours": "S",
+    "minutes": "M",
+    "followNews": "Pratite najnovije vijesti o Svjetskom kupu",
+    "worldCup": "Svjetski kup 2026"
+  },
+  "statLabels": {
+    "ballPossession": "Posjed lopte",
+    "shotsOnGoal": "Udarci u okvir",
+    "totalShots": "Ukupni udarci",
+    "cornerKicks": "Korneri",
+    "fouls": "Fauli",
+    "totalPasses": "Ukupne dodavanja",
+    "passesPercent": "Dodavanja %",
+    "goalkeeperSaves": "Obrane golmana"
+  }
+}

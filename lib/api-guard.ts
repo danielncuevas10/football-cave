@@ -1,0 +1,23 @@
+import { NextRequest, NextResponse } from "next/server"
+import { rateLimits, getClientIp } from "./ratelimit"
+
+export async function guardRoute(req: NextRequest): Promise<NextResponse | null> {
+  const ip = getClientIp(req)
+  const { success, limit, remaining, reset } = await rateLimits.public.limit(`ip:${ip}`)
+
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many requests. Try again shortly." },
+      {
+        status: 429,
+        headers: {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": "0",
+          "X-RateLimit-Reset": new Date(reset).toISOString(),
+          "Retry-After": Math.ceil((reset - Date.now()) / 1000).toString(),
+        },
+      }
+    )
+  }
+  return null
+}

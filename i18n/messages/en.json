@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "live": "Live",
+    "standings": "Standings",
+    "scorers": "Scorers",
+    "signOut": "Sign out"
+  },
+  "matchTabs": {
+    "events": "Events",
+    "stats": "Stats",
+    "lineups": "Lineups",
+    "standings": "Standings",
+    "noInfo": "No information yet"
+  },
+  "matchEvents": {
+    "matchStarted": "Match Started",
+    "halfTimeBreak": "Half Time Break",
+    "secondHalfStarts": "Second Half Starts",
+    "noNotableActions": "No notable actions",
+    "matchFinished": "Match Finished",
+    "halfTime": "Half Time",
+    "regularTimeFinished": "Regular Time Finished",
+    "extraTimeStartsSoon": "Extra Time Starts Soon",
+    "firstHalfExtraTimeStarts": "First Half Extra Time Starts",
+    "extraTimeHalfTime": "Extra Time Half Time",
+    "ftScore": "FT Score"
+  },
+  "matchDetails": {
+    "matchOverview": "Match Overview",
+    "comingSoon": "Coming soon...",
+    "noInfoYet": "No information available yet"
+  },
+  "lineups": {
+    "confirmedLineups": "Confirmed Line-ups",
+    "substitutes": "Substitutes",
+    "manager": "Manager",
+    "formation": "Formation",
+    "notAvailableYet": "No information available yet"
+  },
+  "liveBadge": {
+    "days": "D",
+    "hours": "H",
+    "minutes": "M",
+    "followNews": "Follow the latest World Cup news",
+    "worldCup": "World Cup 2026"
+  },
+  "statLabels": {
+    "ballPossession": "Ball Possession",
+    "shotsOnGoal": "Shots on Goal",
+    "totalShots": "Total Shots",
+    "cornerKicks": "Corner Kicks",
+    "fouls": "Fouls",
+    "totalPasses": "Total passes",
+    "passesPercent": "Passes %",
+    "goalkeeperSaves": "Goalkeeper Saves"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "live": "ライブ",
+    "standings": "順位表",
+    "scorers": "得点ランク",
+    "signOut": "サインアウト"
+  },
+  "matchTabs": {
+    "events": "イベント",
+    "stats": "統計",
+    "lineups": "スターティング",
+    "standings": "順位表",
+    "noInfo": "情報はまだありません"
+  },
+  "matchEvents": {
+    "matchStarted": "試合開始",
+    "halfTimeBreak": "ハーフタイム",
+    "secondHalfStarts": "後半開始",
+    "noNotableActions": "注目のアクションなし",
+    "matchFinished": "試合終了",
+    "halfTime": "ハーフタイム",
+    "regularTimeFinished": "90分終了",
+    "extraTimeStartsSoon": "延長戦まもなく開始",
+    "firstHalfExtraTimeStarts": "延長前半開始",
+    "extraTimeHalfTime": "延長ハーフタイム",
+    "ftScore": "最終スコア"
+  },
+  "matchDetails": {
+    "matchOverview": "試合概要",
+    "comingSoon": "近日公開...",
+    "noInfoYet": "情報はまだありません"
+  },
+  "lineups": {
+    "confirmedLineups": "確定スターティングメンバー",
+    "substitutes": "ベンチ",
+    "manager": "監督",
+    "formation": "フォーメーション",
+    "notAvailableYet": "情報はまだありません"
+  },
+  "liveBadge": {
+    "days": "日",
+    "hours": "時",
+    "minutes": "分",
+    "followNews": "ワールドカップの最新情報をフォロー",
+    "worldCup": "2026 FIFAワールドカップ"
+  },
+  "statLabels": {
+    "ballPossession": "ボール支配率",
+    "shotsOnGoal": "枠内シュート",
+    "totalShots": "総シュート数",
+    "cornerKicks": "コーナーキック",
+    "fouls": "ファウル",
+    "totalPasses": "総パス数",
+    "passesPercent": "パス成功率",
+    "goalkeeperSaves": "GKセーブ"
+  }
+}

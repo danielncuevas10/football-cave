@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "live": "Ζωντανά",
+    "standings": "Βαθμολογία",
+    "scorers": "Σκόρερ",
+    "signOut": "Αποσύνδεση"
+  },
+  "matchTabs": {
+    "events": "Γεγονότα",
+    "stats": "Στατιστικά",
+    "lineups": "Ενδεκάδες",
+    "standings": "Βαθμολογία",
+    "noInfo": "Δεν υπάρχουν πληροφορίες ακόμα"
+  },
+  "matchEvents": {
+    "matchStarted": "Έναρξη αγώνα",
+    "halfTimeBreak": "Ημίχρονο",
+    "secondHalfStarts": "Έναρξη β' ημιχρόνου",
+    "noNotableActions": "Δεν υπάρχουν αξιόλογες ενέργειες",
+    "matchFinished": "Λήξη αγώνα",
+    "halfTime": "Ημίχρονο",
+    "regularTimeFinished": "Λήξη κανονικής διάρκειας",
+    "extraTimeStartsSoon": "Η παράταση ξεκινά σύντομα",
+    "firstHalfExtraTimeStarts": "Α' ημίχρονο παράτασης",
+    "extraTimeHalfTime": "Ημίχρονο παράτασης",
+    "ftScore": "Τελικό σκορ"
+  },
+  "matchDetails": {
+    "matchOverview": "Επισκόπηση αγώνα",
+    "comingSoon": "Σύντομα...",
+    "noInfoYet": "Δεν υπάρχουν διαθέσιμες πληροφορίες ακόμα"
+  },
+  "lineups": {
+    "confirmedLineups": "Επιβεβαιωμένες ενδεκάδες",
+    "substitutes": "Αναπληρωματικοί",
+    "manager": "Προπονητής",
+    "formation": "Σχηματισμός",
+    "notAvailableYet": "Δεν υπάρχουν διαθέσιμες πληροφορίες ακόμα"
+  },
+  "liveBadge": {
+    "days": "Η",
+    "hours": "Ω",
+    "minutes": "Λ",
+    "followNews": "Παρακολουθήστε τα τελευταία νέα του Παγκοσμίου Κυπέλλου",
+    "worldCup": "Παγκόσμιο Κύπελλο 2026"
+  },
+  "statLabels": {
+    "ballPossession": "Κατοχή μπάλας",
+    "shotsOnGoal": "Σουτ εντός εστίας",
+    "totalShots": "Συνολικά σουτ",
+    "cornerKicks": "Κόρνερ",
+    "fouls": "Φάουλ",
+    "totalPasses": "Συνολικές πάσες",
+    "passesPercent": "Πάσες %",
+    "goalkeeperSaves": "Αποκρούσεις τερματοφύλακα"
+  }
+}

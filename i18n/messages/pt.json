@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "live": "Ao vivo",
+    "standings": "Classificação",
+    "scorers": "Artilheiros",
+    "signOut": "Sair"
+  },
+  "matchTabs": {
+    "events": "Eventos",
+    "stats": "Estatísticas",
+    "lineups": "Escalações",
+    "standings": "Classificação",
+    "noInfo": "Sem informação ainda"
+  },
+  "matchEvents": {
+    "matchStarted": "Jogo iniciado",
+    "halfTimeBreak": "Intervalo",
+    "secondHalfStarts": "Início do segundo tempo",
+    "noNotableActions": "Sem ações notáveis",
+    "matchFinished": "Jogo finalizado",
+    "halfTime": "Intervalo",
+    "regularTimeFinished": "Tempo regulamentar finalizado",
+    "extraTimeStartsSoon": "Prorrogação começa em breve",
+    "firstHalfExtraTimeStarts": "Início da prorrogação",
+    "extraTimeHalfTime": "Intervalo da prorrogação",
+    "ftScore": "Resultado final"
+  },
+  "matchDetails": {
+    "matchOverview": "Resumo do jogo",
+    "comingSoon": "Em breve...",
+    "noInfoYet": "Sem informação disponível ainda"
+  },
+  "lineups": {
+    "confirmedLineups": "Escalações confirmadas",
+    "substitutes": "Reservas",
+    "manager": "Técnico",
+    "formation": "Formação",
+    "notAvailableYet": "Sem informação disponível ainda"
+  },
+  "liveBadge": {
+    "days": "D",
+    "hours": "H",
+    "minutes": "M",
+    "followNews": "Acompanhe as últimas notícias da Copa do Mundo",
+    "worldCup": "Copa do Mundo 2026"
+  },
+  "statLabels": {
+    "ballPossession": "Posse de bola",
+    "shotsOnGoal": "Chutes a gol",
+    "totalShots": "Chutes totais",
+    "cornerKicks": "Escanteios",
+    "fouls": "Faltas",
+    "totalPasses": "Passes totais",
+    "passesPercent": "Passes %",
+    "goalkeeperSaves": "Defesas do goleiro"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "live": "라이브",
+    "standings": "순위표",
+    "scorers": "득점 순위",
+    "signOut": "로그아웃"
+  },
+  "matchTabs": {
+    "events": "이벤트",
+    "stats": "통계",
+    "lineups": "라인업",
+    "standings": "순위표",
+    "noInfo": "아직 정보가 없습니다"
+  },
+  "matchEvents": {
+    "matchStarted": "경기 시작",
+    "halfTimeBreak": "하프타임",
+    "secondHalfStarts": "후반전 시작",
+    "noNotableActions": "주요 사건 없음",
+    "matchFinished": "경기 종료",
+    "halfTime": "하프타임",
+    "regularTimeFinished": "정규 시간 종료",
+    "extraTimeStartsSoon": "연장전 곧 시작",
+    "firstHalfExtraTimeStarts": "연장 전반전 시작",
+    "extraTimeHalfTime": "연장 하프타임",
+    "ftScore": "최종 점수"
+  },
+  "matchDetails": {
+    "matchOverview": "경기 개요",
+    "comingSoon": "곧 공개...",
+    "noInfoYet": "아직 이용 가능한 정보가 없습니다"
+  },
+  "lineups": {
+    "confirmedLineups": "확정 라인업",
+    "substitutes": "후보 선수",
+    "manager": "감독",
+    "formation": "포메이션",
+    "notAvailableYet": "아직 이용 가능한 정보가 없습니다"
+  },
+  "liveBadge": {
+    "days": "일",
+    "hours": "시",
+    "minutes": "분",
+    "followNews": "월드컵 최신 소식 팔로우",
+    "worldCup": "2026 FIFA 월드컵"
+  },
+  "statLabels": {
+    "ballPossession": "점유율",
+    "shotsOnGoal": "유효 슈팅",
+    "totalShots": "총 슈팅",
+    "cornerKicks": "코너킥",
+    "fouls": "파울",
+    "totalPasses": "총 패스",
+    "passesPercent": "패스 성공률",
+    "goalkeeperSaves": "골키퍼 선방"
+  }
+}

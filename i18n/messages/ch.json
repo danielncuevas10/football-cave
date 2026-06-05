@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "live": "直播",
+    "standings": "积分榜",
+    "scorers": "射手榜",
+    "signOut": "退出"
+  },
+  "matchTabs": {
+    "events": "事件",
+    "stats": "数据",
+    "lineups": "阵容",
+    "standings": "积分榜",
+    "noInfo": "暂无信息"
+  },
+  "matchEvents": {
+    "matchStarted": "比赛开始",
+    "halfTimeBreak": "中场休息",
+    "secondHalfStarts": "下半场开始",
+    "noNotableActions": "暂无重要事件",
+    "matchFinished": "比赛结束",
+    "halfTime": "中场",
+    "regularTimeFinished": "常规时间结束",
+    "extraTimeStartsSoon": "加时赛即将开始",
+    "firstHalfExtraTimeStarts": "加时赛上半场开始",
+    "extraTimeHalfTime": "加时赛中场",
+    "ftScore": "终场比分"
+  },
+  "matchDetails": {
+    "matchOverview": "比赛概览",
+    "comingSoon": "即将推出...",
+    "noInfoYet": "暂无可用信息"
+  },
+  "lineups": {
+    "confirmedLineups": "确认阵容",
+    "substitutes": "替补",
+    "manager": "教练",
+    "formation": "阵型",
+    "notAvailableYet": "暂无可用信息"
+  },
+  "liveBadge": {
+    "days": "天",
+    "hours": "时",
+    "minutes": "分",
+    "followNews": "关注世界杯最新消息",
+    "worldCup": "2026年世界杯"
+  },
+  "statLabels": {
+    "ballPossession": "控球率",
+    "shotsOnGoal": "射正",
+    "totalShots": "总射门",
+    "cornerKicks": "角球",
+    "fouls": "犯规",
+    "totalPasses": "总传球",
+    "passesPercent": "传球成功率",
+    "goalkeeperSaves": "门将扑救"
+  }
+}
