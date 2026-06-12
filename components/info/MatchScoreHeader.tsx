@@ -16,9 +16,10 @@ function scoreFromEvents(
   let away = 0;
   events.forEach((ev) => {
     if (ev.type !== "Goal" || ev.detail === "Missed Penalty") return;
-    const isOwnGoal = ev.detail === "Own Goal";
+    // The API places every goal event (including own goals) under the
+    // benefiting team's ID, so count directly by team without flipping.
     const isHome = homeTeamId ? ev.team.id === homeTeamId : false;
-    if ((isHome && !isOwnGoal) || (!isHome && isOwnGoal)) home++;
+    if (isHome) home++;
     else away++;
   });
   return { home, away };

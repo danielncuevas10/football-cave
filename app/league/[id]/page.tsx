@@ -1,9 +1,11 @@
 // src/app/league/[id]/page.tsx
 
+export const revalidate = 300; // re-render with fresh standings every 5 minutes
+
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import LeagueTabs from "@/components/info/LeagueTabs";
-import { getOrSyncLeagueData } from "@/lib/server/sync-league";
+import { getOrSyncLeagueData, syncStandingsForLeague } from "@/lib/server/sync-league";
 import { League } from "@/types/sports";
 import { isTournamentLeague } from "@/lib/tournament/isTournamentLeague";
 
@@ -97,10 +99,41 @@ export default async function LeaguePage({ params }: PageProps) {
 
   let standings = standingsResult.data ?? [];
 
-  // If standings are missing entirely, trigger a live sync from the API.
+  // For World Cup, season 2026 is stored in the API under the current calendar year,
+  // but getCurrentSeason() returns year-1 in June (month < 6). Use the season from
+  // the existing DB rows (already correct), or fall back to the current year.
+  const syncSeason =
+    leagueId === League.WorldCup
+      ? (standings[0]?.season ?? new Date().getFullYear())
+      : season;
+
+  const STALE_AFTER_MS = 2 * 60 * 60 * 1000; // 2 hours
+
   if (standings.length === 0) {
-    const synced = await getOrSyncLeagueData(leagueId, season);
+    // Initial load — fetch everything from the API and seed the DB
+    const synced = await getOrSyncLeagueData(leagueId, syncSeason);
     standings = synced.standings;
+  } else {
+    const latestUpdate = Math.max(
+      ...standings.map((s) => new Date(s.updated_at).getTime())
+    );
+    if (Date.now() - latestUpdate > STALE_AFTER_MS) {
+      // Data is older than 2 hours — re-sync from the API then re-fetch from DB
+      await syncStandingsForLeague(leagueId, syncSeason);
+      const { data: fresh } = await (leagueId === League.WorldCup
+        ? supabase
+            .from("standings")
+            .select("*")
+            .eq("league_id", leagueId)
+            .order("rank", { ascending: true })
+        : supabase
+            .from("standings")
+            .select("*")
+            .eq("league_id", leagueId)
+            .eq("season", season)
+            .order("rank", { ascending: true }));
+      if (fresh?.length) standings = fresh;
+    }
   }
 
   if (!standings.length && !matchesResult.data?.length) {

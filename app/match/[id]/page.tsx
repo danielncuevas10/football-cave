@@ -5,6 +5,13 @@ import MatchScoreHeader from "@/components/info/MatchScoreHeader";
 import { getOrSyncLeagueData } from "@/lib/server/sync-league";
 import { getMatchDetails } from "@/lib/server/get-match-details";
 import BackButton from "@/components/ui/BackButton";
+import { League } from "@/types/sports";
+
+function getCurrentSeason(leagueId: number): number {
+  const now = new Date();
+  if (leagueId === League.WorldCup) return now.getFullYear();
+  return now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
+}
 
 export default async function MatchDetailsPage({
   params,
@@ -24,11 +31,31 @@ export default async function MatchDetailsPage({
     notFound();
   }
 
-  const currentSeason = 2025;
-  const [{ standings, scorers }, details] = await Promise.all([
+  const currentSeason = getCurrentSeason(initialMatch.league_id);
+
+  // World Cup standings are keyed by calendar year, not cross-year season,
+  // so query without season filter to ensure we always get the live group data.
+  const standingsQuery =
+    initialMatch.league_id === League.WorldCup
+      ? supabase
+          .from("standings")
+          .select("*")
+          .eq("league_id", initialMatch.league_id)
+          .order("rank", { ascending: true })
+      : supabase
+          .from("standings")
+          .select("*")
+          .eq("league_id", initialMatch.league_id)
+          .eq("season", currentSeason)
+          .order("rank", { ascending: true });
+
+  const [standingsResult, { scorers }, details] = await Promise.all([
+    standingsQuery,
     getOrSyncLeagueData(initialMatch.league_id, currentSeason),
     getMatchDetails(matchId),
   ]);
+
+  const standings = standingsResult.data ?? [];
 
   // Re-read the match after getMatchDetails so any score it wrote back
   // to the matches table (cron sync lag fix) is reflected on first render.

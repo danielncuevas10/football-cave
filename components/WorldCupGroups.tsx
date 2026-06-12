@@ -17,8 +17,10 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
 
   const sortedGroups = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
 
+  const multiGroup = sortedGroups.length > 1;
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+    <div className={`grid gap-4 w-full ${multiGroup ? "sm:grid-cols-2" : "grid-cols-1"}`}>
       {sortedGroups.map((groupName) => {
         const teams = grouped[groupName].sort((a, b) => a.rank - b.rank);
         // Extract just the letter: "Group A" → "A", or use as-is
@@ -52,7 +54,7 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-gray-800/30">
+              <tbody className="divide-y divide-gray-700/30">
                 {teams.map((team) => {
                   const advances = team.rank <= 2;
                   return (

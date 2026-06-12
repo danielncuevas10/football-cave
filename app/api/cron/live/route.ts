@@ -5,6 +5,7 @@ import { Receiver } from "@upstash/qstash"
 import { supabaseAdmin } from "@/lib/server/supabase-admin"
 import { footballApi } from "@/lib/server/football-api"
 import { standardizeRound } from "@/lib/sync/standardizeRound"
+import { syncStandingsForLeague } from "@/lib/server/sync-league"
 import { LIVE_STATUSES } from "@/types/sports"
 import type { DbMatch } from "@/types/sports"
 
@@ -128,6 +129,7 @@ export async function POST(req: NextRequest) {
 
   // 5. Final score updates
   let finishedCount = 0
+  const affectedLeagues = new Map<number, number>() // leagueId → season
 
   for (const matchId of newlyFinishedIds) {
     try {
@@ -147,6 +149,7 @@ export async function POST(req: NextRequest) {
           })
           .eq("id", matchId)
 
+        affectedLeagues.set(finalData.league.id, finalData.league.season)
         finishedCount++
       } else {
         await supabaseAdmin
@@ -174,10 +177,20 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // 6. Refresh standings for every league that had a match finish
+  for (const [leagueId, season] of affectedLeagues) {
+    try {
+      await syncStandingsForLeague(leagueId, season)
+    } catch (e) {
+      console.error(`Failed to sync standings for league ${leagueId}:`, e)
+    }
+  }
+
   return NextResponse.json({
     ghost_matches_fixed: ghostMatches?.length ?? 0,
     updated_live: liveMatches.length,
     finished_processed: finishedCount,
+    standings_synced: affectedLeagues.size,
     success: true,
   })
 }

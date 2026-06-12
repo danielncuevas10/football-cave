@@ -4,6 +4,7 @@ import { useState, useEffect, Fragment } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import StandingsTable from "@/components/info/standings/page";
+import WorldCupGroups from "@/components/WorldCupGroups";
 import MatchCenterDetails from "@/components/info/matchDetails/page";
 import MatchCenterLinenups from "./matchLineups/page";
 import type {
@@ -13,6 +14,7 @@ import type {
   MatchEvent,
   FixtureStatus,
 } from "@/types/sports";
+import { League } from "@/types/sports";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
@@ -81,6 +83,14 @@ export default function MatchTabs({
   const homeTeamId =
     details?.lineups?.[0]?.team?.id ?? details?.statistics?.[0]?.team?.id;
 
+  const isWorldCup = leagueId === League.WorldCup;
+  const matchGroupName = isWorldCup
+    ? standings.find((s) => s.team_id === homeTeamId)?.group_name ?? null
+    : null;
+  const groupStandings = matchGroupName
+    ? standings.filter((s) => s.group_name === matchGroupName)
+    : standings;
+
   const getScoreAtMinute = (minute: number): string => {
     let home = 0;
     let away = 0;
@@ -91,10 +101,10 @@ export default function MatchTabs({
         ev.detail !== "Missed Penalty" &&
         ev.time.elapsed <= minute
       ) {
-        const isOwnGoal = ev.detail === "Own Goal";
+        // The API places every goal event (including own goals) under the team
+        // that BENEFITED from the goal, so no own-goal flip is needed here.
         const isHomeTeam = homeTeamId ? ev.team.id === homeTeamId : false;
-
-        if ((isHomeTeam && !isOwnGoal) || (!isHomeTeam && isOwnGoal)) {
+        if (isHomeTeam) {
           home++;
         } else {
           away++;
@@ -109,7 +119,9 @@ export default function MatchTabs({
     { id: "events", label: tTabs("events") },
     { id: "details", label: tTabs("stats") },
     { id: "lineups", label: tTabs("lineups") },
-    ...(!isFriendly ? [{ id: "table" as TabType, label: tTabs("standings") }] : []),
+    ...(!isFriendly
+      ? [{ id: "table" as TabType, label: tTabs("standings") }]
+      : []),
   ];
 
   const getEventIcon = (type: string, detail: string): string => {
@@ -126,7 +138,7 @@ export default function MatchTabs({
         ? "/images/specs/red-card.svg"
         : "/images/specs/yellow-card.svg";
     }
-    if (type === "subst") return "/images/specs/substitution.svg";
+    if (type === "subst") return "/images/specs/Substitution.svg";
     return "/icons/default-event.svg";
   };
 
@@ -176,9 +188,15 @@ export default function MatchTabs({
               <div className="bg-custom-gray-2 rounded-xl border border-custom-gray overflow-hidden">
                 <div className=" divide-y divide-custom-gray/30">
                   {details.events.map((ev: MatchEvent, index: number) => {
-                    const isHomeEvent = homeTeamId
+                    const isOwnGoal =
+                      ev.type === "Goal" && ev.detail === "Own Goal";
+                    const eventFromHome = homeTeamId
                       ? ev.team.id === homeTeamId
                       : false;
+                    // Own goals benefit the opposing team — show them on that side
+                    const isHomeEvent = isOwnGoal
+                      ? !eventFromHome
+                      : eventFromHome;
                     const isSubstitution = ev.type === "subst";
                     const subtext = getEventSubtext(ev.type, ev.detail);
 
@@ -476,29 +494,36 @@ export default function MatchTabs({
         )}
 
         {activeTab === "table" && (
-          <div className="w-full bg-custom-gray rounded-xl overflow-x-auto">
-            <Link
-              href={`/league/${leagueId}`}
-              className="flex items-center justify-center gap-3 py-4"
-            >
-              <div className="flex items-center gap-4 p-4 bg-custom-gray ">
-                {leagueLogo && (
-                  <Image
-                    src={leagueLogo}
-                    alt={leagueName || "League Logo"}
-                    width={50}
-                    height={50}
-                    className="object-contain w-15 h-15"
-                  />
-                )}
-                <div>
+          <div className="w-full bg-custom-gray rounded-xl overflow-hidden">
+            <Link href={`/league/${leagueId}`} className="block">
+              {isWorldCup ? (
+                <img
+                  src="/images/WC26.svg"
+                  alt="FIFA World Cup 2026"
+                  className="w-full h-auto object-cover"
+                />
+              ) : (
+                <div className="flex items-center gap-4 p-4">
+                  {leagueLogo && (
+                    <Image
+                      src={leagueLogo}
+                      alt={leagueName || "League Logo"}
+                      width={50}
+                      height={50}
+                      className="object-contain w-15 h-15"
+                    />
+                  )}
                   <h1 className="text-xl font-extrabold tracking-tight">
                     {leagueName}
                   </h1>
                 </div>
-              </div>
+              )}
             </Link>
-            <StandingsTable standings={standings} />
+            {isWorldCup ? (
+              <WorldCupGroups standings={groupStandings} />
+            ) : (
+              <StandingsTable standings={standings} />
+            )}
           </div>
         )}
       </div>

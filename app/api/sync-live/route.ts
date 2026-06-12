@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/server/supabase-admin";
 import { footballApi } from "@/lib/server/football-api";
 import { standardizeRound } from "@/lib/sync/standardizeRound";
+import { syncStandingsForLeague } from "@/lib/server/sync-league";
 import { LIVE_STATUSES } from "@/types/sports";
 import type { DbMatch } from "@/types/sports";
 import { guardRoute } from "@/lib/api-guard";
@@ -57,6 +58,8 @@ export async function GET(req: NextRequest) {
     .map((r) => r.id)
     .filter((id) => !currentlyLiveIds.has(id));
 
+  const affectedLeagues = new Map<number, number>(); // leagueId → season
+
   if (ghostIds.length > 0) {
     await Promise.all(
       ghostIds.map(async (id) => {
@@ -71,6 +74,7 @@ export async function GET(req: NextRequest) {
             is_live: false,
             updated_at: new Date().toISOString(),
           }).eq("id", id);
+          affectedLeagues.set(row.league.id, row.league.season);
         } else {
           await supabaseAdmin.from("matches").update({
             is_live: false,
@@ -82,8 +86,18 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  // 3. Refresh standings for every league that had a match finish
+  for (const [leagueId, season] of affectedLeagues) {
+    try {
+      await syncStandingsForLeague(leagueId, season);
+    } catch (e) {
+      console.error(`Failed to sync standings for league ${leagueId}:`, e);
+    }
+  }
+
   return NextResponse.json({
     live: liveFromApi.length,
     closed: ghostIds.length,
+    standings_synced: affectedLeagues.size,
   });
 }
