@@ -58,5 +58,8 @@
   "about": {
     "body": "Vaše posvećeno mjesto za fudbalske uvide. Ovdje smo da vam pomognemo pratiti omiljene klubove i ne propustiti nijedan ključni trenutak. Ponosni smo što ste dio naše zajednice. Hvala što nam dopuštate da vas informišemo.",
     "title": "O nama"
+  },
+  "teamPage": {
+    "pastMatches": "Prošle utakmice"
   }
 }

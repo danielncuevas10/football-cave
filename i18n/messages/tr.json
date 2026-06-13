@@ -58,5 +58,8 @@
   "about": {
     "body": "Futbol içerikleri için özel eviniz. En sevdiğiniz kulüpleri takip etmenize ve önemli anları kaçırmamanıza yardımcı olmak için buradayız. Topluluğumuzun bir parçası olduğunuz için gurur duyuyoruz. Sizi bilgi döngüsünde tutmamıza izin verdiğiniz için teşekkürler.",
     "title": "Hakkımızda"
+  },
+  "teamPage": {
+    "pastMatches": "Geçmiş maçlar"
   }
 }

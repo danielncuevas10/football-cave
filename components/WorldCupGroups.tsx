@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { DbStanding } from "@/types/sports";
 
 interface WorldCupGroupsProps {
@@ -75,7 +76,7 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
                         {team.rank}
                       </td>
                       <td className="px-2 py-2.5">
-                        <div className="flex items-center gap-2">
+                        <Link href={`/team/${team.team_id}`} className="flex items-center gap-2 hover:opacity-75 transition-opacity">
                           {team.team_logo && (
                             <Image
                               src={team.team_logo}
@@ -88,7 +89,7 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
                           <span className="truncate max-w-27.5 font-medium">
                             {team.team_name}
                           </span>
-                        </div>
+                        </Link>
                       </td>
                       <td className="px-2 py-2.5 text-center text-gray-400 font-mono">
                         {(() => {

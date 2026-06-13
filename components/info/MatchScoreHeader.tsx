@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useLiveMinute } from "@/hooks/useLiveMinute";
 import type {
@@ -74,6 +75,12 @@ function StatusLabel({
   );
 }
 
+function teamIdFromLogo(logo: string | null | undefined): number | null {
+  if (!logo) return null;
+  const m = logo.match(/\/teams\/(\d+)\.png$/);
+  return m ? parseInt(m[1]) : null;
+}
+
 export default function MatchScoreHeader({
   initialMatch,
   details,
@@ -134,58 +141,99 @@ export default function MatchScoreHeader({
         </p>
 
         <div className="grid grid-cols-3 gap-4 w-full">
-          <div className="flex items-center gap-3 flex-col">
-            <Image
-              src={match.home_logo || "/placeholder.png"}
-              alt=""
-              width={40}
-              height={40}
-              className="w-15 h-15 object-contain"
-            />
-            <span className="text-center text-sm leading-tight line-clamp-2">
-              {match.home_team}
-            </span>
-          </div>
+          {(() => {
+            const homeId = teamIdFromLogo(match.home_logo);
+            const awayId = teamIdFromLogo(match.away_logo);
+            const teamClass =
+              "flex items-center gap-3 flex-col hover:opacity-80 transition-opacity";
+            return (
+              <>
+                {homeId ? (
+                  <Link href={`/team/${homeId}`} className={teamClass}>
+                    <Image
+                      src={match.home_logo || "/placeholder.png"}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="w-15 h-15 object-contain"
+                    />
+                    <span className="text-center text-sm leading-tight line-clamp-2">
+                      {match.home_team}
+                    </span>
+                  </Link>
+                ) : (
+                  <div className={teamClass}>
+                    <Image
+                      src={match.home_logo || "/placeholder.png"}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="w-15 h-15 object-contain"
+                    />
+                    <span className="text-center text-sm leading-tight line-clamp-2">
+                      {match.home_team}
+                    </span>
+                  </div>
+                )}
 
-          <div className="flex items-center justify-center gap-2 flex-col text-center">
-            <div className="text-xl font-bold">
-              {isScheduled ? (
-                <span className="text-gray-300 text-sm font-medium">
-                  {formatKickoff(match.fixture_date)}
-                </span>
-              ) : hasScore ? (
-                <>
-                  {displayHome} – {displayAway}
-                </>
-              ) : (
-                <span className="text-gray-500 text-sm">–</span>
-              )}
-            </div>
-            {!match.is_live && FINISHED_STATUSES.includes(match.status) ? (
-              <span className="text-gray-400 text-xs uppercase tracking-wider">
-                Final Result
-              </span>
-            ) : (
-              <StatusLabel
-                status={match.status}
-                elapsed={match.elapsed}
-                fixtureDate={match.fixture_date}
-              />
-            )}
-          </div>
+                <div className="flex items-center justify-center gap-2 flex-col text-center">
+                  <div className="text-xl font-bold">
+                    {isScheduled ? (
+                      <span className="text-gray-300 text-sm font-medium">
+                        {formatKickoff(match.fixture_date)}
+                      </span>
+                    ) : hasScore ? (
+                      <>
+                        {displayHome} – {displayAway}
+                      </>
+                    ) : (
+                      <span className="text-gray-500 text-sm">–</span>
+                    )}
+                  </div>
+                  {!match.is_live &&
+                  FINISHED_STATUSES.includes(match.status) ? (
+                    <span className="text-gray-400 text-xs uppercase tracking-wider">
+                      Final Result
+                    </span>
+                  ) : (
+                    <StatusLabel
+                      status={match.status}
+                      elapsed={match.elapsed}
+                      fixtureDate={match.fixture_date}
+                    />
+                  )}
+                </div>
 
-          <div className="flex items-center gap-3 flex-col">
-            <Image
-              src={match.away_logo || "/placeholder.png"}
-              alt=""
-              width={40}
-              height={40}
-              className="w-15 h-15 object-contain"
-            />
-            <span className="text-center text-sm leading-tight line-clamp-2">
-              {match.away_team}
-            </span>
-          </div>
+                {awayId ? (
+                  <Link href={`/team/${awayId}`} className={teamClass}>
+                    <Image
+                      src={match.away_logo || "/placeholder.png"}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="w-15 h-15 object-contain"
+                    />
+                    <span className="text-center text-sm leading-tight line-clamp-2">
+                      {match.away_team}
+                    </span>
+                  </Link>
+                ) : (
+                  <div className={teamClass}>
+                    <Image
+                      src={match.away_logo || "/placeholder.png"}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="w-15 h-15 object-contain"
+                    />
+                    <span className="text-center text-sm leading-tight line-clamp-2">
+                      {match.away_team}
+                    </span>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

@@ -160,8 +160,9 @@ export default function MatchTabs({
     if (detail === "Penalty") return "Penalty";
     if (detail === "Own Goal") return "Own Goal";
     if (detail === "Missed Penalty") return "Miss P";
-    if (detail === "Penalty confirmed") return "Penalty";
-    if (detail === "Penalty awarded") return "Penalty VAR";
+    if (detail === "Penalty confirmed") return "Penalty awarded";
+    if (detail === "Penalty awarded") return "Penalty awarded";
+    if (detail === "Penalty cancelled") return "Pen. cancelled";
     return null;
   };
 
@@ -338,11 +339,11 @@ export default function MatchTabs({
 
                         {/* Second Half Starts Banner */}
                         {showHalfTimeBreak && (
-                          <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
+                          <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-500 tracking-widest border-b border-custom-gray/40">
                             <img
-                              src="/images/specs/clock.svg"
+                              src="/images/specs/final.svg"
                               alt=""
-                              className="w-3.5 h-3.5 object-contain"
+                              className="w-3 h-3 object-contain opacity-60"
                             />
                             <span>{tEv("secondHalfStarts")}</span>
                           </div>
@@ -522,11 +523,11 @@ export default function MatchTabs({
                           {getScoreAtMinute(45)}
                         </span>
                       </div>
-                      <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
+                      <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-500 tracking-widest border-b border-custom-gray/40">
                         <img
                           src="/images/specs/clock.svg"
                           alt=""
-                          className="w-3.5 h-3.5 object-contain"
+                          className="w-3 h-3 object-contain opacity-60"
                         />
                         <span>{tEv("secondHalfStarts")}</span>
                       </div>
@@ -576,6 +577,20 @@ export default function MatchTabs({
                   <span className="font-mono text-sm font-bold text-gray-200 mt-0.5">
                     0 – 0
                   </span>
+                </div>
+              </div>
+            ) : isLive ? (
+              <div className="bg-custom-gray-2 rounded-xl border border-custom-gray overflow-hidden">
+                <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
+                  <img
+                    src="/images/specs/clock.svg"
+                    alt=""
+                    className="w-3.5 h-3.5 object-contain"
+                  />
+                  <span>{tEv("matchStarted")}</span>
+                </div>
+                <div className="py-5 text-center text-[11px] text-gray-600 tracking-wider">
+                  {tEv("noNotableActions")}
                 </div>
               </div>
             ) : (

@@ -3,6 +3,7 @@
 import { League } from "@/types/sports";
 import type { DbStanding } from "@/types/sports";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Props {
   standings: DbStanding[];
@@ -89,7 +90,7 @@ export default function StandingsTable({ standings }: Props) {
                   {team.rank}
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
+                  <Link href={`/team/${team.team_id}`} className="flex items-center gap-3 hover:opacity-75 transition-opacity">
                     {team.team_logo && (
                       <Image
                         src={team.team_logo}
@@ -102,7 +103,7 @@ export default function StandingsTable({ standings }: Props) {
                     <span className="font-light text-sm text-gray-100">
                       {team.team_name}
                     </span>
-                  </div>
+                  </Link>
                 </td>
                 <td className="px-3 py-3 text-center font-mono">
                   {team.played}

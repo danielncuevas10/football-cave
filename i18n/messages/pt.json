@@ -58,5 +58,8 @@
   "about": {
     "body": "O seu espaço dedicado ao futebol. Estamos aqui para ajudá-lo a acompanhar os seus clubes favoritos e nunca perder um momento decisivo. Temos orgulho em tê-lo na nossa comunidade. Obrigado por nos deixar mantê-lo informado.",
     "title": "Sobre nós"
+  },
+  "teamPage": {
+    "pastMatches": "Jogos anteriores"
   }
 }

@@ -6,16 +6,17 @@ export default function BackButton() {
   const router = useRouter();
 
   const handleBack = () => {
-    // 1. Check if the user has history AND came from your own website domain
+    window.dispatchEvent(new CustomEvent("nav-start"));
+
     const hasInternalHistory =
       typeof window !== "undefined" &&
       window.history.length > 1 &&
       document.referrer.startsWith(window.location.origin);
 
     if (hasInternalHistory) {
-      router.back(); // Take them one page behind naturally
+      router.back();
     } else {
-      router.push("/"); // Safeguard: Send them straight to the main page
+      router.push("/");
     }
   };
 

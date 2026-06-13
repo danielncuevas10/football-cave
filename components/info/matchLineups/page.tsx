@@ -36,6 +36,16 @@ export default function MatchCenterLinenups({ details }: DetailsProps) {
     );
   }
 
+  // Build substitution maps from events so we can annotate players
+  const subbedOut = new Map<number, number>(); // playerId → minute
+  const subbedIn = new Map<number, number>();  // playerId → minute
+  details.events?.forEach((ev) => {
+    if (ev.type === "subst") {
+      subbedOut.set(ev.player.id, ev.time.elapsed);
+      if (ev.assist.id != null) subbedIn.set(ev.assist.id, ev.time.elapsed);
+    }
+  });
+
   return (
     <div className="space-y-6 w-full text-white">
       <div className="bg-custom-gray-2 rounded-xl border border-custom-gray overflow-hidden">
@@ -84,19 +94,32 @@ export default function MatchCenterLinenups({ details }: DetailsProps) {
                         };
                       },
                       playerIdx: number
-                    ) => (
-                      <li
-                        key={playerIdx}
-                        className="flex gap-2 py-1 last:border-0 items-center"
-                      >
-                        <span className="text-gray-400 w-5 text-right text-[11px]">
-                          {item.player.number}
-                        </span>
-                        <span className="font-medium text-gray-200">
-                          {item.player.name}
-                        </span>
-                      </li>
-                    )
+                    ) => {
+                      const outMinute = subbedOut.get(item.player.id);
+                      return (
+                        <li
+                          key={playerIdx}
+                          className="flex gap-2 py-1 last:border-0 items-center"
+                        >
+                          <span className="text-gray-400 w-5 text-right text-[11px]">
+                            {item.player.number}
+                          </span>
+                          <span className={`font-medium min-w-0 flex-1 truncate ${outMinute !== undefined ? "text-gray-400" : "text-gray-200"}`}>
+                            {item.player.name}
+                          </span>
+                          {outMinute !== undefined && (
+                            <span className="flex items-center gap-0.5 ml-auto shrink-0">
+                              <span className="text-[10px] text-gray-500">{outMinute}′</span>
+                              <img
+                                src="/images/specs/out.svg"
+                                alt="subbed out"
+                                className="w-3 h-3 object-contain"
+                              />
+                            </span>
+                          )}
+                        </li>
+                      );
+                    }
                   )}
                 </ul>
               </div>
@@ -124,19 +147,32 @@ export default function MatchCenterLinenups({ details }: DetailsProps) {
                         };
                       },
                       subIdx: number
-                    ) => (
-                      <li
-                        key={subIdx}
-                        className="flex gap-2 py-1 border-b border-gray-800/20 last:border-0 items-center"
-                      >
-                        <span className="text-gray-400 w-5 text-right text-[11px]">
-                          {item.player.number}
-                        </span>
-                        <span className="text-gray-300">
-                          {item.player.name}
-                        </span>
-                      </li>
-                    )
+                    ) => {
+                      const inMinute = subbedIn.get(item.player.id);
+                      return (
+                        <li
+                          key={subIdx}
+                          className="flex gap-2 py-1 border-b border-gray-800/20 last:border-0 items-center"
+                        >
+                          <span className="text-gray-400 w-5 text-right text-[11px]">
+                            {item.player.number}
+                          </span>
+                          <span className={`min-w-0 flex-1 truncate ${inMinute !== undefined ? "text-gray-200 font-medium" : "text-gray-300"}`}>
+                            {item.player.name}
+                          </span>
+                          {inMinute !== undefined && (
+                            <span className="flex items-center gap-0.5 ml-auto shrink-0">
+                              <span className="text-[10px] text-gray-500">{inMinute}′</span>
+                              <img
+                                src="/images/specs/in.svg"
+                                alt="subbed in"
+                                className="w-3 h-3 object-contain"
+                              />
+                            </span>
+                          )}
+                        </li>
+                      );
+                    }
                   )}
                 </ul>
               </div>

@@ -13,9 +13,34 @@ export interface MatchDetailsResult {
   referee: string | null;
 }
 
-export async function getMatchDetails(matchId: number): Promise<MatchDetailsResult> {
-  // Always call the lightweight endpoint first — it's the only source of venue + referee.
-  // Also syncs the current score so any display lag is resolved on first render.
+export async function getMatchDetails(
+  matchId: number,
+  knownStatus?: string
+): Promise<MatchDetailsResult> {
+  const isKnownFinished = !!knownStatus && FINISHED_STATUSES.includes(knownStatus);
+
+  // For finished matches, check Supabase cache BEFORE hitting the API.
+  // The score, status, and event data never change after full-time, so if
+  // we already have lineup/stats data cached we can skip the API call entirely.
+  if (isKnownFinished) {
+    const { data: cached } = await supabase
+      .from("match_details")
+      .select("*")
+      .eq("match_id", matchId)
+      .single();
+
+    const hasData =
+      cached &&
+      (cached.lineups?.length > 0 || cached.statistics?.length > 0);
+
+    if (hasData) {
+      // Finished + full data in cache — zero API calls needed.
+      return { details: cached, venueName: null, venueCity: null, referee: null };
+    }
+  }
+
+  // Live / upcoming match, OR finished match with no cached detail yet:
+  // call the lightweight endpoint to sync the current score and get venue/referee.
   const basicData = await footballApi.getMatchById(matchId);
   const basicRow = basicData?.response?.[0];
 
@@ -39,7 +64,7 @@ export async function getMatchDetails(matchId: number): Promise<MatchDetailsResu
       .eq("id", matchId);
   }
 
-  // Check the cache for full details (events / lineups / statistics).
+  // Check full-details cache (events / lineups / statistics).
   const { data: cached } = await supabase
     .from("match_details")
     .select("*")
@@ -47,24 +72,18 @@ export async function getMatchDetails(matchId: number): Promise<MatchDetailsResu
     .single();
 
   if (cached) {
-    const { data: mainMatch } = await supabase
-      .from("matches")
-      .select("status")
-      .eq("id", matchId)
-      .single();
-
-    const isFinished = FINISHED_STATUSES.includes(mainMatch?.status ?? "");
+    const statusFromApi = basicRow?.fixture?.status?.short ?? knownStatus ?? "";
+    const isFinished = FINISHED_STATUSES.includes(statusFromApi);
     const hasData = cached.lineups?.length > 0 || cached.statistics?.length > 0;
     const cacheAgeMs = Date.now() - new Date(cached.updated_at).getTime();
     const isFresh = cacheAgeMs < CACHE_TTL_MS;
 
-    // Only trust the cache for finished matches if it actually has lineup/stats data.
     if ((isFinished && hasData) || isFresh) {
       return { details: cached, venueName, venueCity, referee };
     }
   }
 
-  // Fetch full details (events / lineups / statistics).
+  // Cache miss or stale — fetch full details from the API.
   const fresh = await footballApi.getMatchDetails(matchId);
   if (!fresh) return { details: cached ?? null, venueName, venueCity, referee };
 
