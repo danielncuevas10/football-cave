@@ -10,7 +10,8 @@
     "stats": "Statistiques",
     "lineups": "Compositions",
     "standings": "Classement",
-    "noInfo": "Pas d'information encore"
+    "noInfo": "Pas d'information encore",
+    "venue": "Lieu"
   },
   "matchEvents": {
     "matchStarted": "Match commencé",
@@ -41,7 +42,7 @@
     "days": "J",
     "hours": "H",
     "minutes": "M",
-    "followNews": "Suivez les dernières nouvelles de la Coupe du Monde",
+    "followNews": "Suivez les derniers matchs",
     "worldCup": "Coupe du Monde 2026"
   },
   "statLabels": {
@@ -53,5 +54,9 @@
     "totalPasses": "Passes totales",
     "passesPercent": "Passes %",
     "goalkeeperSaves": "Arrêts du gardien"
+  },
+  "about": {
+    "body": "Votre espace dédié au football. Nous sommes là pour vous aider à suivre vos clubs préférés et ne jamais manquer un moment décisif. Nous sommes fiers de vous compter dans notre communauté. Merci de nous faire confiance.",
+    "title": "À propos de nous"
   }
 }

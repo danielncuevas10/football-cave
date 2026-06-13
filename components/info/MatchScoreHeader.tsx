@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { useLiveMinute } from "@/hooks/useLiveMinute";
-import type { DbMatch, DbMatchDetails, FixtureStatus, MatchEvent } from "@/types/sports";
+import type {
+  DbMatch,
+  DbMatchDetails,
+  FixtureStatus,
+  MatchEvent,
+} from "@/types/sports";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
@@ -58,9 +63,7 @@ function StatusLabel({
     );
 
   if (status === "1H" || status === "2H" || status === "ET")
-    return (
-      <span className="text-[#00A800] text-xs font-mono">{minute}′</span>
-    );
+    return <span className="text-[#00A800] text-xs font-mono">{minute}′</span>;
 
   if (status === "NS" || status === "TBD") return null;
 
@@ -120,7 +123,7 @@ export default function MatchScoreHeader({
   const hasScore = displayHome !== null && displayAway !== null;
 
   return (
-    <div className="mt-2 p-6 bg-[#313131] rounded-xl">
+    <div className="px-6 py-8 bg-[#313131]">
       <div className="flex flex-col items-center gap-6 w-full">
         <p className="font-light text-sm text-gray-400">
           {new Date(match.fixture_date).toLocaleDateString("en-US", {
@@ -139,7 +142,7 @@ export default function MatchScoreHeader({
               height={40}
               className="w-15 h-15 object-contain"
             />
-            <span className="truncate max-w-30 text-center text-sm">
+            <span className="text-center text-sm leading-tight line-clamp-2">
               {match.home_team}
             </span>
           </div>
@@ -179,7 +182,7 @@ export default function MatchScoreHeader({
               height={40}
               className="w-15 h-15 object-contain"
             />
-            <span className="truncate max-w-30 text-center text-sm">
+            <span className="text-center text-sm leading-tight line-clamp-2">
               {match.away_team}
             </span>
           </div>

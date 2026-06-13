@@ -10,7 +10,8 @@
     "stats": "İstatistikler",
     "lineups": "Kadrolar",
     "standings": "Puan Durumu",
-    "noInfo": "Henüz bilgi yok"
+    "noInfo": "Henüz bilgi yok",
+    "venue": "Mekan"
   },
   "matchEvents": {
     "matchStarted": "Maç başladı",
@@ -41,7 +42,7 @@
     "days": "G",
     "hours": "S",
     "minutes": "D",
-    "followNews": "Dünya Kupası haberlerini takip edin",
+    "followNews": "En son maçları takip edin",
     "worldCup": "2026 Dünya Kupası"
   },
   "statLabels": {
@@ -53,5 +54,9 @@
     "totalPasses": "Toplam Pas",
     "passesPercent": "Pas %",
     "goalkeeperSaves": "Kaleci Kurtarışı"
+  },
+  "about": {
+    "body": "Futbol içerikleri için özel eviniz. En sevdiğiniz kulüpleri takip etmenize ve önemli anları kaçırmamanıza yardımcı olmak için buradayız. Topluluğumuzun bir parçası olduğunuz için gurur duyuyoruz. Sizi bilgi döngüsünde tutmamıza izin verdiğiniz için teşekkürler.",
+    "title": "Hakkımızda"
   }
 }

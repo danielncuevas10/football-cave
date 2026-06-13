@@ -20,7 +20,11 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
   const multiGroup = sortedGroups.length > 1;
 
   return (
-    <div className={`grid gap-4 w-full ${multiGroup ? "sm:grid-cols-2" : "grid-cols-1"}`}>
+    <div
+      className={`grid gap-4 w-full ${
+        multiGroup ? "sm:grid-cols-2" : "grid-cols-1"
+      }`}
+    >
       {sortedGroups.map((groupName) => {
         const teams = grouped[groupName].sort((a, b) => a.rank - b.rank);
         // Extract just the letter: "Group A" → "A", or use as-is
@@ -29,7 +33,7 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
         return (
           <div
             key={groupName}
-            className="bg-custom-gray border border-custom-gray-2 rounded-xl overflow-hidden"
+            className="bg-custom-gray border border-custom-gray-2 rounded-md overflow-hidden"
           >
             <table className="w-full text-xs text-gray-200 bg-custom-gray-2">
               {/* Column headers */}
@@ -39,8 +43,11 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
                   <th className="px-2 py-3 text-left text-white font-black tracking-widest">
                     Group {letter}
                   </th>
-                  <th className="px-2 py-2 text-center w-8" title="Goals For">
-                    GF
+                  <th
+                    className="px-2 py-2 text-center w-8"
+                    title="Goal Difference"
+                  >
+                    GD
                   </th>
                   <th
                     className="px-2 py-2 text-center w-8"
@@ -61,7 +68,7 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
                     <tr
                       key={team.team_id}
                       className={`hover:bg-gray-800/20 transition-colors ${
-                        advances ? "shadow-[inset_3px_0_0_#4ade80]" : ""
+                        advances ? "shadow-[inset_1.5px_0_0_#4ade80]" : ""
                       }`}
                     >
                       <td className="px-3 py-2.5 text-center font-bold text-gray-500">
@@ -84,7 +91,11 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
                         </div>
                       </td>
                       <td className="px-2 py-2.5 text-center text-gray-400 font-mono">
-                        {team.goals_for ?? 0}
+                        {(() => {
+                          const gd =
+                            (team.goals_for ?? 0) - (team.goals_against ?? 0);
+                          return gd > 0 ? `+${gd}` : gd;
+                        })()}
                       </td>
                       <td className="px-2 py-2.5 text-center text-gray-400 font-mono">
                         {team.played}

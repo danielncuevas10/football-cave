@@ -10,7 +10,8 @@
     "stats": "Statistika",
     "lineups": "Postave",
     "standings": "Tabela",
-    "noInfo": "Nema informacija još"
+    "noInfo": "Nema informacija još",
+    "venue": "Stadion"
   },
   "matchEvents": {
     "matchStarted": "Utakmica počela",
@@ -41,7 +42,7 @@
     "days": "D",
     "hours": "S",
     "minutes": "M",
-    "followNews": "Pratite najnovije vijesti o Svjetskom kupu",
+    "followNews": "Pratite najnovije utakmice",
     "worldCup": "Svjetski kup 2026"
   },
   "statLabels": {
@@ -53,5 +54,9 @@
     "totalPasses": "Ukupne dodavanja",
     "passesPercent": "Dodavanja %",
     "goalkeeperSaves": "Obrane golmana"
+  },
+  "about": {
+    "body": "Vaše posvećeno mjesto za fudbalske uvide. Ovdje smo da vam pomognemo pratiti omiljene klubove i ne propustiti nijedan ključni trenutak. Ponosni smo što ste dio naše zajednice. Hvala što nam dopuštate da vas informišemo.",
+    "title": "O nama"
   }
 }

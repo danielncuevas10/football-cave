@@ -10,7 +10,8 @@
     "stats": "数据",
     "lineups": "阵容",
     "standings": "积分榜",
-    "noInfo": "暂无信息"
+    "noInfo": "暂无信息",
+    "venue": "场地"
   },
   "matchEvents": {
     "matchStarted": "比赛开始",
@@ -41,7 +42,7 @@
     "days": "天",
     "hours": "时",
     "minutes": "分",
-    "followNews": "关注世界杯最新消息",
+    "followNews": "关注最新比赛",
     "worldCup": "2026年世界杯"
   },
   "statLabels": {
@@ -53,5 +54,9 @@
     "totalPasses": "总传球",
     "passesPercent": "传球成功率",
     "goalkeeperSaves": "门将扑救"
+  },
+  "about": {
+    "body": "您专属的足球资讯家园。我们致力于帮助您关注最爱的球队，不错过任何关键时刻。很自豪您成为我们社区的一员。感谢您让我们为您传递最新资讯。",
+    "title": "关于我们"
   }
 }

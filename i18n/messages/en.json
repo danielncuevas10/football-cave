@@ -10,7 +10,8 @@
     "stats": "Stats",
     "lineups": "Lineups",
     "standings": "Standings",
-    "noInfo": "No information yet"
+    "noInfo": "No information yet",
+    "venue": "Venue"
   },
   "matchEvents": {
     "matchStarted": "Match Started",
@@ -41,7 +42,7 @@
     "days": "D",
     "hours": "H",
     "minutes": "M",
-    "followNews": "Follow the latest World Cup news",
+    "followNews": "Follow the latest matches",
     "worldCup": "World Cup 2026"
   },
   "statLabels": {
@@ -53,5 +54,9 @@
     "totalPasses": "Total passes",
     "passesPercent": "Passes %",
     "goalkeeperSaves": "Goalkeeper Saves"
+  },
+  "about": {
+    "body": "Your dedicated home for football insights. We're here to help you follow your favorite clubs and never miss a defining moment. We're proud to have you as part of our community. Thanks for letting us keep you in the loop.",
+    "title": "About Us"
   }
 }

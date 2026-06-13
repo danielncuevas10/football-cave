@@ -5,7 +5,7 @@ export const revalidate = 300; // re-render with fresh standings every 5 minutes
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import LeagueTabs from "@/components/info/LeagueTabs";
-import { getOrSyncLeagueData, syncStandingsForLeague } from "@/lib/server/sync-league";
+import { getOrSyncLeagueData, syncStandingsForLeague, syncScorersForLeague, syncScorersFromEvents } from "@/lib/server/sync-league";
 import { League } from "@/types/sports";
 import { isTournamentLeague } from "@/lib/tournament/isTournamentLeague";
 
@@ -81,15 +81,29 @@ export default async function LeaguePage({ params }: PageProps) {
           .eq("season", season)
           .order("rank", { ascending: true });
 
+  // World Cup scorers are stored under the current calendar year (2026),
+  // not the cross-year season returned by getCurrentSeason() (2025 in June).
+  const scorersQuery =
+    leagueId === League.WorldCup
+      ? supabase
+          .from("top_scorers")
+          .select("*")
+          .eq("league_id", leagueId)
+          .gt("goals", 0)
+          .order("goals", { ascending: false })
+          .limit(20)
+      : supabase
+          .from("top_scorers")
+          .select("*")
+          .eq("league_id", leagueId)
+          .eq("season", season)
+          .gt("goals", 0)
+          .order("goals", { ascending: false })
+          .limit(20);
+
   const [standingsResult, scorersResult, matchesResult] = await Promise.all([
     standingsQuery,
-    supabase
-      .from("top_scorers")
-      .select("*")
-      .eq("league_id", leagueId)
-      .eq("season", season)
-      .order("goals", { ascending: false })
-      .limit(20),
+    scorersQuery,
     supabase
       .from("matches")
       .select("*")
@@ -107,7 +121,7 @@ export default async function LeaguePage({ params }: PageProps) {
       ? (standings[0]?.season ?? new Date().getFullYear())
       : season;
 
-  const STALE_AFTER_MS = 2 * 60 * 60 * 1000; // 2 hours
+  const STALE_AFTER_MS = 30 * 60 * 1000; // 30 minutes
 
   if (standings.length === 0) {
     // Initial load — fetch everything from the API and seed the DB
@@ -136,6 +150,30 @@ export default async function LeaguePage({ params }: PageProps) {
     }
   }
 
+  // Sync scorers when missing or stale (same 30-min threshold as standings)
+  let scorers = scorersResult.data ?? [];
+  const scorersSyncSeason =
+    leagueId === League.WorldCup
+      ? (scorers[0]?.season ?? standings[0]?.season ?? new Date().getFullYear())
+      : season;
+
+  if (scorers.length === 0) {
+    await syncScorersFromEvents(leagueId, scorersSyncSeason);
+    await syncScorersForLeague(leagueId, scorersSyncSeason);
+    const { data: fresh } = await scorersQuery;
+    if (fresh?.length) scorers = fresh;
+  } else {
+    const latestScorersUpdate = Math.max(
+      ...scorers.map((s) => new Date(s.updated_at).getTime())
+    );
+    if (Date.now() - latestScorersUpdate > STALE_AFTER_MS) {
+      await syncScorersFromEvents(leagueId, scorersSyncSeason);
+      await syncScorersForLeague(leagueId, scorersSyncSeason);
+      const { data: fresh } = await scorersQuery;
+      if (fresh?.length) scorers = fresh;
+    }
+  }
+
   if (!standings.length && !matchesResult.data?.length) {
     notFound();
   }
@@ -144,7 +182,7 @@ export default async function LeaguePage({ params }: PageProps) {
     <main className="max-w-3xl bg-[#1B1B1B] mx-auto p-6 text-white min-h-screen">
       <LeagueTabs
         standings={standings}
-        scorers={scorersResult.data ?? []}
+        scorers={scorers}
         matches={matchesResult.data ?? []}
         leagueName={meta.name}
         leagueLogo={meta.logo}

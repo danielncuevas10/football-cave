@@ -1,10 +1,12 @@
 # Football Cave
 
-**Football API Dashboard** is a premium, data-driven analytics platform designed for football enthusiasts and analysts. Moving away from cluttered, generic sports portals, this project delivers a highly curated, desktop-first interface that visualizes real-time match statistics, league standings, and player performance metrics with fluid, high-fidelity interactions.
+**Football Cave** is a clean, ultra-responsive dashboard built for fans and analysts who want real-time sports data without the typical ad-heavy, cluttered sports layout.
+
+Designed with a strict mobile-first philosophy, it transforms raw data streams into sharp, structured visuals—built specifically to handle massive multi-group events like the 48-team 2026 World Cup stage alongside standard domestic leagues.
 
 ## The Goal
 
-The objective was to transform raw, complex sports data streams into an intuitive and visually striking intelligence pipeline. By decoupling the frontend from the data source, I gained total control over the user experience—implementing custom real-time polling, advanced data filtering, and high-performance micro-interactions that keep the interface feeling alive.
+The goal was to take messy, deeply nested sports API data and turn it into a beautiful, organized intelligence layer. By pulling data into a custom backend system, I gained complete control over the user experience. This allowed me to create automated background updates, custom group stage logic, and smooth interactive elements that make the entire dashboard feel alive and responsive.
 
 ## Process
 
@@ -19,14 +21,15 @@ The objective was to transform raw, complex sports data streams into an intuitiv
 - **API-Football / Football Data API** — The core RESTful data engine powering live fixtures and historical metrics.
 - **TypeScript** — Ensuring rigorous type safety across complex nested sports data structures.
 - **Tailwind CSS** — Utility-first styling optimized for an expansive, desktop-first dashboard grid.
-- **Lucide React** — Crisp, scalable vector iconography for sports metrics and telemetry.
+- **Supabase** — Modern PostgreSQL database storage used for robust row caching and unique constraints mapping.
 - **Vercel** — Production-grade hosting with real-time edge caching for API responses.
 
 ## Key Features
 
+- **Complete World Cup Tracking:** Handles advanced tournament formats, mapping out all 12 group phases dynamically and building accurate knock-out trees.
 - **Real-Time Data Pipeline:** Automated polling mechanisms that fetch, normalize, and render live match data with zero perceived latency.
 - **Advanced Match Filtering:** A bespoke desktop layout allowing users to instantly filter live matches by league, status, or statistical variance.
-- **Desktop-First Architecture:** A robust, wide-screen dashboard layout that maximizes data density while gracefully adapting to smaller breakpoints.
+- **Mobile-First Architecture:** A robust, mobile-screen dashboard layout that maximizes data density while gracefully adapting to bigger breakpoints.
 
 ## License
 

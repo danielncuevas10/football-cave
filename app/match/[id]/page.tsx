@@ -1,3 +1,5 @@
+export const revalidate = 300; // re-render at most every 5 minutes
+
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import MatchTabs from "@/components/info/MatchTabs";
@@ -16,7 +18,7 @@ function getCurrentSeason(leagueId: number): number {
 export default async function MatchDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
   const matchId = parseInt(id);
@@ -49,7 +51,7 @@ export default async function MatchDetailsPage({
           .eq("season", currentSeason)
           .order("rank", { ascending: true });
 
-  const [standingsResult, { scorers }, details] = await Promise.all([
+  const [standingsResult, { scorers }, { details, venueName, venueCity, referee }] = await Promise.all([
     standingsQuery,
     getOrSyncLeagueData(initialMatch.league_id, currentSeason),
     getMatchDetails(matchId),
@@ -66,12 +68,15 @@ export default async function MatchDetailsPage({
     .single();
 
   return (
-    <main className="max-w-3xl bg-[#1B1B1B] mx-auto p-6 text-white space-y-6">
-      <div className="flex justify-start">
+    <main className="max-w-3xl bg-[#1B1B1B] mx-auto py-4 text-white space-y-6">
+      <div className="flex justify-start px-4">
         <BackButton />
       </div>
 
-      <MatchScoreHeader initialMatch={match ?? initialMatch} details={details} />
+      <MatchScoreHeader
+        initialMatch={match ?? initialMatch}
+        details={details}
+      />
 
       <MatchTabs
         details={details}
@@ -81,6 +86,11 @@ export default async function MatchDetailsPage({
         leagueLogo={initialMatch.league_logo}
         leagueId={initialMatch.league_id}
         matchId={matchId}
+        homeTeamName={initialMatch.home_team}
+        awayTeamName={initialMatch.away_team}
+        venueName={venueName}
+        venueCity={venueCity}
+        referee={referee}
         initialIsLive={(match ?? initialMatch).is_live}
         initialStatus={(match ?? initialMatch).status}
       />

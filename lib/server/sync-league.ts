@@ -42,6 +42,125 @@ export async function syncStandingsForLeague(leagueId: number, season: number): 
     .upsert(dbRows, { onConflict: "team_id,league_id,season" });
 }
 
+// Build top scorers from events+lineups already stored in match_details.
+// Always up-to-date — doesn't depend on the slow /players/topscorers API endpoint.
+export async function syncScorersFromEvents(leagueId: number, season: number): Promise<void> {
+  const { data: matches } = await supabaseAdmin
+    .from("matches")
+    .select("id")
+    .eq("league_id", leagueId)
+    .in("status", ["FT", "AET", "PEN"]);
+
+  if (!matches?.length) return;
+
+  const { data: detailRows } = await supabaseAdmin
+    .from("match_details")
+    .select("events, lineups")
+    .in("match_id", matches.map((m) => m.id));
+
+  if (!detailRows?.length) return;
+
+  type PlayerEntry = { name: string; teamName: string; goals: number; assists: number; appearances: number };
+  const playerMap = new Map<number, PlayerEntry>();
+
+  for (const detail of detailRows) {
+    // Count appearances: players who started (startXI) get +1
+    for (const lineup of (detail.lineups ?? [])) {
+      for (const slot of (lineup.startXI ?? [])) {
+        const pid = slot.player?.id;
+        if (!pid || pid <= 0) continue;
+        const e = playerMap.get(pid) ?? { name: slot.player.name, teamName: lineup.team.name, goals: 0, assists: 0, appearances: 0 };
+        e.appearances++;
+        playerMap.set(pid, e);
+      }
+    }
+
+    for (const ev of (detail.events ?? [])) {
+      // Substitutes who came on also get an appearance
+      if (ev.type === "subst") {
+        const pid = ev.assist?.id; // assist = incoming player
+        if (pid && pid > 0) {
+          const e = playerMap.get(pid) ?? { name: ev.assist?.name ?? "", teamName: ev.team.name, goals: 0, assists: 0, appearances: 0 };
+          e.appearances++;
+          playerMap.set(pid, e);
+        }
+        continue;
+      }
+
+      if (ev.type !== "Goal") continue;
+      if (ev.detail === "Missed Penalty" || ev.detail === "Own Goal") continue;
+
+      const pid = ev.player?.id;
+      if (!pid || pid <= 0) continue;
+      const e = playerMap.get(pid) ?? { name: ev.player.name, teamName: ev.team.name, goals: 0, assists: 0, appearances: 0 };
+      e.goals++;
+      playerMap.set(pid, e);
+
+      const aid = ev.assist?.id;
+      if (aid && aid > 0) {
+        const a = playerMap.get(aid) ?? { name: ev.assist?.name ?? "", teamName: ev.team.name, goals: 0, assists: 0, appearances: 0 };
+        a.assists++;
+        playerMap.set(aid, a);
+      }
+    }
+  }
+
+  // Only persist players who scored at least one goal
+  const scorers = Array.from(playerMap.entries()).filter(([, d]) => d.goals > 0);
+  if (!scorers.length) return;
+
+  // Preserve existing player_photo values
+  const { data: existing } = await supabaseAdmin
+    .from("top_scorers")
+    .select("player_id, player_photo")
+    .eq("league_id", leagueId)
+    .eq("season", season);
+
+  const photoMap = new Map((existing ?? []).map((r) => [r.player_id, r.player_photo]));
+  const now = new Date().toISOString();
+
+  const rows = scorers.map(([playerId, data]) => ({
+    player_id: playerId,
+    player_name: data.name,
+    player_photo: photoMap.get(playerId) ?? null,
+    team_name: data.teamName,
+    goals: data.goals,
+    assists: data.assists,
+    appearances: data.appearances,
+    league_id: leagueId,
+    season,
+    updated_at: now,
+  }));
+
+  await supabaseAdmin
+    .from("top_scorers")
+    .upsert(rows, { onConflict: "player_id,league_id,season" });
+}
+
+export async function syncScorersForLeague(leagueId: number, season: number): Promise<void> {
+  const freshScorers = await footballApi.topScorers(leagueId, season);
+  if (!freshScorers?.response?.length) return;
+
+  const dbRows: Omit<DbTopScorer, "updated_at">[] = freshScorers.response.map((row: any) => ({
+    player_id: row.player.id,
+    player_name: row.player.name,
+    player_photo: row.player.photo || null,
+    team_name: row.statistics[0]?.team.name || "Unknown",
+    goals: row.statistics[0]?.goals.total ?? 0,
+    assists: row.statistics[0]?.goals.assists ?? 0,
+    appearances: row.statistics[0]?.games.appearences ?? 0,
+    league_id: leagueId,
+    season,
+  }));
+
+  await supabaseAdmin
+    .from("top_scorers")
+    .upsert(
+      dbRows.map((r) => ({ ...r, updated_at: new Date().toISOString() })),
+      { onConflict: "player_id,league_id,season" }
+    );
+}
+
 export async function getOrSyncLeagueData(leagueId: number, season: number) {
   // 1. Check if standings already exist in the database
   const { data: cachedStandings } = await supabase

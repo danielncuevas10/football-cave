@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import ScoreList from "@/components/ScoreList";
+import About from "@/components/About";
 import { supabaseAdmin } from "@/lib/server/supabase-admin";
 import { footballApi } from "@/lib/server/football-api";
 import type { DbMatch } from "@/types/sports";
@@ -71,16 +72,19 @@ export default async function HomePage() {
   const initialMatches = await getInitialMatches();
 
   return (
-    <div className="min-h-screen bg-[#1B1B1B] text-white">
-      <main className="max-w-3xl mx-auto px-4 pt-6 pb-16">
-        <Suspense
-          fallback={
-            <div className="text-gray-400 text-sm p-4">Loading matches…</div>
-          }
-        >
-          <ScoreList initialMatches={initialMatches} />
-        </Suspense>
-      </main>
-    </div>
+    <>
+      <div className="min-h-screen bg-[#1B1B1B] text-white">
+        <main className="max-w-3xl mx-auto px-4 pt-6 pb-6">
+          <Suspense
+            fallback={
+              <div className="text-gray-400 text-sm p-4">Loading matches…</div>
+            }
+          >
+            <ScoreList initialMatches={initialMatches} />
+          </Suspense>
+        </main>
+      </div>
+      <About />
+    </>
   );
 }

@@ -10,7 +10,8 @@
     "stats": "統計",
     "lineups": "スターティング",
     "standings": "順位表",
-    "noInfo": "情報はまだありません"
+    "noInfo": "情報はまだありません",
+    "venue": "会場"
   },
   "matchEvents": {
     "matchStarted": "試合開始",
@@ -41,7 +42,7 @@
     "days": "日",
     "hours": "時",
     "minutes": "分",
-    "followNews": "ワールドカップの最新情報をフォロー",
+    "followNews": "最新の試合をフォロー",
     "worldCup": "2026 FIFAワールドカップ"
   },
   "statLabels": {
@@ -53,5 +54,9 @@
     "totalPasses": "総パス数",
     "passesPercent": "パス成功率",
     "goalkeeperSaves": "GKセーブ"
+  },
+  "about": {
+    "body": "フットボールインサイトのための専用ホーム。お気に入りのクラブをフォローし、決定的な瞬間を見逃さないようサポートします。私たちのコミュニティの一員であることを誇りに思います。情報をお届けさせていただき、ありがとうございます。",
+    "title": "私たちについて"
   }
 }

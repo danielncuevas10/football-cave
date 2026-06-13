@@ -46,7 +46,7 @@ export default function LeagueTabs({
     <div className="space-y-6 w-full text-white">
       {/* Header */}
       {leagueId === League.WorldCup ? (
-        <div className="w-full rounded-xl overflow-hidden border border-custom-gray-2">
+        <div className="-mx-6 mt-1 overflow-hidden">
           <img
             src="/images/WC26.svg"
             alt="FIFA World Cup 2026"
@@ -73,14 +73,14 @@ export default function LeagueTabs({
       )}
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-custom-gray bg-custom-gray rounded-lg overflow-hidden">
+      <div className="flex overflow-hidden">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 text-center py-3 text-xs uppercase font-bold tracking-wider border-b transition-all duration-200 ${
+              className={`flex-1 text-center py-3 text-xs font-light tracking-wider border-b transition-all duration-200 ${
                 isActive
                   ? "border-white text-white"
                   : "border-transparent text-gray-400 hover:text-white hover:bg-gray-900/30"
@@ -94,7 +94,11 @@ export default function LeagueTabs({
 
       {/* Panels — stacked in the same grid cell so width never changes on tab switch */}
       <div className="grid w-full">
-        <div className={`col-start-1 row-start-1 w-full ${activeTab === "table" ? "" : "h-0 overflow-hidden"}`}>
+        <div
+          className={`col-start-1 row-start-1 w-full ${
+            activeTab === "table" ? "" : "h-0 overflow-hidden"
+          }`}
+        >
           {leagueId === League.WorldCup ? (
             <WorldCupGroups standings={standings} />
           ) : (
@@ -102,12 +106,20 @@ export default function LeagueTabs({
           )}
         </div>
 
-        <div className={`col-start-1 row-start-1 w-full ${activeTab === "scorers" ? "" : "h-0 overflow-hidden"}`}>
+        <div
+          className={`col-start-1 row-start-1 w-full ${
+            activeTab === "scorers" ? "" : "h-0 overflow-hidden"
+          }`}
+        >
           <TopScorers scorers={scorers ?? []} />
         </div>
 
         {isTournament && (
-          <div className={`col-start-1 row-start-1 w-full ${activeTab === "matches" ? "" : "h-0 overflow-hidden"}`}>
+          <div
+            className={`col-start-1 row-start-1 w-full ${
+              activeTab === "matches" ? "" : "h-0 overflow-hidden"
+            }`}
+          >
             <TournamentMatchesByDay matches={matches} />
           </div>
         )}

@@ -5,7 +5,7 @@ import { Receiver } from "@upstash/qstash"
 import { supabaseAdmin } from "@/lib/server/supabase-admin"
 import { footballApi } from "@/lib/server/football-api"
 import { standardizeRound } from "@/lib/sync/standardizeRound"
-import { syncStandingsForLeague } from "@/lib/server/sync-league"
+import { syncStandingsForLeague, syncScorersForLeague, syncScorersFromEvents } from "@/lib/server/sync-league"
 import { LIVE_STATUSES } from "@/types/sports"
 import type { DbMatch } from "@/types/sports"
 
@@ -177,12 +177,59 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 6. Refresh standings for every league that had a match finish
+  // 6. Refresh standings + scorers for every league that had a match finish this run
   for (const [leagueId, season] of affectedLeagues) {
     try {
       await syncStandingsForLeague(leagueId, season)
+      await syncScorersFromEvents(leagueId, season) // events are always fresh
+      await syncScorersForLeague(leagueId, season)  // API adds photos when it catches up
     } catch (e) {
-      console.error(`Failed to sync standings for league ${leagueId}:`, e)
+      console.error(`Failed to sync league ${leagueId}:`, e)
+    }
+  }
+
+  // 7. Catch-all: sync standings + scorers for any league whose data is older than
+  //    its most recently finished match (handles missed live→finished transitions).
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+
+  const { data: recentFt } = await supabaseAdmin
+    .from("matches")
+    .select("league_id, updated_at")
+    .in("status", ["FT", "AET", "PEN"])
+    .in("league_id", TRACKED_LEAGUES)
+    .gte("updated_at", oneDayAgo)
+
+  const leagueLatestMatch = new Map<number, number>()
+  for (const m of recentFt ?? []) {
+    const t = new Date(m.updated_at).getTime()
+    if (!leagueLatestMatch.has(m.league_id) || t > leagueLatestMatch.get(m.league_id)!) {
+      leagueLatestMatch.set(m.league_id, t)
+    }
+  }
+
+  let catchAllSynced = 0
+  for (const [leagueId, matchTs] of leagueLatestMatch) {
+    if (affectedLeagues.has(leagueId)) continue // already synced this run
+
+    const { data: st } = await supabaseAdmin
+      .from("standings")
+      .select("updated_at, season")
+      .eq("league_id", leagueId)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .single()
+
+    const standingsTs = st ? new Date(st.updated_at).getTime() : 0
+    if (standingsTs >= matchTs) continue // already up-to-date
+
+    const season = st?.season ?? new Date().getFullYear()
+    try {
+      await syncStandingsForLeague(leagueId, season)
+      await syncScorersFromEvents(leagueId, season)
+      await syncScorersForLeague(leagueId, season)
+      catchAllSynced++
+    } catch (e) {
+      console.error(`Catch-all sync failed for league ${leagueId}:`, e)
     }
   }
 
@@ -190,7 +237,7 @@ export async function POST(req: NextRequest) {
     ghost_matches_fixed: ghostMatches?.length ?? 0,
     updated_live: liveMatches.length,
     finished_processed: finishedCount,
-    standings_synced: affectedLeagues.size,
+    standings_scorers_synced: affectedLeagues.size + catchAllSynced,
     success: true,
   })
 }

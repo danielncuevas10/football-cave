@@ -6,7 +6,40 @@ import type { DbMatchDetails } from "@/types/sports";
 const FINISHED_STATUSES = ["FT", "AET", "PEN", "AWD", "WO"];
 const CACHE_TTL_MS = 60_000;
 
-export async function getMatchDetails(matchId: number): Promise<DbMatchDetails | null> {
+export interface MatchDetailsResult {
+  details: DbMatchDetails | null;
+  venueName: string | null;
+  venueCity: string | null;
+  referee: string | null;
+}
+
+export async function getMatchDetails(matchId: number): Promise<MatchDetailsResult> {
+  // Always call the lightweight endpoint first — it's the only source of venue + referee.
+  // Also syncs the current score so any display lag is resolved on first render.
+  const basicData = await footballApi.getMatchById(matchId);
+  const basicRow = basicData?.response?.[0];
+
+  const venue = basicRow?.fixture?.venue ?? null;
+  const venueName = venue?.name ?? null;
+  const venueCity = venue?.city ?? null;
+  const referee = basicRow?.fixture?.referee ?? null;
+
+  if (basicRow) {
+    const isNowFinished = FINISHED_STATUSES.includes(basicRow.fixture.status.short);
+    await supabaseAdmin
+      .from("matches")
+      .update({
+        home_score: basicRow.goals.home,
+        away_score: basicRow.goals.away,
+        status: basicRow.fixture.status.short,
+        elapsed: basicRow.fixture.status.elapsed,
+        ...(isNowFinished ? { is_live: false } : {}),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", matchId);
+  }
+
+  // Check the cache for full details (events / lineups / statistics).
   const { data: cached } = await supabase
     .from("match_details")
     .select("*")
@@ -26,36 +59,14 @@ export async function getMatchDetails(matchId: number): Promise<DbMatchDetails |
     const isFresh = cacheAgeMs < CACHE_TTL_MS;
 
     // Only trust the cache for finished matches if it actually has lineup/stats data.
-    // A record written before kickoff (when the API returns empty arrays) must be refreshed.
     if ((isFinished && hasData) || isFresh) {
-      return cached;
+      return { details: cached, venueName, venueCity, referee };
     }
   }
 
-  // Step 1: sync the score using the lightweight getMatchById (simple schema,
-  // much less likely to fail Zod). This runs regardless of whether the full
-  // details fetch below succeeds.
-  const basicData = await footballApi.getMatchById(matchId);
-  const basicRow = basicData?.response?.[0];
-  if (basicRow) {
-    const isNowFinished = FINISHED_STATUSES.includes(basicRow.fixture.status.short);
-    await supabaseAdmin
-      .from("matches")
-      .update({
-        home_score: basicRow.goals.home,
-        away_score: basicRow.goals.away,
-        status: basicRow.fixture.status.short,
-        elapsed: basicRow.fixture.status.elapsed,
-        ...(isNowFinished ? { is_live: false } : {}),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", matchId);
-  }
-
-  // Step 2: try to get full details (events / lineups / statistics).
-  // If this fails the score is already synced above, so we just return cached.
+  // Fetch full details (events / lineups / statistics).
   const fresh = await footballApi.getMatchDetails(matchId);
-  if (!fresh) return cached ?? null;
+  if (!fresh) return { details: cached ?? null, venueName, venueCity, referee };
 
   const newRecord: Omit<DbMatchDetails, "updated_at"> = {
     match_id: matchId,
@@ -79,5 +90,5 @@ export async function getMatchDetails(matchId: number): Promise<DbMatchDetails |
     console.error("❌ match_details upsert error:", detailsError.message);
   }
 
-  return newRecord as DbMatchDetails;
+  return { details: newRecord as DbMatchDetails, venueName, venueCity, referee };
 }

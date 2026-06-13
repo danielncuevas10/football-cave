@@ -34,6 +34,12 @@ export const apiMatchSchema = z.object({
         short: z.string(),
         elapsed: z.number().nullable(),
       }),
+      venue: z.object({
+        id: z.number().nullable().optional(),
+        name: z.string().nullable().optional(),
+        city: z.string().nullable().optional(),
+      }).optional().nullable(),
+      referee: z.string().nullable().optional(),
     }),
     league: z.object({
       id: z.number(),

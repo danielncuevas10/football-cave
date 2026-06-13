@@ -30,6 +30,11 @@ interface MatchTabsProps {
   leagueLogo: string | null;
   leagueId: number;
   matchId: number;
+  homeTeamName?: string;
+  awayTeamName?: string;
+  venueName?: string | null;
+  venueCity?: string | null;
+  referee?: string | null;
   initialIsLive: boolean;
   initialStatus: FixtureStatus;
 }
@@ -41,6 +46,11 @@ export default function MatchTabs({
   leagueLogo,
   leagueId,
   matchId,
+  homeTeamName,
+  awayTeamName,
+  venueName,
+  venueCity,
+  referee,
   initialIsLive,
   initialStatus,
 }: MatchTabsProps) {
@@ -85,7 +95,10 @@ export default function MatchTabs({
 
   const isWorldCup = leagueId === League.WorldCup;
   const matchGroupName = isWorldCup
-    ? standings.find((s) => s.team_id === homeTeamId)?.group_name ?? null
+    ? standings.find((s) => s.team_id === homeTeamId)?.group_name ??
+      standings.find((s) => s.team_name === homeTeamName)?.group_name ??
+      standings.find((s) => s.team_name === awayTeamName)?.group_name ??
+      null
     : null;
   const groupStandings = matchGroupName
     ? standings.filter((s) => s.group_name === matchGroupName)
@@ -152,15 +165,35 @@ export default function MatchTabs({
     return null;
   };
 
+  // Pre-compute how many added minutes were signalled each half from event data
+  const firstHalfAdded =
+    details?.events?.reduce(
+      (max, ev) =>
+        ev.time.elapsed === 45 && ev.time.extra
+          ? Math.max(max, ev.time.extra)
+          : max,
+      0
+    ) ?? 0;
+  const secondHalfAdded =
+    details?.events?.reduce(
+      (max, ev) =>
+        ev.time.elapsed === 90 && ev.time.extra
+          ? Math.max(max, ev.time.extra)
+          : max,
+      0
+    ) ?? 0;
+
   // Chronological event timeline state triggers
   let renderedStartDivider = false;
   let renderedHalfTimeDivider = false;
-  let renderedRegularTimeEndDivider = false; // New trigger
-  let renderedEtStartDivider = false; // New trigger
+  let renderedFirstHalfAddedTime = false;
+  let renderedSecondHalfAddedTime = false;
+  let renderedRegularTimeEndDivider = false;
+  let renderedEtStartDivider = false;
   let renderedEtHalfTimeDivider = false;
 
   return (
-    <div className="space-y-6 w-full ">
+    <div className="space-y-6 w-full px-4">
       {/* Tabs Navigation Links Row */}
       <div className="flex justify-center">
         {tabs.map((tab) => {
@@ -181,8 +214,12 @@ export default function MatchTabs({
         })}
       </div>
 
-      <div className="w-full my-10">
-        {activeTab === "events" && (
+      <div className="grid w-full my-10">
+        <div
+          className={`col-start-1 row-start-1 w-full ${
+            activeTab === "events" ? "" : "h-0 overflow-hidden"
+          }`}
+        >
           <div className="w-full space-y-2">
             {details?.events && details.events.length > 0 ? (
               <div className="bg-custom-gray-2 rounded-xl border border-custom-gray overflow-hidden">
@@ -202,6 +239,22 @@ export default function MatchTabs({
 
                     const showStart = !renderedStartDivider;
                     if (showStart) renderedStartDivider = true;
+
+                    const showFirstHalfAddedTime =
+                      !renderedFirstHalfAddedTime &&
+                      firstHalfAdded > 0 &&
+                      ev.time.elapsed === 45 &&
+                      (ev.time.extra ?? 0) > 0;
+                    if (showFirstHalfAddedTime)
+                      renderedFirstHalfAddedTime = true;
+
+                    const showSecondHalfAddedTime =
+                      !renderedSecondHalfAddedTime &&
+                      secondHalfAdded > 0 &&
+                      ev.time.elapsed === 90 &&
+                      (ev.time.extra ?? 0) > 0;
+                    if (showSecondHalfAddedTime)
+                      renderedSecondHalfAddedTime = true;
 
                     const showHalfTimeBreak =
                       !renderedHalfTimeDivider && ev.time.elapsed > 45;
@@ -232,6 +285,30 @@ export default function MatchTabs({
                               className="w-3.5 h-3.5 object-contain"
                             />
                             <span>{tEv("matchStarted")}</span>
+                          </div>
+                        )}
+
+                        {/* First-half added time indicator */}
+                        {showFirstHalfAddedTime && (
+                          <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-500 tracking-widest border-b border-custom-gray/40">
+                            <img
+                              src="/images/specs/clock.svg"
+                              alt=""
+                              className="w-3 h-3 object-contain opacity-60"
+                            />
+                            <span>+{firstHalfAdded} min added</span>
+                          </div>
+                        )}
+
+                        {/* Second-half added time indicator */}
+                        {showSecondHalfAddedTime && (
+                          <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-500 tracking-widest border-b border-custom-gray/40">
+                            <img
+                              src="/images/specs/clock.svg"
+                              alt=""
+                              className="w-3 h-3 object-contain opacity-60"
+                            />
+                            <span>+{secondHalfAdded} min added</span>
                           </div>
                         )}
 
@@ -363,7 +440,8 @@ export default function MatchTabs({
 
                           {/* Center Column: Time Indicator */}
                           <div className="px-2.5 py-1 text-gray-400 font-bold text-xs text-center min-w-10.5">
-                            {ev.time.elapsed}′
+                            {ev.time.elapsed}
+                            {ev.time.extra ? `+${ev.time.extra}` : ""}′
                           </div>
 
                           {/* Right Side: Away Team Incidents */}
@@ -428,6 +506,33 @@ export default function MatchTabs({
                     </div>
                   )}
 
+                  {/* Second half has started but no 2nd-half events yet — show HT break + 2H banner immediately */}
+                  {status === "2H" && !renderedHalfTimeDivider && (
+                    <>
+                      <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest border-y border-custom-gray">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src="/images/specs/clock.svg"
+                            alt=""
+                            className="w-3.5 h-3.5 object-contain"
+                          />
+                          <span>{tEv("halfTimeBreak")}</span>
+                        </div>
+                        <span className="font-mono text-sm font-bold text-gray-200 mt-0.5">
+                          {getScoreAtMinute(45)}
+                        </span>
+                      </div>
+                      <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
+                        <img
+                          src="/images/specs/clock.svg"
+                          alt=""
+                          className="w-3.5 h-3.5 object-contain"
+                        />
+                        <span>{tEv("secondHalfStarts")}</span>
+                      </div>
+                    </>
+                  )}
+
                   {/* End Match Banner with Final Full Time Score */}
                   {isConfirmedFinished && (
                     <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
@@ -474,31 +579,71 @@ export default function MatchTabs({
                 </div>
               </div>
             ) : (
-              <div className="p-8 text-center text-sm text-gray-200 rounded-xl bg-custom-gray-2">
-                {tTabs("noInfo")}
+              <div className="py-10 text-center rounded-xl bg-custom-gray-2 space-y-2">
+                {venueCity || venueName ? (
+                  <div className="space-y-3">
+                    {/* Venue row */}
+                    <div className="flex items-center justify-center gap-2">
+                      <img
+                        src="/images/stadium.svg"
+                        alt=""
+                        className="w-6 h-6 object-contain opacity-60 shrink-0"
+                      />
+                      <span className="text-sm text-gray-200">
+                        {[venueName, venueCity].filter(Boolean).join(", ")}
+                      </span>
+                    </div>
+
+                    {/* Referee row */}
+                    {referee && (
+                      <div className="flex items-center justify-center gap-2">
+                        <img
+                          src="/images/specs/final.svg"
+                          alt=""
+                          className="w-4 h-4 object-contain opacity-60 shrink-0"
+                        />
+                        <span className="text-sm text-gray-400">{referee}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">{tTabs("noInfo")}</p>
+                )}
               </div>
             )}
           </div>
-        )}
+        </div>
 
-        {activeTab === "details" && (
+        <div
+          className={`col-start-1 row-start-1 w-full ${
+            activeTab === "details" ? "" : "h-0 overflow-hidden"
+          }`}
+        >
           <div className="w-full">
             <MatchCenterDetails details={details} />
           </div>
-        )}
+        </div>
 
-        {activeTab === "lineups" && (
+        <div
+          className={`col-start-1 row-start-1 w-full ${
+            activeTab === "lineups" ? "" : "h-0 overflow-hidden"
+          }`}
+        >
           <div className="w-full">
             <MatchCenterLinenups details={details} />
           </div>
-        )}
+        </div>
 
-        {activeTab === "table" && (
+        <div
+          className={`col-start-1 row-start-1 w-full ${
+            activeTab === "table" ? "" : "h-0 overflow-hidden"
+          }`}
+        >
           <div className="w-full bg-custom-gray rounded-xl overflow-hidden">
             <Link href={`/league/${leagueId}`} className="block">
               {isWorldCup ? (
                 <img
-                  src="/images/WC26.svg"
+                  src="/images/WC262nd.svg"
                   alt="FIFA World Cup 2026"
                   className="w-full h-auto object-cover"
                 />
@@ -525,7 +670,7 @@ export default function MatchTabs({
               <StandingsTable standings={standings} />
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
