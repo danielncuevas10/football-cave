@@ -23,7 +23,7 @@ export default async function Page() {
 
   if (!matches || matches.length === 0) {
     return (
-      <div className="p-6 text-gray-400 text-sm font-medium">
+      <div className="p-6 text-gray-200 text-sm font-medium">
         No matches found for this tournament.
       </div>
     );

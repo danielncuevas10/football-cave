@@ -11,7 +11,16 @@
     "lineups": "Kadrolar",
     "standings": "Puan Durumu",
     "noInfo": "Henüz bilgi yok",
-    "venue": "Mekan"
+    "venue": "Mekan",
+    "matches": "Maçlar",
+    "groupStage": "Grup Aşaması",
+    "topScorers": "Gol Krallığı",
+    "noMatches": "Maç bulunamadı",
+    "group": "Grup",
+    "club": "Kulüp",
+    "seeMore": "Daha fazla",
+    "seeLess": "Daha az",
+    "loadingMatches": "Maçlar yükleniyor…"
   },
   "matchEvents": {
     "matchStarted": "Maç başladı",
@@ -24,7 +33,18 @@
     "extraTimeStartsSoon": "Uzatma devirleri başlıyor",
     "firstHalfExtraTimeStarts": "Uzatmanın ilk yarısı başlıyor",
     "extraTimeHalfTime": "Uzatma devre arası",
-    "ftScore": "Maç sonu skoru"
+    "ftScore": "Maç sonu skoru",
+    "minAdded": "dakika eklendi",
+    "penaltyAwarded": "Penaltı verildi",
+    "goal": "Gol",
+    "penaltyGoal": "Penaltı golü",
+    "missedPenalty": "Kaçırılan penaltı",
+    "ftLabel": "Bitti",
+    "ownGoal": "Kendi kalesi",
+    "penaltyCancelled": "Penaltı iptal",
+    "inPlayer": "Giren",
+    "outPlayer": "Çıkan",
+    "unknownPlayer": "Bilinmiyor"
   },
   "matchDetails": {
     "matchOverview": "Maç Özeti",
@@ -55,11 +75,23 @@
     "passesPercent": "Pas %",
     "goalkeeperSaves": "Kaleci Kurtarışı"
   },
+  "dateLabels": {
+    "today": "Bugün",
+    "yesterday": "Dün",
+    "tomorrow": "Yarın"
+  },
+  "footer": {
+    "privacyPolicy": "Gizlilik Politikası",
+    "termsOfService": "Hizmet Şartları"
+  },
   "about": {
     "body": "Futbol içerikleri için özel eviniz. En sevdiğiniz kulüpleri takip etmenize ve önemli anları kaçırmamanıza yardımcı olmak için buradayız. Topluluğumuzun bir parçası olduğunuz için gurur duyuyoruz. Sizi bilgi döngüsünde tutmamıza izin verdiğiniz için teşekkürler.",
     "title": "Hakkımızda"
   },
   "teamPage": {
-    "pastMatches": "Geçmiş maçlar"
+    "pastMatches": "Geçmiş maçlar",
+    "lastMatches": "Son maçlar",
+    "nextMatch": "Sonraki maç",
+    "manager": "Teknik Direktör"
   }
 }

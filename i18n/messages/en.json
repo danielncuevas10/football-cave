@@ -11,7 +11,16 @@
     "lineups": "Lineups",
     "standings": "Standings",
     "noInfo": "No information yet",
-    "venue": "Venue"
+    "venue": "Venue",
+    "matches": "Matches",
+    "groupStage": "Group Stage",
+    "topScorers": "Top Scorers",
+    "noMatches": "No matches found",
+    "group": "Group",
+    "club": "Club",
+    "seeMore": "See More",
+    "seeLess": "See Less",
+    "loadingMatches": "Loading matches…"
   },
   "matchEvents": {
     "matchStarted": "Match Started",
@@ -24,7 +33,18 @@
     "extraTimeStartsSoon": "Extra Time Starts Soon",
     "firstHalfExtraTimeStarts": "First Half Extra Time Starts",
     "extraTimeHalfTime": "Extra Time Half Time",
-    "ftScore": "FT Score"
+    "ftScore": "FT Score",
+    "minAdded": "min added",
+    "penaltyAwarded": "Penalty awarded",
+    "goal": "Goal",
+    "penaltyGoal": "Penalty goal",
+    "missedPenalty": "Missed penalty",
+    "ftLabel": "FT",
+    "ownGoal": "Own Goal",
+    "penaltyCancelled": "Penalty cancelled",
+    "inPlayer": "In",
+    "outPlayer": "Out",
+    "unknownPlayer": "Unknown"
   },
   "matchDetails": {
     "matchOverview": "Match Overview",
@@ -56,7 +76,19 @@
     "goalkeeperSaves": "Goalkeeper Saves"
   },
   "teamPage": {
-    "pastMatches": "Past matches"
+    "pastMatches": "Past matches",
+    "lastMatches": "Last matches",
+    "nextMatch": "Next match",
+    "manager": "Manager"
+  },
+  "dateLabels": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow"
+  },
+  "footer": {
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
   },
   "about": {
     "body": "Your dedicated home for football insights. We're here to help you follow your favorite clubs and never miss a defining moment. We're proud to have you as part of our community. Thanks for letting us keep you in the loop.",

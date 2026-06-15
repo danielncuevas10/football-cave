@@ -8,13 +8,13 @@ export const rateLimits = {
     redis,
     limiter: Ratelimit.slidingWindow(60, "1 m"),
     prefix: "rl:public",
-    analytics: true,
+    analytics: false,
   }),
   authenticated: new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(120, "1 m"),
     prefix: "rl:auth",
-    analytics: true,
+    analytics: false,
   }),
 }
 

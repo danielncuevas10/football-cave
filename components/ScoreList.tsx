@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLiveScores } from "@/hooks/useLiveScores";
+import { useTranslations, useLocale } from "next-intl";
 import { supabase } from "@/lib/supabase";
 import MatchCard from "./MatchCard";
 import type { DbMatch } from "@/types/sports";
@@ -13,44 +14,50 @@ interface Props {
   initialMatches: DbMatch[];
 }
 
-function getCustomDisplayDate(targetDate: Date): string {
-  const today = new Date();
+const LOCALE_MAP: Record<string, string> = {
+  en: "en-GB",
+  es: "es-ES",
+  fr: "fr-FR",
+  pt: "pt-PT",
+  bs: "bs-BA",
+  sr: "sr-Latn",
+  ch: "zh-CN",
+  gr: "el-GR",
+  jp: "ja-JP",
+  kr: "ko-KR",
+  tr: "tr-TR",
+};
 
+function getCustomDisplayDate(
+  targetDate: Date,
+  labels: { today: string; yesterday: string; tomorrow: string },
+  locale: string
+): string {
+  const today = new Date();
   const normalize = (d: Date) =>
     new Date(d.getFullYear(), d.getMonth(), d.getDate());
-
   const target = normalize(targetDate);
   const current = normalize(today);
-
   const diffDays = Math.round(
     (target.getTime() - current.getTime()) / (1000 * 60 * 60 * 24)
   );
-
-  if (diffDays === 0) return "Today";
-  if (diffDays === -1) return "Yesterday";
-  if (diffDays === 1) return "Tomorrow";
-
+  if (diffDays === 0) return labels.today;
+  if (diffDays === -1) return labels.yesterday;
+  if (diffDays === 1) return labels.tomorrow;
   const isSameYear = target.getFullYear() === current.getFullYear();
-
-  const options: Intl.DateTimeFormatOptions = isSameYear
-    ? {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      }
-    : {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      };
-
-  const formatted = target.toLocaleDateString("en-GB", options);
-
-  return formatted;
+  return target.toLocaleDateString(locale, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    ...(isSameYear ? {} : { year: "numeric" }),
+  });
 }
 
 export default function ScoreList({ initialMatches }: Props) {
+  const tDate = useTranslations("dateLabels");
+  const tTabs = useTranslations("matchTabs");
+  const appLocale = useLocale();
+  const bcp47 = LOCALE_MAP[appLocale] ?? "en-GB";
   const { matches: liveMatches } = useLiveScores();
   const [allMatches, setAllMatches] = useState(initialMatches);
 
@@ -124,7 +131,15 @@ export default function ScoreList({ initialMatches }: Props) {
   const live = matchesForDate.filter(isMatchLive);
   const scheduledOrFinished = matchesForDate.filter((m) => !isMatchLive(m));
 
-  const displayDate = getCustomDisplayDate(currentDate);
+  const displayDate = getCustomDisplayDate(
+    currentDate,
+    {
+      today: tDate("today"),
+      yesterday: tDate("yesterday"),
+      tomorrow: tDate("tomorrow"),
+    },
+    bcp47
+  );
 
   // Group scheduled and finished matches by league
   const matchesByLeague = scheduledOrFinished.reduce((acc, match) => {
@@ -146,11 +161,11 @@ export default function ScoreList({ initialMatches }: Props) {
     <div className="space-y-6">
       <LiveBadge />
       {/* Date Navigation Bar */}
-      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray p-3 rounded-lg">
+      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray p-3 rounded-mdg">
         <div className="flex items-center justify-between w-full sm:w-auto gap-4">
           <button
             onClick={prevDay}
-            className="p-2 text-sm text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-sm text-gray-200 hover:text-white transition-colors"
           >
             <img
               src="/images/specs/arrow.svg"
@@ -192,7 +207,7 @@ export default function ScoreList({ initialMatches }: Props) {
 
           <button
             onClick={nextDay}
-            className="p-2 text-sm text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-sm text-gray-200 hover:text-white transition-colors"
           >
             <img
               src="/images/specs/arrow.svg"
@@ -219,7 +234,7 @@ export default function ScoreList({ initialMatches }: Props) {
                 return (
                   <div
                     key={`live-${leagueName}`}
-                    className="bg-custom-gray rounded-lg overflow-hidden"
+                    className="bg-custom-gray rounded-mdg overflow-hidden"
                   >
                     {leagueId ? (
                       <Link
@@ -248,7 +263,7 @@ export default function ScoreList({ initialMatches }: Props) {
                           alt=""
                           className="absolute left-3 h-4 w-4 animate-pulse object-contain"
                         />
-                        <h3 className="text-[15px] font-bold text-gray-400 tracking-wider">
+                        <h3 className="text-[15px] font-bold text-gray-200 tracking-wider">
                           {leagueName}
                         </h3>
                       </div>
@@ -289,7 +304,7 @@ export default function ScoreList({ initialMatches }: Props) {
               return (
                 <div
                   key={leagueName}
-                  className="bg-custom-gray rounded-lg overflow-hidden"
+                  className="bg-custom-gray rounded-mdg overflow-hidden"
                 >
                   {leagueId ? (
                     <Link
@@ -307,7 +322,7 @@ export default function ScoreList({ initialMatches }: Props) {
                     </Link>
                   ) : (
                     <div className="flex items-center justify-center gap-3 py-4 border-b border-gray-800/40">
-                      <h3 className="text-[15px] font-bold text-gray-400 tracking-wider">
+                      <h3 className="text-[15px] font-bold text-gray-200 tracking-wider">
                         {leagueName}
                       </h3>
                     </div>
@@ -334,8 +349,8 @@ export default function ScoreList({ initialMatches }: Props) {
 
       {/* FIX: Absolute clean fallback empty state container. Shows ONLY if total count is zero */}
       {matchesForDate.length === 0 && (
-        <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-lg">
-          No matches found for this date.
+        <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-mdg">
+          {tTabs("noMatches")}
           <img
             src="/images/specs/clock.svg"
             alt=""

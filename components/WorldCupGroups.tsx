@@ -2,13 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import { DbStanding } from "@/types/sports";
+import { getLocalizedTeamName } from "@/lib/teamName";
 
 interface WorldCupGroupsProps {
   standings: DbStanding[];
 }
 
 export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
+  const t = useTranslations("matchTabs");
+  const locale = useLocale();
   const grouped = standings.reduce<Record<string, DbStanding[]>>((acc, row) => {
     const key = row.group_name || "Unknown";
     if (!acc[key]) acc[key] = [];
@@ -40,9 +44,9 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
               {/* Column headers */}
               <thead>
                 <tr className="text-[10px] uppercase tracking-wider bg-custom-gray">
-                  <th className="px-3 py-2 text-center w-7 text-gray-500">#</th>
+                  <th className="px-3 py-2 text-center w-7 text-gray-300">#</th>
                   <th className="px-2 py-3 text-left text-white font-black tracking-widest">
-                    Group {letter}
+                    {t("group")} {letter}
                   </th>
                   <th
                     className="px-2 py-2 text-center w-8"
@@ -72,11 +76,14 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
                         advances ? "shadow-[inset_1.5px_0_0_#4ade80]" : ""
                       }`}
                     >
-                      <td className="px-3 py-2.5 text-center font-bold text-gray-500">
+                      <td className="px-3 py-2.5 text-center font-bold text-gray-300">
                         {team.rank}
                       </td>
                       <td className="px-2 py-2.5">
-                        <Link href={`/team/${team.team_id}`} className="flex items-center gap-2 hover:opacity-75 transition-opacity">
+                        <Link
+                          href={`/team/${team.team_id}`}
+                          className="flex items-center gap-2 hover:opacity-75 transition-opacity"
+                        >
                           {team.team_logo && (
                             <Image
                               src={team.team_logo}
@@ -87,18 +94,18 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
                             />
                           )}
                           <span className="truncate max-w-27.5 font-medium">
-                            {team.team_name}
+                            {getLocalizedTeamName(team.team_name, locale)}
                           </span>
                         </Link>
                       </td>
-                      <td className="px-2 py-2.5 text-center text-gray-400 font-mono">
+                      <td className="px-2 py-2.5 text-center text-gray-200 font-mono">
                         {(() => {
                           const gd =
                             (team.goals_for ?? 0) - (team.goals_against ?? 0);
                           return gd > 0 ? `+${gd}` : gd;
                         })()}
                       </td>
-                      <td className="px-2 py-2.5 text-center text-gray-400 font-mono">
+                      <td className="px-2 py-2.5 text-center text-gray-200 font-mono">
                         {team.played}
                       </td>
                       <td className="px-3 py-2.5 text-center font-bold text-white bg-white/5">

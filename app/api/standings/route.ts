@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { guardRoute } from "@/lib/api-guard"
+import { verifyCronSecret } from "@/lib/api-guard"
 import { fixtureQuerySchema } from "@/lib/schemas"
 import { footballApi } from "@/lib/server/football-api"
 import { supabaseAdmin } from "@/lib/server/supabase-admin"
@@ -26,7 +26,7 @@ interface ApiStandingItem {
 }
 
 export async function GET(req: NextRequest) {
-  const blocked = await guardRoute(req)
+  const blocked = verifyCronSecret(req)
   if (blocked) return blocked
 
   const params = Object.fromEntries(new URL(req.url).searchParams)

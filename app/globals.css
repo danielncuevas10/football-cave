@@ -2,8 +2,8 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #1B1B1B;
-  --custom-gray: #313131;
+  --foreground: #101010;
+  --custom-gray: #303030;
   --custom-gray-2: #232323;
 }
 
@@ -18,7 +18,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1B1B1B;
+    --background: #101010;
     --foreground: #ededed;
   }
 }

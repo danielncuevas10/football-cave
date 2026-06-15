@@ -9,6 +9,7 @@ const locales = [
   { code: "fr", label: "FR" },
   { code: "pt", label: "PT" },
   { code: "bs", label: "BS" },
+  { code: "sr", label: "SR" },
   { code: "ch", label: "中文" },
   { code: "gr", label: "GR" },
   { code: "jp", label: "日本語" },
@@ -30,11 +31,11 @@ export default function LocaleSwitcher() {
     <select
       value={locale}
       onChange={handleChange}
-      className="bg-transparent text-gray-400 text-xs focus:outline-none hover:text-white transition-colors cursor-pointer"
+      className="bg-transparent text-gray-200 text-xs focus:outline-none hover:text-white transition-colors cursor-pointer"
       aria-label="Select language"
     >
       {locales.map(({ code, label }) => (
-        <option key={code} value={code} className="bg-[#313131] text-white">
+        <option key={code} value={code} className="bg-[#303030] text-white">
           {label}
         </option>
       ))}

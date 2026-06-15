@@ -21,3 +21,14 @@ export async function guardRoute(req: NextRequest): Promise<NextResponse | null>
   }
   return null
 }
+
+// Protects server-only routes (sync-live, standings, scorers) from browser calls.
+// Caller must send: Authorization: Bearer <CRON_SECRET>
+export function verifyCronSecret(req: NextRequest): NextResponse | null {
+  const secret = process.env.CRON_SECRET
+  const auth = req.headers.get("authorization") ?? ""
+  if (!secret || auth !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+  return null
+}

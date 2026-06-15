@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import StandingsTable from "@/components/info/standings/page";
 import TopScorers from "@/components/info/scorer/page";
@@ -31,15 +32,19 @@ export default function LeagueTabs({
   isTournament = false,
 }: LeagueTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("table");
+  const tTabs = useTranslations("matchTabs");
 
   const tabs: { id: TabType; label: string }[] = [
     // 4. Dynamically change tab title for World Cup
     {
       id: "table",
-      label: leagueId === League.WorldCup ? "Group Stage" : "Standings",
+      label:
+        leagueId === League.WorldCup ? tTabs("groupStage") : tTabs("standings"),
     },
-    { id: "scorers", label: "Top Scorers" },
-    ...(isTournament ? [{ id: "matches" as const, label: "Matches" }] : []),
+    { id: "scorers", label: tTabs("topScorers") },
+    ...(isTournament
+      ? [{ id: "matches" as const, label: tTabs("matches") }]
+      : []),
   ];
 
   return (
@@ -54,7 +59,7 @@ export default function LeagueTabs({
           />
         </div>
       ) : (
-        <div className="flex items-center gap-4 p-4 bg-custom-gray rounded-xl border border-custom-gray-2">
+        <div className="flex items-center gap-4 p-4 bg-custom-gray rounded-md border border-custom-gray-2">
           {leagueLogo && (
             <Image
               src={leagueLogo}
@@ -83,7 +88,7 @@ export default function LeagueTabs({
               className={`flex-1 text-center py-3 text-xs font-light tracking-wider border-b transition-all duration-200 ${
                 isActive
                   ? "border-white text-white"
-                  : "border-transparent text-gray-400 hover:text-white hover:bg-gray-900/30"
+                  : "border-transparent text-gray-200 hover:text-white hover:bg-gray-900/30"
               }`}
             >
               {tab.label}

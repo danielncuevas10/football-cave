@@ -6,7 +6,7 @@ export function useLiveMinute(
   status: FixtureStatus,
   initialElapsed: number | null,
   fixtureDate: string
-) {
+): string {
   const [elapsed, setElapsed] = useState<number>(initialElapsed ?? 0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -22,12 +22,8 @@ export function useLiveMinute(
     const ageHours = (Date.now() - kickoff) / (1000 * 60 * 60)
     if (ageHours > 4) return
 
-    const tick = () =>
-      setElapsed(prev => {
-        if (status === "1H" && prev >= 45) return prev
-        if (status === "2H" && prev >= 90) return prev
-        return prev + 1
-      })
+    // No cap — elapsed is allowed to go past 45/90 so added time shows as "45+2"
+    const tick = () => setElapsed(prev => prev + 1)
 
     // Align first tick to the next real-world minute boundary so increments
     // stay in sync with the actual clock between cron DB updates
@@ -49,5 +45,7 @@ export function useLiveMinute(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, initialElapsed])
 
-  return elapsed
+  if (status === "1H" && elapsed > 45) return `45+${elapsed - 45}`
+  if (status === "2H" && elapsed > 90) return `90+${elapsed - 90}`
+  return String(elapsed)
 }

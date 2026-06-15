@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { DbTopScorer } from "@/types/sports";
 import Image from "next/image";
 
@@ -8,12 +9,14 @@ interface Props {
 }
 
 export default function TopScorers({ scorers }: Props) {
+  const t = useTranslations("matchTabs");
+  const tDetails = useTranslations("matchDetails");
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!scorers || scorers.length === 0) {
     return (
       <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
-        Coming soon...
+        {tDetails("comingSoon")}
         <img
           src="/images/specs/clock.svg"
           alt=""
@@ -59,7 +62,7 @@ export default function TopScorers({ scorers }: Props) {
               key={player.player_id}
               className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
             >
-              <td className="px-2 py-3 text-center font-medium text-gray-400 w-8">
+              <td className="px-2 py-3 text-center font-medium text-gray-200 w-8">
                 {index + 1}
               </td>
               <td className="px-2 py-3">
@@ -81,10 +84,10 @@ export default function TopScorers({ scorers }: Props) {
                   </div>
                 </div>
               </td>
-              <td className="px-1 py-3 text-center text-gray-400 w-8 sm:w-12 text-xs">
+              <td className="px-1 py-3 text-center text-gray-200 w-8 sm:w-12 text-xs">
                 {player.appearances}
               </td>
-              <td className="px-1 py-3 text-center text-gray-400 w-8 sm:w-12 text-xs">
+              <td className="px-1 py-3 text-center text-gray-200 w-8 sm:w-12 text-xs">
                 {player.assists ?? 0}
               </td>
               <td className="px-1 py-3 text-center font-bold text-white w-8 sm:w-12 text-xs sm:text-sm">
@@ -98,11 +101,11 @@ export default function TopScorers({ scorers }: Props) {
       {withGoals.length > 10 && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full py-3 bg-custom-gray hover:bg-gray-800/60 text-xs font-semibold text-gray-400 hover:text-white flex items-center justify-center gap-2 border-t border-custom-gray transition-colors will-change-transform"
+          className="w-full py-3 bg-custom-gray hover:bg-gray-800/60 text-xs font-semibold text-gray-200 hover:text-white flex items-center justify-center gap-2 border-t border-custom-gray transition-colors will-change-transform"
         >
           {isExpanded ? (
             <>
-              See Less
+              {t("seeLess")}
               <img
                 src="/images/specs/arrow.svg"
                 alt=""
@@ -111,7 +114,7 @@ export default function TopScorers({ scorers }: Props) {
             </>
           ) : (
             <>
-              See More
+              {t("seeMore")}
               <img
                 src="/images/specs/arrow.svg"
                 alt=""

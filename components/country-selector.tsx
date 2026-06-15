@@ -8,7 +8,7 @@ export default async function CountrySelector() {
   const countries = data?.response || [];
 
   return (
-    <div className="w-full max-w-[400px] bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+    <div className="w-full max-w-[400px] bg-white rounded-md shadow-sm border border-gray-100 p-4">
       <h3 className="text-sm font-semibold text-gray-900 mb-3">
         Browse by Country
       </h3>
@@ -18,7 +18,7 @@ export default async function CountrySelector() {
         {countries.map((country) => (
           <button
             key={country.name}
-            className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors text-left group"
+            className="w-full flex items-center gap-3 p-2 rounded-mdg hover:bg-gray-50 transition-colors text-left group"
           >
             {country.flag ? (
               <div className="relative w-6 h-4 overflow-hidden rounded-sm border border-gray-100 flex-shrink-0">
@@ -37,7 +37,7 @@ export default async function CountrySelector() {
             </span>
 
             {country.code && (
-              <span className="text-xs text-gray-400 ml-auto uppercase font-mono">
+              <span className="text-xs text-gray-200 ml-auto uppercase font-mono">
                 {country.code}
               </span>
             )}

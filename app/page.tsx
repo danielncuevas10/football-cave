@@ -1,9 +1,15 @@
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import ScoreList from "@/components/ScoreList";
 import About from "@/components/About";
 import { supabaseAdmin } from "@/lib/server/supabase-admin";
 import { footballApi } from "@/lib/server/football-api";
 import type { DbMatch } from "@/types/sports";
+
+// Cache the server render for 60 s (ISR). syncMissingScores runs at most
+// once per minute total instead of once per user request. Supabase Realtime
+// handles all client-side live updates so users see fresh scores regardless.
+export const revalidate = 60;
 
 const FINISHED_STATUSES = ["FT", "AET", "PEN", "AWD", "WO"];
 
@@ -20,9 +26,15 @@ async function syncMissingScores(matches: DbMatch[]): Promise<void> {
     .filter((m) => {
       const age = now - new Date(m.fixture_date).getTime();
       // Case 1: finished/old match with no score yet
-      if ((m.home_score === null || m.away_score === null) && age > ninetyMinMs) return true;
+      if ((m.home_score === null || m.away_score === null) && age > ninetyMinMs)
+        return true;
       // Case 2: kickoff passed but DB still shows NS/TBD — likely live and cron hasn't run
-      if ((m.status === "NS" || m.status === "TBD") && age > 0 && age < threeHoursMs) return true;
+      if (
+        (m.status === "NS" || m.status === "TBD") &&
+        age > 0 &&
+        age < threeHoursMs
+      )
+        return true;
       return false;
     })
     .slice(0, 10);
@@ -37,7 +49,9 @@ async function syncMissingScores(matches: DbMatch[]): Promise<void> {
 
       const freshStatus = row.fixture.status.short;
       const isFinished = FINISHED_STATUSES.includes(freshStatus);
-      const isLive = ["1H", "HT", "2H", "ET", "BT", "P", "LIVE"].includes(freshStatus);
+      const isLive = ["1H", "HT", "2H", "ET", "BT", "P", "LIVE"].includes(
+        freshStatus
+      );
       await supabaseAdmin
         .from("matches")
         .update({
@@ -58,12 +72,12 @@ async function getInitialMatches(): Promise<DbMatch[]> {
   const { data } = await supabaseAdmin
     .from("matches")
     .select("*")
-    .order("fixture_date", { ascending: false })
-    .returns<DbMatch[]>();
-  return data ?? [];
+    .order("fixture_date", { ascending: false });
+  return (data ?? []) as DbMatch[];
 }
 
 export default async function HomePage() {
+  const t = await getTranslations("matchTabs");
   const staleMatches = await getInitialMatches();
 
   // Sync scores for recently finished matches that still show null in the DB.
@@ -73,11 +87,13 @@ export default async function HomePage() {
 
   return (
     <>
-      <div className="min-h-screen bg-[#1B1B1B] text-white">
+      <div className="min-h-screen bg-[#101010] text-white">
         <main className="max-w-3xl mx-auto px-4 pt-6 pb-6">
           <Suspense
             fallback={
-              <div className="text-gray-400 text-sm p-4">Loading matches…</div>
+              <div className="text-gray-200 text-sm p-4">
+                {t("loadingMatches")}
+              </div>
             }
           >
             <ScoreList initialMatches={initialMatches} />

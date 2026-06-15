@@ -11,7 +11,16 @@
     "lineups": "Alineaciones",
     "standings": "Clasificación",
     "noInfo": "Sin información aún",
-    "venue": "Sede"
+    "venue": "Sede",
+    "matches": "Partidos",
+    "groupStage": "Fase de grupos",
+    "topScorers": "Goleadores",
+    "noMatches": "Sin partidos",
+    "group": "Grupo",
+    "club": "Club",
+    "seeMore": "Ver más",
+    "seeLess": "Ver menos",
+    "loadingMatches": "Cargando partidos…"
   },
   "matchEvents": {
     "matchStarted": "Partido iniciado",
@@ -24,7 +33,18 @@
     "extraTimeStartsSoon": "La prórroga comienza pronto",
     "firstHalfExtraTimeStarts": "Primera parte de la prórroga",
     "extraTimeHalfTime": "Descanso de la prórroga",
-    "ftScore": "Resultado final"
+    "ftScore": "Resultado final",
+    "minAdded": "min añadidos",
+    "penaltyAwarded": "Penalti concedido",
+    "goal": "Gol",
+    "penaltyGoal": "Gol de penalti",
+    "missedPenalty": "Penalti fallado",
+    "ftLabel": "Finalizado",
+    "ownGoal": "Autogol",
+    "penaltyCancelled": "Penalti anulado",
+    "inPlayer": "Entra",
+    "outPlayer": "Sale",
+    "unknownPlayer": "Desconocido"
   },
   "matchDetails": {
     "matchOverview": "Resumen del partido",
@@ -55,11 +75,23 @@
     "passesPercent": "Pases %",
     "goalkeeperSaves": "Paradas del portero"
   },
+  "dateLabels": {
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "tomorrow": "Mañana"
+  },
+  "footer": {
+    "privacyPolicy": "Política de privacidad",
+    "termsOfService": "Términos de servicio"
+  },
   "about": {
     "body": "Tu lugar de referencia para el fútbol. Estamos aquí para ayudarte a seguir a tus equipos favoritos y no perderte ningún momento clave. Nos enorgullece tenerte en nuestra comunidad. Gracias por dejarnos mantenerte al tanto.",
     "title": "Acerca de nosotros"
   },
   "teamPage": {
-    "pastMatches": "Partidos anteriores"
+    "pastMatches": "Partidos anteriores",
+    "lastMatches": "Últimos partidos",
+    "nextMatch": "Próximo partido",
+    "manager": "Entrenador"
   }
 }

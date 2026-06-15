@@ -78,7 +78,8 @@ export const footballApi = {
   // FIX: Only append season if it's explicitly passed as an argument
   liveMatches: (season?: number) => {
     const endpoint = season ? `/fixtures?live=all&season=${season}` : "/fixtures?live=all"
-    return apiFetch(endpoint, matchesResponseSchema)
+    // 0 retries — cron runs every minute so a single timeout is fine to skip
+    return apiFetch(endpoint, matchesResponseSchema, 0)
   },
 
   fixtures: (leagueId: number, season: number) =>

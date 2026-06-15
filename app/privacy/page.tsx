@@ -11,10 +11,10 @@ export default function PrivacyPage() {
   const lastUpdated = "June 5, 2026";
 
   return (
-    <div className="min-h-screen bg-[#1B1B1B] text-white">
+    <div className="min-h-screen bg-[#101010] text-white">
       <main className="max-w-3xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
-        <p className="text-gray-400 text-sm mb-10">
+        <p className="text-gray-200 text-sm mb-10">
           Last updated: {lastUpdated}
         </p>
 
@@ -257,10 +257,10 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div className="mt-12 pt-6 border-t border-[#313131]">
+        <div className="mt-12 pt-6 border-t border-[#303030]">
           <Link
             href="/"
-            className="text-gray-400 hover:text-white text-sm transition-colors"
+            className="text-gray-200 hover:text-white text-sm transition-colors"
           >
             ← Back to FootballCave
           </Link>

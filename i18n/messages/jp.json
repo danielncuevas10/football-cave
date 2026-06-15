@@ -11,7 +11,16 @@
     "lineups": "スターティング",
     "standings": "順位表",
     "noInfo": "情報はまだありません",
-    "venue": "会場"
+    "venue": "会場",
+    "matches": "試合",
+    "groupStage": "グループステージ",
+    "topScorers": "得点ランク",
+    "noMatches": "試合なし",
+    "group": "グループ",
+    "club": "クラブ",
+    "seeMore": "もっと見る",
+    "seeLess": "少なく表示",
+    "loadingMatches": "試合を読み込み中…"
   },
   "matchEvents": {
     "matchStarted": "試合開始",
@@ -24,7 +33,18 @@
     "extraTimeStartsSoon": "延長戦まもなく開始",
     "firstHalfExtraTimeStarts": "延長前半開始",
     "extraTimeHalfTime": "延長ハーフタイム",
-    "ftScore": "最終スコア"
+    "ftScore": "最終スコア",
+    "minAdded": "分追加",
+    "penaltyAwarded": "PK判定",
+    "goal": "ゴール",
+    "penaltyGoal": "PK得点",
+    "missedPenalty": "PK失敗",
+    "ftLabel": "終了",
+    "ownGoal": "オウンゴール",
+    "penaltyCancelled": "PK取消",
+    "inPlayer": "交代出場",
+    "outPlayer": "交代退場",
+    "unknownPlayer": "不明"
   },
   "matchDetails": {
     "matchOverview": "試合概要",
@@ -55,11 +75,23 @@
     "passesPercent": "パス成功率",
     "goalkeeperSaves": "GKセーブ"
   },
+  "dateLabels": {
+    "today": "今日",
+    "yesterday": "昨日",
+    "tomorrow": "明日"
+  },
+  "footer": {
+    "privacyPolicy": "プライバシーポリシー",
+    "termsOfService": "利用規約"
+  },
   "about": {
     "body": "フットボールインサイトのための専用ホーム。お気に入りのクラブをフォローし、決定的な瞬間を見逃さないようサポートします。私たちのコミュニティの一員であることを誇りに思います。情報をお届けさせていただき、ありがとうございます。",
     "title": "私たちについて"
   },
   "teamPage": {
-    "pastMatches": "過去の試合"
+    "pastMatches": "過去の試合",
+    "lastMatches": "最近の試合",
+    "nextMatch": "次の試合",
+    "manager": "監督"
   }
 }

@@ -23,7 +23,7 @@ const STAT_KEY_MAP: Record<string, string> = {
   "Shots on Goal": "shotsOnGoal",
   "Total Shots": "totalShots",
   "Corner Kicks": "cornerKicks",
-  "Fouls": "fouls",
+  Fouls: "fouls",
   "Total passes": "totalPasses",
   "Passes %": "passesPercent",
   "Goalkeeper Saves": "goalkeeperSaves",
@@ -35,7 +35,7 @@ export default function MatchCenterDetails({ details }: DetailsProps) {
 
   if (!details) {
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-lg">
+      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-mdg">
         {t("comingSoon")}
         <img
           src="/images/specs/clock.svg"
@@ -48,7 +48,7 @@ export default function MatchCenterDetails({ details }: DetailsProps) {
 
   if (!details.statistics || details.statistics.length < 2) {
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-lg">
+      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-mdg">
         {t("noInfoYet")}
         <img
           src="/images/specs/clock.svg"
@@ -62,7 +62,7 @@ export default function MatchCenterDetails({ details }: DetailsProps) {
   return (
     <div className="space-y-6 w-full text-white">
       {details.statistics && details.statistics.length >= 2 && (
-        <div className="bg-custom-gray-2 rounded-xl border border-custom-gray overflow-hidden">
+        <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
           <div className="bg-custom-gray flex items-center justify-center gap-2 py-4">
             <h3 className="text-xs font-light text-white tracking-wider">
               {t("matchOverview")}
@@ -103,9 +103,9 @@ export default function MatchCenterDetails({ details }: DetailsProps) {
 
               return (
                 <div key={statIdx} className="space-y-1 py-1">
-                  <div className="flex justify-between text-xs font-medium text-gray-400 px-1">
+                  <div className="flex justify-between text-xs font-medium text-gray-200 px-1">
                     <span className="font-mono text-gray-200">{homeValue}</span>
-                    <span className="text-gray-500 tracking-wide text-[10px]">
+                    <span className="text-gray-300 tracking-wide text-[10px]">
                       {label}
                     </span>
                     <span className="font-mono text-gray-200">{awayValue}</span>

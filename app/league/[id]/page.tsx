@@ -5,7 +5,12 @@ export const revalidate = 300; // re-render with fresh standings every 5 minutes
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import LeagueTabs from "@/components/info/LeagueTabs";
-import { getOrSyncLeagueData, syncStandingsForLeague, syncScorersForLeague, syncScorersFromEvents } from "@/lib/server/sync-league";
+import {
+  getOrSyncLeagueData,
+  syncStandingsForLeague,
+  syncScorersForLeague,
+  syncScorersFromEvents,
+} from "@/lib/server/sync-league";
 import { League } from "@/types/sports";
 import { isTournamentLeague } from "@/lib/tournament/isTournamentLeague";
 
@@ -118,7 +123,7 @@ export default async function LeaguePage({ params }: PageProps) {
   // the existing DB rows (already correct), or fall back to the current year.
   const syncSeason =
     leagueId === League.WorldCup
-      ? (standings[0]?.season ?? new Date().getFullYear())
+      ? standings[0]?.season ?? new Date().getFullYear()
       : season;
 
   const STALE_AFTER_MS = 30 * 60 * 1000; // 30 minutes
@@ -154,7 +159,7 @@ export default async function LeaguePage({ params }: PageProps) {
   let scorers = scorersResult.data ?? [];
   const scorersSyncSeason =
     leagueId === League.WorldCup
-      ? (scorers[0]?.season ?? standings[0]?.season ?? new Date().getFullYear())
+      ? scorers[0]?.season ?? standings[0]?.season ?? new Date().getFullYear()
       : season;
 
   if (scorers.length === 0) {
@@ -179,7 +184,7 @@ export default async function LeaguePage({ params }: PageProps) {
   }
 
   return (
-    <main className="max-w-3xl bg-[#1B1B1B] mx-auto p-6 text-white min-h-screen">
+    <main className="max-w-3xl bg-[#101010] mx-auto p-6 text-white min-h-screen">
       <LeagueTabs
         standings={standings}
         scorers={scorers}

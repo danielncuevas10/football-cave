@@ -1,10 +1,5 @@
+import "server-only";
 import { createClient } from "@supabase/supabase-js";
-
-if (typeof window !== "undefined") {
-    throw new Error(
-      "Server only"
-    )
-}
 
 export const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

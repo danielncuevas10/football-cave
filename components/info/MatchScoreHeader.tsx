@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
+import { getLocalizedTeamName } from "@/lib/teamName";
 import { supabase } from "@/lib/supabase";
 import { useLiveMinute } from "@/hooks/useLiveMinute";
 import type {
@@ -47,19 +49,20 @@ function StatusLabel({
   elapsed: number | null;
   fixtureDate: string;
 }) {
+  const tEv = useTranslations("matchEvents");
   const minute = useLiveMinute(status, elapsed, fixtureDate);
 
   if (FINISHED_STATUSES.includes(status))
     return (
-      <span className="text-gray-400 text-xs uppercase tracking-wider">
-        Final Result
+      <span className="text-gray-200 text-xs uppercase tracking-wider">
+        {tEv("matchFinished")}
       </span>
     );
 
   if (status === "HT")
     return (
       <span className="text-[#00A800] text-xs uppercase tracking-wider">
-        Half Time
+        {tEv("halfTime")}
       </span>
     );
 
@@ -69,7 +72,7 @@ function StatusLabel({
   if (status === "NS" || status === "TBD") return null;
 
   return (
-    <span className="text-gray-400 text-xs uppercase tracking-wider">
+    <span className="text-gray-200 text-xs uppercase tracking-wider">
       {status}
     </span>
   );
@@ -88,6 +91,8 @@ export default function MatchScoreHeader({
   initialMatch: DbMatch;
   details: DbMatchDetails | null;
 }) {
+  const tEv = useTranslations("matchEvents");
+  const locale = useLocale();
   const [match, setMatch] = useState(initialMatch);
 
   useEffect(() => {
@@ -130,9 +135,9 @@ export default function MatchScoreHeader({
   const hasScore = displayHome !== null && displayAway !== null;
 
   return (
-    <div className="px-6 py-8 bg-[#313131]">
+    <div className="px-6 py-8 bg-[#303030]">
       <div className="flex flex-col items-center gap-6 w-full">
-        <p className="font-light text-sm text-gray-400">
+        <p className="font-light text-sm text-gray-200">
           {new Date(match.fixture_date).toLocaleDateString("en-US", {
             weekday: "short",
             month: "short",
@@ -158,7 +163,7 @@ export default function MatchScoreHeader({
                       className="w-15 h-15 object-contain"
                     />
                     <span className="text-center text-sm leading-tight line-clamp-2">
-                      {match.home_team}
+                      {getLocalizedTeamName(match.home_team, locale)}
                     </span>
                   </Link>
                 ) : (
@@ -171,7 +176,7 @@ export default function MatchScoreHeader({
                       className="w-15 h-15 object-contain"
                     />
                     <span className="text-center text-sm leading-tight line-clamp-2">
-                      {match.home_team}
+                      {getLocalizedTeamName(match.home_team, locale)}
                     </span>
                   </div>
                 )}
@@ -187,13 +192,13 @@ export default function MatchScoreHeader({
                         {displayHome} – {displayAway}
                       </>
                     ) : (
-                      <span className="text-gray-500 text-sm">–</span>
+                      <span className="text-gray-300 text-sm">–</span>
                     )}
                   </div>
                   {!match.is_live &&
                   FINISHED_STATUSES.includes(match.status) ? (
-                    <span className="text-gray-400 text-xs uppercase tracking-wider">
-                      Final Result
+                    <span className="text-gray-200 text-xs uppercase tracking-wider">
+                      {tEv("matchFinished")}
                     </span>
                   ) : (
                     <StatusLabel
@@ -214,7 +219,7 @@ export default function MatchScoreHeader({
                       className="w-15 h-15 object-contain"
                     />
                     <span className="text-center text-sm leading-tight line-clamp-2">
-                      {match.away_team}
+                      {getLocalizedTeamName(match.away_team, locale)}
                     </span>
                   </Link>
                 ) : (
@@ -227,7 +232,7 @@ export default function MatchScoreHeader({
                       className="w-15 h-15 object-contain"
                     />
                     <span className="text-center text-sm leading-tight line-clamp-2">
-                      {match.away_team}
+                      {getLocalizedTeamName(match.away_team, locale)}
                     </span>
                   </div>
                 )}

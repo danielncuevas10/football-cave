@@ -11,7 +11,16 @@
     "lineups": "Ενδεκάδες",
     "standings": "Βαθμολογία",
     "noInfo": "Δεν υπάρχουν πληροφορίες ακόμα",
-    "venue": "Στάδιο"
+    "venue": "Στάδιο",
+    "matches": "Αγώνες",
+    "groupStage": "Φάση ομίλων",
+    "topScorers": "Σκόρερ",
+    "noMatches": "Δεν βρέθηκαν αγώνες",
+    "group": "Όμιλος",
+    "club": "Ομάδα",
+    "seeMore": "Περισσότερα",
+    "seeLess": "Λιγότερα",
+    "loadingMatches": "Φόρτωση αγώνων…"
   },
   "matchEvents": {
     "matchStarted": "Έναρξη αγώνα",
@@ -24,7 +33,18 @@
     "extraTimeStartsSoon": "Η παράταση ξεκινά σύντομα",
     "firstHalfExtraTimeStarts": "Α' ημίχρονο παράτασης",
     "extraTimeHalfTime": "Ημίχρονο παράτασης",
-    "ftScore": "Τελικό σκορ"
+    "ftScore": "Τελικό σκορ",
+    "minAdded": "λεπτά πρόσθετα",
+    "penaltyAwarded": "Πέναλτι δόθηκε",
+    "goal": "Γκολ",
+    "penaltyGoal": "Γκολ πέναλτι",
+    "missedPenalty": "Χαμένο πέναλτι",
+    "ftLabel": "Τέλος",
+    "ownGoal": "Αυτογκόλ",
+    "penaltyCancelled": "Πέναλτι ακυρώθηκε",
+    "inPlayer": "Εισερχόμενος",
+    "outPlayer": "Εξερχόμενος",
+    "unknownPlayer": "Άγνωστος"
   },
   "matchDetails": {
     "matchOverview": "Επισκόπηση αγώνα",
@@ -55,11 +75,23 @@
     "passesPercent": "Πάσες %",
     "goalkeeperSaves": "Αποκρούσεις τερματοφύλακα"
   },
+  "dateLabels": {
+    "today": "Σήμερα",
+    "yesterday": "Χθες",
+    "tomorrow": "Αύριο"
+  },
+  "footer": {
+    "privacyPolicy": "Πολιτική Απορρήτου",
+    "termsOfService": "Όροι Υπηρεσίας"
+  },
   "about": {
     "body": "Ο αφιερωμένος χώρος σας για ποδοσφαιρικές ειδήσεις. Είμαστε εδώ για να σας βοηθούμε να παρακολουθείτε τις αγαπημένες σας ομάδες και να μην χάνετε κανένα καθοριστικό στιγμιότυπο. Είμαστε περήφανοι που είστε μέλος της κοινότητάς μας. Σας ευχαριστούμε.",
     "title": "Σχετικά με εμάς"
   },
   "teamPage": {
-    "pastMatches": "Προηγούμενα παιχνίδια"
+    "pastMatches": "Προηγούμενα παιχνίδια",
+    "lastMatches": "Τελευταίοι αγώνες",
+    "nextMatch": "Επόμενος αγώνας",
+    "manager": "Προπονητής"
   }
 }

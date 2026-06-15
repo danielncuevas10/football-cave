@@ -51,7 +51,11 @@ export default async function MatchDetailsPage({
           .eq("season", currentSeason)
           .order("rank", { ascending: true });
 
-  const [standingsResult, { scorers }, { details, venueName, venueCity, referee }] = await Promise.all([
+  const [
+    standingsResult,
+    { scorers },
+    { details, venueName, venueCity, referee },
+  ] = await Promise.all([
     standingsQuery,
     getOrSyncLeagueData(initialMatch.league_id, currentSeason),
     getMatchDetails(matchId, initialMatch.status),
@@ -68,7 +72,7 @@ export default async function MatchDetailsPage({
     .single();
 
   return (
-    <main className="max-w-3xl bg-[#1B1B1B] mx-auto py-4 text-white space-y-6">
+    <main className="max-w-3xl bg-[#101010] mx-auto py-4 text-white space-y-6">
       <div className="flex justify-start px-4">
         <BackButton />
       </div>
@@ -93,6 +97,7 @@ export default async function MatchDetailsPage({
         referee={referee}
         initialIsLive={(match ?? initialMatch).is_live}
         initialStatus={(match ?? initialMatch).status}
+        initialElapsed={(match ?? initialMatch).elapsed}
       />
     </main>
   );

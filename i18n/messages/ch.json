@@ -11,7 +11,16 @@
     "lineups": "阵容",
     "standings": "积分榜",
     "noInfo": "暂无信息",
-    "venue": "场地"
+    "venue": "场地",
+    "matches": "赛事",
+    "groupStage": "小组赛",
+    "topScorers": "射手榜",
+    "noMatches": "暂无比赛",
+    "group": "小组",
+    "club": "球队",
+    "seeMore": "查看更多",
+    "seeLess": "收起",
+    "loadingMatches": "加载比赛中…"
   },
   "matchEvents": {
     "matchStarted": "比赛开始",
@@ -24,7 +33,18 @@
     "extraTimeStartsSoon": "加时赛即将开始",
     "firstHalfExtraTimeStarts": "加时赛上半场开始",
     "extraTimeHalfTime": "加时赛中场",
-    "ftScore": "终场比分"
+    "ftScore": "终场比分",
+    "minAdded": "分钟补时",
+    "penaltyAwarded": "判罚点球",
+    "goal": "进球",
+    "penaltyGoal": "点球得分",
+    "missedPenalty": "点球未进",
+    "ftLabel": "终场",
+    "ownGoal": "乌龙球",
+    "penaltyCancelled": "点球取消",
+    "inPlayer": "上场",
+    "outPlayer": "下场",
+    "unknownPlayer": "未知"
   },
   "matchDetails": {
     "matchOverview": "比赛概览",
@@ -55,11 +75,23 @@
     "passesPercent": "传球成功率",
     "goalkeeperSaves": "门将扑救"
   },
+  "dateLabels": {
+    "today": "今天",
+    "yesterday": "昨天",
+    "tomorrow": "明天"
+  },
+  "footer": {
+    "privacyPolicy": "隐私政策",
+    "termsOfService": "服务条款"
+  },
   "about": {
     "body": "您专属的足球资讯家园。我们致力于帮助您关注最爱的球队，不错过任何关键时刻。很自豪您成为我们社区的一员。感谢您让我们为您传递最新资讯。",
     "title": "关于我们"
   },
   "teamPage": {
-    "pastMatches": "过往比赛"
+    "pastMatches": "过往比赛",
+    "lastMatches": "近期比赛",
+    "nextMatch": "下一场比赛",
+    "manager": "主教练"
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { League } from "@/types/sports";
 import type { DbStanding } from "@/types/sports";
 import Image from "next/image";
@@ -10,13 +11,14 @@ interface Props {
 }
 
 export default function StandingsTable({ standings }: Props) {
+  const t = useTranslations("matchTabs");
   return (
     <div className="w-full overflow-x-auto bg-custom-gray-2 border border-custom-gray-2 rounded-md">
       <table className="w-full text-sm text-left text-gray-200 border-collapse">
-        <thead className="text-xs text-gray-500 uppercase bg-custom-gray border-b border-custom-gray">
+        <thead className="text-xs text-gray-300 uppercase bg-custom-gray border-b border-custom-gray">
           <tr>
             <th className="px-4 py-3 font-medium w-12 text-center">#</th>
-            <th className="px-4 py-3 font-medium">Club</th>
+            <th className="px-4 py-3 font-medium">{t("club")}</th>
             <th className="px-3 py-3 font-medium text-center" title="Played">
               MP
             </th>
@@ -85,12 +87,15 @@ export default function StandingsTable({ standings }: Props) {
               >
                 {/* Apply the zone border class exclusively to the first column cell */}
                 <td
-                  className={`px-4 py-3 text-center font-mono font-bold text-gray-400 ${finalZoneClass}`}
+                  className={`px-4 py-3 text-center font-mono font-bold text-gray-200 ${finalZoneClass}`}
                 >
                   {team.rank}
                 </td>
                 <td className="px-4 py-3">
-                  <Link href={`/team/${team.team_id}`} className="flex items-center gap-3 hover:opacity-75 transition-opacity">
+                  <Link
+                    href={`/team/${team.team_id}`}
+                    className="flex items-center gap-3 hover:opacity-75 transition-opacity"
+                  >
                     {team.team_logo && (
                       <Image
                         src={team.team_logo}

@@ -1,19 +1,21 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export default function Footer() {
+  const t = useTranslations("footer");
   return (
-    <footer className="bg-[#1B1B1B] border-t border-[#313131] px-6 py-6 mt-auto">
-      <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-400">
+    <footer className="bg-[#101010] border-t border-[#303030] px-6 py-6 mt-auto">
+      <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-200">
         <p>© {new Date().getFullYear()} FootballCave. All rights reserved.</p>
         <nav className="flex items-center gap-4">
           <Link
             href="/privacy"
             className="hover:text-gray-300 transition-colors"
           >
-            Privacy Policy
+            {t("privacyPolicy")}
           </Link>
           <Link href="/terms" className="hover:text-gray-300 transition-colors">
-            Terms of Service
+            {t("termsOfService")}
           </Link>
         </nav>
       </div>

@@ -5,7 +5,7 @@ import { standardizeRound } from "@/lib/sync/standardizeRound";
 import { syncStandingsForLeague } from "@/lib/server/sync-league";
 import { LIVE_STATUSES } from "@/types/sports";
 import type { DbMatch } from "@/types/sports";
-import { guardRoute } from "@/lib/api-guard";
+import { verifyCronSecret } from "@/lib/api-guard";
 
 const TRACKED_LEAGUES = (process.env.TRACKED_LEAGUE_IDS ?? "")
   .split(",")
@@ -13,8 +13,38 @@ const TRACKED_LEAGUES = (process.env.TRACKED_LEAGUE_IDS ?? "")
   .filter(Boolean);
 
 export async function GET(req: NextRequest) {
-  const blocked = await guardRoute(req);
+  const blocked = verifyCronSecret(req);
   if (blocked) return blocked;
+
+  // Guard: skip the API call entirely when there is nothing to watch.
+  // Two cheap Supabase count queries run in parallel:
+  //   a) any match the DB currently considers live
+  //   b) any NS/TBD match whose kickoff falls in [-3h, +15min] —
+  //      catches matches that just started (cron may have missed the flip)
+  //      and matches about to kick off.
+  const windowStart = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
+  const windowEnd   = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+  const [{ count: liveCount }, { count: imminentCount }] = await Promise.all([
+    supabaseAdmin
+      .from("matches")
+      .select("id", { count: "exact", head: true })
+      .eq("is_live", true),
+    supabaseAdmin
+      .from("matches")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["NS", "TBD"])
+      .gte("fixture_date", windowStart)
+      .lte("fixture_date", windowEnd),
+  ]);
+
+  if (liveCount === 0 && imminentCount === 0) {
+    console.log("[sync-live] skipped — nothing to watch");
+    return NextResponse.json({ live: 0, closed: 0, standings_synced: 0, skipped: true });
+  }
+
+  console.log(`[sync-live] proceeding — liveCount=${liveCount} imminentCount=${imminentCount}`);
+
   // 1. Fetch all currently live matches from the API in one call
   const fresh = await footballApi.liveMatches();
   const liveFromApi = (fresh?.response ?? []).filter(
@@ -61,32 +91,126 @@ export async function GET(req: NextRequest) {
   const affectedLeagues = new Map<number, number>(); // leagueId → season
 
   if (ghostIds.length > 0) {
-    await Promise.all(
+    // Fetch all ghost statuses from the API in parallel (same as before)
+    const ghostResults = await Promise.all(
       ghostIds.map(async (id) => {
         const result = await footballApi.getMatchById(id);
-        const row = result?.response?.[0];
-        if (row) {
-          await supabaseAdmin.from("matches").update({
-            home_score: row.goals.home,
-            away_score: row.goals.away,
-            status: row.fixture.status.short,
-            elapsed: row.fixture.status.elapsed,
-            is_live: false,
-            updated_at: new Date().toISOString(),
-          }).eq("id", id);
-          affectedLeagues.set(row.league.id, row.league.season);
-        } else {
-          await supabaseAdmin.from("matches").update({
-            is_live: false,
-            status: "FT",
-            updated_at: new Date().toISOString(),
-          }).eq("id", id);
-        }
+        return { id, apiRow: result?.response?.[0] ?? null };
       })
     );
+
+    const resolved  = ghostResults.filter(r => r.apiRow !== null);
+    const vanishedIds = ghostResults.filter(r => r.apiRow === null).map(r => r.id);
+
+    // One upsert for matches where the API returned real final data
+    if (resolved.length > 0) {
+      await supabaseAdmin.from("matches").upsert(
+        resolved.map(r => {
+          const row = r.apiRow!;
+          return {
+            id:         row.fixture.id,
+            home_team:  row.teams.home.name,
+            away_team:  row.teams.away.name,
+            home_logo:  row.teams.home.logo ?? null,
+            away_logo:  row.teams.away.logo ?? null,
+            home_score: row.goals.home,
+            away_score: row.goals.away,
+            status:     row.fixture.status.short,
+            fixture_date: row.fixture.date,
+            league_id:  row.league.id,
+            league_name: row.league.name,
+            league_logo: row.league.logo ?? null,
+            round:      row.league.round ?? null,
+            stage:      standardizeRound(row.league.round),
+            elapsed:    row.fixture.status.elapsed,
+            is_live:    false,
+            updated_at: new Date().toISOString(),
+          };
+        }),
+        { onConflict: "id" }
+      );
+      resolved.forEach(r => affectedLeagues.set(r.apiRow!.league.id, r.apiRow!.league.season));
+    }
+
+    // One bulk update for matches the API no longer knows about
+    if (vanishedIds.length > 0) {
+      await supabaseAdmin.from("matches")
+        .update({ is_live: false, status: "FT", updated_at: new Date().toISOString() })
+        .in("id", vanishedIds);
+    }
   }
 
-  // 3. Refresh standings for every league that had a match finish
+  // 3. Clean up stale NS/TBD matches that should have finished but were never
+  //    updated (happens when the cron was timing out and missing match endings).
+  //    Only runs when the API reports no live matches right now, so we know
+  //    any NS/TBD match 2.5h+ past kickoff is definitely done.
+  if (liveFromApi.length === 0) {
+    const staleCutoff = new Date(Date.now() - 2.5 * 60 * 60 * 1000).toISOString();
+    let staleQuery = supabaseAdmin
+      .from("matches")
+      .select("id")
+      .in("status", ["NS", "TBD"])
+      .lt("fixture_date", staleCutoff)
+      .limit(10); // cap to avoid excessive API calls in one run
+
+    if (TRACKED_LEAGUES.length > 0) {
+      staleQuery = staleQuery.in("league_id", TRACKED_LEAGUES);
+    }
+
+    const { data: staleRows } = await staleQuery;
+
+    if (staleRows && staleRows.length > 0) {
+      console.log(`[sync-live] cleaning up ${staleRows.length} stale NS/TBD matches`);
+
+      // Fetch all stale statuses in parallel
+      const staleResults = await Promise.all(
+        staleRows.map(async ({ id }) => {
+          const result = await footballApi.getMatchById(id);
+          return { id, apiRow: result?.response?.[0] ?? null };
+        })
+      );
+
+      const staleResolved  = staleResults.filter(r => r.apiRow !== null);
+      const staleVanishedIds = staleResults.filter(r => r.apiRow === null).map(r => r.id);
+
+      if (staleResolved.length > 0) {
+        await supabaseAdmin.from("matches").upsert(
+          staleResolved.map(r => {
+            const row = r.apiRow!;
+            return {
+              id:         row.fixture.id,
+              home_team:  row.teams.home.name,
+              away_team:  row.teams.away.name,
+              home_logo:  row.teams.home.logo ?? null,
+              away_logo:  row.teams.away.logo ?? null,
+              home_score: row.goals.home,
+              away_score: row.goals.away,
+              status:     row.fixture.status.short,
+              fixture_date: row.fixture.date,
+              league_id:  row.league.id,
+              league_name: row.league.name,
+              league_logo: row.league.logo ?? null,
+              round:      row.league.round ?? null,
+              stage:      standardizeRound(row.league.round),
+              elapsed:    row.fixture.status.elapsed,
+              is_live:    false,
+              updated_at: new Date().toISOString(),
+            };
+          }),
+          { onConflict: "id" }
+        );
+        staleResolved.forEach(r => affectedLeagues.set(r.apiRow!.league.id, r.apiRow!.league.season));
+      }
+
+      if (staleVanishedIds.length > 0) {
+        await supabaseAdmin.from("matches")
+          .update({ is_live: false, status: "FT", updated_at: new Date().toISOString() })
+          .in("id", staleVanishedIds);
+      }
+    }
+  }
+
+  // 4. Refresh standings for every league that had a match finish
   for (const [leagueId, season] of affectedLeagues) {
     try {
       await syncStandingsForLeague(leagueId, season);

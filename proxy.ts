@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const locales = ["en", "es", "fr", "pt", "bs", "ch", "gr", "jp", "kr", "tr"];
+const locales = ["en", "es", "fr", "pt", "bs", "sr", "ch", "gr", "jp", "kr", "tr"];
 const defaultLocale = "en";
 
 // Maps standard Accept-Language codes → our locale codes
@@ -10,7 +10,10 @@ const acceptLanguageMap: Record<string, string> = {
   fr: "fr",
   pt: "pt",
   bs: "bs",
-  hr: "bs",
+  hr: "bs",  // Croatian → Bosnian (mutually intelligible)
+  sr: "sr",
+  cnr: "sr", // Montenegrin official code → Serbian
+  me: "sr",  // Some browsers use "me" for Montenegrin
   zh: "ch",
   el: "gr",
   ja: "jp",
@@ -24,7 +27,8 @@ const countryMap: Record<string, string> = {
   UY: "es", EC: "es", BO: "es", PY: "es", CR: "es", GT: "es", CU: "es",
   FR: "fr", BE: "fr", CH: "fr",
   BR: "pt", PT: "pt", AO: "pt", MZ: "pt",
-  BA: "bs",
+  BA: "bs", HR: "bs",  // Bosnia + Croatia → Bosnian
+  RS: "sr", ME: "sr",  // Serbia + Montenegro → Serbian
   CN: "ch", TW: "ch", HK: "ch", SG: "ch",
   GR: "gr",
   JP: "jp",

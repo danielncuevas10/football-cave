@@ -2,6 +2,8 @@
 import type { DbMatch, FixtureStatus } from "@/types/sports";
 import { LIVE_STATUSES } from "@/types/sports";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
+import { getLocalizedTeamName } from "@/lib/teamName";
 import { useLiveMinute } from "@/hooks/useLiveMinute";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
@@ -23,6 +25,7 @@ function StatusBadge({
   elapsed: number | null;
   fixtureDate: string;
 }) {
+  const tEv = useTranslations("matchEvents");
   const minute = useLiveMinute(status, elapsed, fixtureDate);
 
   if (status === "NS" || status === "TBD") return null;
@@ -33,22 +36,24 @@ function StatusBadge({
     case "2H":
     case "ET":
       return (
-        <span className="text-white text-xs font-mono px-1.5 py-1.5 bg-[#00A800] rounded-xl">
+        <span className="text-white text-xs font-mono px-1.5 py-1.5 bg-[#00A800] rounded-md">
           {minute}′
         </span>
       );
     case "HT":
       return (
-        <span className="text-white text-xs font-mono px-1.5 py-0.5 bg-gray-600 rounded-lg">
-          HT
+        <span className="text-white text-xs font-mono px-1.5 py-0.5 bg-gray-600 rounded-mdg">
+          {tEv("halfTime")}
         </span>
       );
     default:
-      return <span className="text-gray-400 text-xs">{status}</span>;
+      return <span className="text-gray-200 text-xs">{status}</span>;
   }
 }
 
 export default function MatchCard({ match }: { match: DbMatch }) {
+  const tEv = useTranslations("matchEvents");
+  const locale = useLocale();
   const kickoffPassed = new Date(match.fixture_date) < new Date();
   const isScheduled =
     (match.status === "NS" || match.status === "TBD") && !kickoffPassed;
@@ -78,7 +83,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
         {/* Home team */}
         <div className="flex items-center justify-end gap-2 min-w-0">
           <span className="text-sm font-medium text-right leading-tight line-clamp-2">
-            {match.home_team}
+            {getLocalizedTeamName(match.home_team, locale)}
           </span>
           {match.home_logo && (
             <img
@@ -106,11 +111,11 @@ export default function MatchCard({ match }: { match: DbMatch }) {
               </span>
             </div>
           ) : (
-            <span className="text-gray-500 text-sm font-medium">–</span>
+            <span className="text-gray-300 text-sm font-medium">–</span>
           )}
           {isConfirmedFinished && (
-            <span className="text-gray-400 text-[10px] uppercase tracking-wider">
-              FT
+            <span className="text-gray-200 text-[10px] uppercase tracking-wider">
+              {tEv("ftLabel")}
             </span>
           )}
         </div>
@@ -125,7 +130,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
             />
           )}
           <span className="text-sm font-medium text-left leading-tight line-clamp-2">
-            {match.away_team}
+            {getLocalizedTeamName(match.away_team, locale)}
           </span>
         </div>
       </div>

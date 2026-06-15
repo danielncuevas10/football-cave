@@ -1,15 +1,11 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { LIVE_STATUSES } from "@/types/sports"
 import type { DbMatch } from "@/types/sports"
 
-const POLL_INTERVAL_MS = 60_000 // sync every 60 seconds while live matches exist
-
 export function useLiveScores() {
   const [matches, setMatches] = useState<DbMatch[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const matchesRef = useRef(matches)
-  matchesRef.current = matches
 
   useEffect(() => {
     // Initial fetch — only currently live matches
@@ -24,6 +20,8 @@ export function useLiveScores() {
         setIsLoading(false)
       })
 
+    // Supabase Realtime delivers every DB write from the cron directly to
+    // connected clients — no browser polling needed.
     const channel = supabase
       .channel("live-matches")
       .on<DbMatch>(
@@ -61,15 +59,8 @@ export function useLiveScores() {
       )
       .subscribe()
 
-    // Poll /api/sync-live every 60 s to keep elapsed + scores current.
-    // The API write triggers Realtime, which updates the state above.
-    const poll = setInterval(() => {
-      fetch("/api/sync-live").catch(() => {/* silent — Realtime handles UI */})
-    }, POLL_INTERVAL_MS)
-
     return () => {
       supabase.removeChannel(channel)
-      clearInterval(poll)
     }
   }, [])
 

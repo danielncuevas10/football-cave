@@ -11,7 +11,16 @@
     "lineups": "Escalações",
     "standings": "Classificação",
     "noInfo": "Sem informação ainda",
-    "venue": "Local"
+    "venue": "Local",
+    "matches": "Jogos",
+    "groupStage": "Fase de grupos",
+    "topScorers": "Artilheiros",
+    "noMatches": "Sem jogos",
+    "group": "Grupo",
+    "club": "Clube",
+    "seeMore": "Ver mais",
+    "seeLess": "Ver menos",
+    "loadingMatches": "Carregando jogos…"
   },
   "matchEvents": {
     "matchStarted": "Jogo iniciado",
@@ -24,7 +33,18 @@
     "extraTimeStartsSoon": "Prorrogação começa em breve",
     "firstHalfExtraTimeStarts": "Início da prorrogação",
     "extraTimeHalfTime": "Intervalo da prorrogação",
-    "ftScore": "Resultado final"
+    "ftScore": "Resultado final",
+    "minAdded": "min adicionados",
+    "penaltyAwarded": "Pênalti concedido",
+    "goal": "Gol",
+    "penaltyGoal": "Gol de pênalti",
+    "missedPenalty": "Pênalti perdido",
+    "ftLabel": "Encerrado",
+    "ownGoal": "Gol contra",
+    "penaltyCancelled": "Pênalti cancelado",
+    "inPlayer": "Entra",
+    "outPlayer": "Sai",
+    "unknownPlayer": "Desconhecido"
   },
   "matchDetails": {
     "matchOverview": "Resumo do jogo",
@@ -55,11 +75,23 @@
     "passesPercent": "Passes %",
     "goalkeeperSaves": "Defesas do goleiro"
   },
+  "dateLabels": {
+    "today": "Hoje",
+    "yesterday": "Ontem",
+    "tomorrow": "Amanhã"
+  },
+  "footer": {
+    "privacyPolicy": "Política de privacidade",
+    "termsOfService": "Termos de serviço"
+  },
   "about": {
     "body": "O seu espaço dedicado ao futebol. Estamos aqui para ajudá-lo a acompanhar os seus clubes favoritos e nunca perder um momento decisivo. Temos orgulho em tê-lo na nossa comunidade. Obrigado por nos deixar mantê-lo informado.",
     "title": "Sobre nós"
   },
   "teamPage": {
-    "pastMatches": "Jogos anteriores"
+    "pastMatches": "Jogos anteriores",
+    "lastMatches": "Últimas partidas",
+    "nextMatch": "Próxima partida",
+    "manager": "Técnico"
   }
 }

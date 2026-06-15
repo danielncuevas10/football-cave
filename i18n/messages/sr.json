@@ -2,7 +2,7 @@
   "nav": {
     "live": "Uživo",
     "standings": "Tabela",
-    "scorers": "Strijelci",
+    "scorers": "Strelci",
     "signOut": "Odjava"
   },
   "matchTabs": {
@@ -14,7 +14,7 @@
     "venue": "Stadion",
     "matches": "Utakmice",
     "groupStage": "Grupna faza",
-    "topScorers": "Strijelci",
+    "topScorers": "Strelci",
     "noMatches": "Nema utakmica",
     "group": "Grupa",
     "club": "Klub",
@@ -24,18 +24,18 @@
   },
   "matchEvents": {
     "matchStarted": "Utakmica počela",
-    "halfTimeBreak": "Poluvrijeme",
+    "halfTimeBreak": "Poluvreme",
     "secondHalfStarts": "Početak drugog poluvremena",
     "noNotableActions": "Nema značajnih akcija",
     "matchFinished": "Utakmica završena",
-    "halfTime": "Poluvrijeme",
-    "regularTimeFinished": "Regularno vrijeme završeno",
-    "extraTimeStartsSoon": "Produžetci uskoro počinju",
+    "halfTime": "Poluvreme",
+    "regularTimeFinished": "Regularno vreme završeno",
+    "extraTimeStartsSoon": "Produžeci uskoro počinju",
     "firstHalfExtraTimeStarts": "Početak prvog produžetka",
     "extraTimeHalfTime": "Pauza produžetaka",
     "ftScore": "Konačan rezultat",
-    "minAdded": "min dodano",
-    "penaltyAwarded": "Penal dodijeljen",
+    "minAdded": "min dodato",
+    "penaltyAwarded": "Penal dosuđen",
     "goal": "Gol",
     "penaltyGoal": "Gol iz penala",
     "missedPenalty": "Promašen penal",
@@ -48,7 +48,7 @@
   },
   "matchDetails": {
     "matchOverview": "Pregled utakmice",
-    "comingSoon": "Uskoro...",
+    "comingSoon": "Uskoro…",
     "noInfoYet": "Nema dostupnih informacija još"
   },
   "lineups": {
@@ -63,35 +63,35 @@
     "hours": "S",
     "minutes": "M",
     "followNews": "Pratite najnovije utakmice",
-    "worldCup": "Svjetski kup 2026"
+    "worldCup": "Svetski kup 2026"
   },
   "statLabels": {
-    "ballPossession": "Posjed lopte",
+    "ballPossession": "Posed lopte",
     "shotsOnGoal": "Udarci u okvir",
     "totalShots": "Ukupni udarci",
     "cornerKicks": "Korneri",
     "fouls": "Fauli",
-    "totalPasses": "Ukupne dodavanja",
+    "totalPasses": "Ukupna dodavanja",
     "passesPercent": "Dodavanja %",
-    "goalkeeperSaves": "Obrane golmana"
+    "goalkeeperSaves": "Odbrane golmana"
   },
   "dateLabels": {
     "today": "Danas",
-    "yesterday": "Jučer",
+    "yesterday": "Juče",
     "tomorrow": "Sutra"
   },
   "footer": {
     "privacyPolicy": "Politika privatnosti",
-    "termsOfService": "Uvjeti korištenja"
+    "termsOfService": "Uslovi korišćenja"
   },
   "about": {
-    "body": "Vaše posvećeno mjesto za fudbalske uvide. Ovdje smo da vam pomognemo pratiti omiljene klubove i ne propustiti nijedan ključni trenutak. Ponosni smo što ste dio naše zajednice. Hvala što nam dopuštate da vas informišemo.",
+    "body": "Vaše posvećeno mesto za fudbalske uvide. Ovde smo da vam pomognemo pratiti omiljene klubove i ne propustiti nijedan ključni trenutak. Ponosni smo što ste deo naše zajednice. Hvala što nam dozvoljavate da vas informišemo.",
     "title": "O nama"
   },
   "teamPage": {
     "pastMatches": "Prošle utakmice",
-    "lastMatches": "Posljednje utakmice",
-    "nextMatch": "Sljedeća utakmica",
+    "lastMatches": "Poslednje utakmice",
+    "nextMatch": "Sledeća utakmica",
     "manager": "Trener"
   }
 }
