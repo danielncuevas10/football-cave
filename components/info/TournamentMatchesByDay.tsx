@@ -100,7 +100,7 @@ export default function TournamentMatchesByDay({ matches }: Props) {
 
   if (!matchDays.length) {
     return (
-      <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rounded-md">
+      <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rrounded-md">
         {tTabs("noMatches")}
         <img
           src="/images/specs/clock.svg"
@@ -116,7 +116,7 @@ export default function TournamentMatchesByDay({ matches }: Props) {
   return (
     <div className="space-y-4">
       {/* Day navigation — same style as ScoreList */}
-      <div className="flex items-center justify-between bg-custom-gray p-3 rounded-mdg">
+      <div className="flex items-center justify-between bg-custom-gray p-3 rounded-md">
         <button
           onClick={() => setDayIndex((i) => Math.max(0, i - 1))}
           disabled={dayIndex === 0}
@@ -157,7 +157,7 @@ export default function TournamentMatchesByDay({ matches }: Props) {
       </div>
 
       {/* Match list for the selected day */}
-      <div className="bg-custom-gray rounded-mdg overflow-hidden divide-y divide-custom-gray/50">
+      <div className="bg-custom-gray rounded-md overflow-hidden divide-y divide-custom-gray/50">
         {dayMatches.map((match) => (
           <MatchCard key={match.id} match={match} />
         ))}

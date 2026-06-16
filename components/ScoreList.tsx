@@ -161,7 +161,7 @@ export default function ScoreList({ initialMatches }: Props) {
     <div className="space-y-6">
       <LiveBadge />
       {/* Date Navigation Bar */}
-      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray p-3 rounded-mdg">
+      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray p-3 rounded-md">
         <div className="flex items-center justify-between w-full sm:w-auto gap-4">
           <button
             onClick={prevDay}
@@ -234,7 +234,7 @@ export default function ScoreList({ initialMatches }: Props) {
                 return (
                   <div
                     key={`live-${leagueName}`}
-                    className="bg-custom-gray rounded-mdg overflow-hidden"
+                    className="bg-custom-gray rounded-md overflow-hidden"
                   >
                     {leagueId ? (
                       <Link
@@ -304,7 +304,7 @@ export default function ScoreList({ initialMatches }: Props) {
               return (
                 <div
                   key={leagueName}
-                  className="bg-custom-gray rounded-mdg overflow-hidden"
+                  className="bg-custom-gray rounded-md overflow-hidden"
                 >
                   {leagueId ? (
                     <Link
@@ -349,7 +349,7 @@ export default function ScoreList({ initialMatches }: Props) {
 
       {/* FIX: Absolute clean fallback empty state container. Shows ONLY if total count is zero */}
       {matchesForDate.length === 0 && (
-        <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-mdg">
+        <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
           {tTabs("noMatches")}
           <img
             src="/images/specs/clock.svg"

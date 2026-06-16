@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useTranslations } from "next-intl";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
+import SearchBar from "@/components/SearchBar";
 
 type BarState = "hidden" | "loading" | "done";
 
@@ -77,28 +78,7 @@ export default function TopNav() {
           FootballCave
         </Link>
 
-        {/*        <div className="flex items-center gap-4 text-sm">
-          <LocaleSwitcher />
-          {user ? (
-            <button
-              onClick={() => supabase.auth.signOut()}
-              className="text-gray-200 hover:text-white transition-colors"
-            >
-              {t("signOut")}
-            </button>
-          ) : (
-            <Link
-              href="/auth"
-              className="text-gray-200 hover:text-white transition-colors flex items-center justify-center"
-            >
-              <img
-                src="/images/login.svg"
-                alt="Login"
-                className="w-5 h-5 object-contain"
-              />
-            </Link>
-          )}
-        </div> */}
+        <SearchBar />
       </div>
       <div
         className="absolute bottom-0 left-0 h-0.5 bg-white"

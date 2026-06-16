@@ -62,6 +62,7 @@ export default function MatchTabs({
   const [elapsed, setElapsed] = useState<number | null>(initialElapsed);
   const [liveMinute, setLiveMinute] = useState<number>(initialElapsed ?? 0);
   const liveIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [liveDetails, setLiveDetails] = useState<DbMatchDetails | null>(details);
 
   useEffect(() => {
     const channel = supabase
@@ -120,6 +121,28 @@ export default function MatchTabs({
     };
   }, [status, elapsed, isLive]);
 
+  // Keep liveDetails in sync if the server-rendered prop ever changes (navigation)
+  useEffect(() => { setLiveDetails(details); }, [details]);
+
+  // Poll for fresh events every 60 s during live matches.
+  // The cron is the only caller that hits the API; the client just reads
+  // from match_details so no quota is burned here.
+  useEffect(() => {
+    if (!isLive) return;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/match/${matchId}/events`);
+        if (res.ok) {
+          const data: DbMatchDetails | null = await res.json();
+          if (data) setLiveDetails(data);
+        }
+      } catch { /* network hiccup — will retry next tick */ }
+    };
+    poll();
+    const id = setInterval(poll, 60_000);
+    return () => clearInterval(id);
+  }, [matchId, isLive]);
+
   const tTabs = useTranslations("matchTabs");
   const tEv = useTranslations("matchEvents");
 
@@ -127,7 +150,7 @@ export default function MatchTabs({
   const isFriendly = leagueId === 10;
 
   const homeTeamId =
-    details?.lineups?.[0]?.team?.id ?? details?.statistics?.[0]?.team?.id;
+    liveDetails?.lineups?.[0]?.team?.id ?? liveDetails?.statistics?.[0]?.team?.id;
 
   const isWorldCup = leagueId === League.WorldCup;
   const matchGroupName = isWorldCup
@@ -144,7 +167,7 @@ export default function MatchTabs({
     let home = 0;
     let away = 0;
 
-    details?.events?.forEach((ev: MatchEvent) => {
+    liveDetails?.events?.forEach((ev: MatchEvent) => {
       if (
         ev.type === "Goal" &&
         ev.detail !== "Missed Penalty" &&
@@ -195,7 +218,7 @@ export default function MatchTabs({
 
   // Pre-compute how many added minutes were signalled each half from event data
   const firstHalfAdded =
-    details?.events?.reduce(
+    liveDetails?.events?.reduce(
       (max, ev) =>
         ev.time.elapsed === 45 && ev.time.extra
           ? Math.max(max, ev.time.extra)
@@ -203,7 +226,7 @@ export default function MatchTabs({
       0
     ) ?? 0;
   const secondHalfAdded =
-    details?.events?.reduce(
+    liveDetails?.events?.reduce(
       (max, ev) =>
         ev.time.elapsed === 90 && ev.time.extra
           ? Math.max(max, ev.time.extra)
@@ -255,10 +278,10 @@ export default function MatchTabs({
           }`}
         >
           <div className="w-full space-y-2">
-            {details?.events && details.events.length > 0 ? (
-              <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
+            {liveDetails?.events && liveDetails.events.length > 0 ? (
+              <div className="bg-custom-gray-2 rrounded-md border border-custom-gray overflow-hidden">
                 <div className=" divide-y divide-custom-gray/30">
-                  {details.events.map((ev: MatchEvent, index: number) => {
+                  {liveDetails.events.map((ev: MatchEvent, index: number) => {
                     const isOwnGoal =
                       ev.type === "Goal" && ev.detail === "Own Goal";
                     const eventFromHome = homeTeamId
@@ -518,7 +541,7 @@ export default function MatchTabs({
                                   {isSubstitution ? (
                                     <div className="flex flex-col text-xs min-w-0">
                                       <span className="text-[#20C547] font-medium truncate">
-                                        {ev.assist.name || tEv("inPlayer")}
+                                        {ev.assist?.name || tEv("inPlayer")}
                                       </span>
                                       <span className="text-[#C50212] font-medium truncate">
                                         {ev.player.name || tEv("outPlayer")}
@@ -601,7 +624,7 @@ export default function MatchTabs({
                                   {isSubstitution ? (
                                     <div className="flex flex-col text-xs text-right items-end min-w-0">
                                       <span className="text-[#20C547] font-medium truncate">
-                                        {ev.assist.name || tEv("inPlayer")}
+                                        {ev.assist?.name || tEv("inPlayer")}
                                       </span>
                                       <span className="text-[#C50212] font-medium truncate">
                                         {ev.player.name || tEv("outPlayer")}
@@ -737,7 +760,7 @@ export default function MatchTabs({
                 </div>
               </div>
             ) : status === "HT" ? (
-              <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
+              <div className="bg-custom-gray-2 rrounded-md border border-custom-gray overflow-hidden">
                 <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
                   <img
                     src="/images/specs/clock.svg"
@@ -764,7 +787,7 @@ export default function MatchTabs({
                 </div>
               </div>
             ) : isLive ? (
-              <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
+              <div className="bg-custom-gray-2 rrounded-md border border-custom-gray overflow-hidden">
                 <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
                   <img
                     src="/images/specs/clock.svg"
@@ -802,7 +825,7 @@ export default function MatchTabs({
                 )}
               </div>
             ) : (
-              <div className="py-10 text-center rounded-md bg-custom-gray-2 space-y-2">
+              <div className="py-10 text-center rrounded-md bg-custom-gray-2 space-y-2">
                 {venueCity || venueName ? (
                   <div className="space-y-3">
                     {/* Venue row */}
@@ -843,7 +866,7 @@ export default function MatchTabs({
           }`}
         >
           <div className="w-full">
-            <MatchCenterDetails details={details} />
+            <MatchCenterDetails details={liveDetails} />
           </div>
         </div>
 
@@ -853,7 +876,7 @@ export default function MatchTabs({
           }`}
         >
           <div className="w-full">
-            <MatchCenterLinenups details={details} />
+            <MatchCenterLinenups details={liveDetails} />
           </div>
         </div>
 
@@ -862,7 +885,7 @@ export default function MatchTabs({
             activeTab === "table" ? "" : "h-0 overflow-hidden"
           }`}
         >
-          <div className="w-full bg-custom-gray rounded-md overflow-hidden">
+          <div className="w-full bg-custom-gray rrounded-md overflow-hidden">
             <Link href={`/league/${leagueId}`} className="block">
               {isWorldCup ? (
                 <img

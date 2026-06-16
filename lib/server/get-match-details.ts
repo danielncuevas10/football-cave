@@ -1,4 +1,3 @@
-import { supabase } from "@/lib/supabase";
 import { supabaseAdmin } from "@/lib/server/supabase-admin";
 import { footballApi } from "@/lib/server/football-api";
 import type { DbMatchDetails } from "@/types/sports";
@@ -23,7 +22,7 @@ export async function getMatchDetails(
   // The score, status, and event data never change after full-time, so if
   // we already have lineup/stats data cached we can skip the API call entirely.
   if (isKnownFinished) {
-    const { data: cached } = await supabase
+    const { data: cached } = await supabaseAdmin
       .from("match_details")
       .select("*")
       .eq("match_id", matchId)
@@ -31,11 +30,16 @@ export async function getMatchDetails(
 
     const hasData =
       cached &&
-      (cached.lineups?.length > 0 || cached.statistics?.length > 0);
+      (cached.events?.length > 0 || cached.lineups?.length > 0 || cached.statistics?.length > 0);
 
     if (hasData) {
       // Finished + full data in cache — zero API calls needed.
-      return { details: cached, venueName: null, venueCity: null, referee: null };
+      return {
+        details: cached,
+        venueName: cached.venue_name ?? null,
+        venueCity: cached.venue_city ?? null,
+        referee: cached.referee ?? null,
+      };
     }
   }
 
@@ -65,7 +69,7 @@ export async function getMatchDetails(
   }
 
   // Check full-details cache (events / lineups / statistics).
-  const { data: cached } = await supabase
+  const { data: cached } = await supabaseAdmin
     .from("match_details")
     .select("*")
     .eq("match_id", matchId)
@@ -74,12 +78,17 @@ export async function getMatchDetails(
   if (cached) {
     const statusFromApi = basicRow?.fixture?.status?.short ?? knownStatus ?? "";
     const isFinished = FINISHED_STATUSES.includes(statusFromApi);
-    const hasData = cached.lineups?.length > 0 || cached.statistics?.length > 0;
+    const hasData = cached.events?.length > 0 || cached.lineups?.length > 0 || cached.statistics?.length > 0;
     const cacheAgeMs = Date.now() - new Date(cached.updated_at).getTime();
     const isFresh = cacheAgeMs < CACHE_TTL_MS;
 
     if ((isFinished && hasData) || isFresh) {
-      return { details: cached, venueName, venueCity, referee };
+      return {
+        details: cached,
+        venueName: venueName ?? cached.venue_name ?? null,
+        venueCity: venueCity ?? cached.venue_city ?? null,
+        referee: referee ?? cached.referee ?? null,
+      };
     }
   }
 
@@ -99,6 +108,9 @@ export async function getMatchDetails(
     })),
     lineups: fresh.lineups,
     statistics: fresh.statistics,
+    venue_name: venueName,
+    venue_city: venueCity,
+    referee,
   };
 
   const { error: detailsError } = await supabaseAdmin

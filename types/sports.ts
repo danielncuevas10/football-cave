@@ -140,17 +140,17 @@ export interface DbMatch {
   }
 
   export interface MatchEvent {
-    time: { elapsed: number; extra: number | null };
+    time: { elapsed: number; extra?: number | null };
     team: { id: number; name: string; logo: string };
     player: { id: number; name: string };
-    assist: { id: number | null; name: string | null };
+    assist?: { id: number | null; name: string | null } | null;
     type: string;
     detail: string;
   }
 
   export interface TeamLineup {
     team: { id: number; name: string; logo: string };
-    coach: { id: number | null; name: string | null };
+    coach?: { id: number | null; name: string | null } | null;
     formation: string;
     startXI: { player: { id: number; name: string; number: number; pos: string | null } }[];
     substitutes: { player: { id: number; name: string; number: number; pos: string | null } }[];
@@ -167,6 +167,9 @@ export interface DbMatch {
     lineups: TeamLineup[];
     statistics: TeamStatistics[];
     updated_at: string;
+    venue_name?: string | null;
+    venue_city?: string | null;
+    referee?: string | null;
   }
   
   export interface DbTopScorer {

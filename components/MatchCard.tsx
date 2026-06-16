@@ -36,13 +36,13 @@ function StatusBadge({
     case "2H":
     case "ET":
       return (
-        <span className="text-white text-xs font-mono px-1.5 py-1.5 bg-[#00A800] rounded-md">
+        <span className="text-white text-xs font-mono px-1.5 py-1.5 bg-[#00A800] rrounded-md">
           {minute}′
         </span>
       );
     case "HT":
       return (
-        <span className="text-white text-xs font-mono px-1.5 py-0.5 bg-gray-600 rounded-mdg">
+        <span className="text-white text-xs font-mono px-1.5 py-0.5 bg-gray-600 rounded-md">
           {tEv("halfTime")}
         </span>
       );

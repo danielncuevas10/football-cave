@@ -135,28 +135,38 @@ export const standingsResponseSchema = z.object({
 })
 
 export const apiEventSchema = z.object({
-  time: z.object({ elapsed: z.number(), extra: z.number().nullable() }),
+  time: z.object({ elapsed: z.number(), extra: z.number().nullable().optional() }),
   team: z.object({ id: z.number(), name: z.string(), logo: z.string().optional().default("") }),
   player: z.object({ id: z.number().nullable(), name: z.string().nullable() }),
-  assist: z.object({ id: z.number().nullable(), name: z.string().nullable() }),
+  assist: z.object({ id: z.number().nullable(), name: z.string().nullable() }).optional().nullable(),
   type: z.string(),
   detail: z.string(),
 });
 
 export const apiLineupSchema = z.object({
   team: z.object({ id: z.number(), name: z.string(), logo: z.string().optional().default("") }),
-  coach: z.object({ id: z.number().nullable(), name: z.string().nullable() }),
+  coach: z.object({ id: z.number().nullable(), name: z.string().nullable() }).optional().nullable(),
   formation: z.string().nullable().optional().transform((v) => v ?? ""),
   startXI: z.array(z.object({
-    player: z.object({ id: z.number().nullable().transform((v) => v ?? 0), name: z.string(), number: z.number(), pos: z.string().nullable() })
+    player: z.object({
+      id: z.number().nullable().transform((v) => v ?? 0),
+      name: z.string().nullable().optional().transform((v) => v ?? ""),
+      number: z.number().nullable().optional().transform((v) => v ?? 0),
+      pos: z.string().nullable(),
+    })
   })).optional().default([]),
   substitutes: z.array(z.object({
-    player: z.object({ id: z.number().nullable().transform((v) => v ?? 0), name: z.string(), number: z.number(), pos: z.string().nullable() })
+    player: z.object({
+      id: z.number().nullable().transform((v) => v ?? 0),
+      name: z.string().nullable().optional().transform((v) => v ?? ""),
+      number: z.number().nullable().optional().transform((v) => v ?? 0),
+      pos: z.string().nullable(),
+    })
   })).optional().default([]),
 });
 
 export const apiStatisticSchema = z.object({
-  team: z.object({ id: z.number(), name: z.string(), logo: z.string() }),
+  team: z.object({ id: z.number(), name: z.string(), logo: z.string().nullable().optional().transform((v) => v ?? "") }),
   statistics: z.array(z.object({
     type: z.string(),
     value: z.union([z.string(), z.number()]).nullable()

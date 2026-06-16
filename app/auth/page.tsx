@@ -137,7 +137,7 @@ export default function AuthPage() {
           placeholder="Email"
           autoComplete="email"
           disabled={loading}
-          className="w-full border rounded-mdg p-3 mb-3 text-sm"
+          className="w-full border rounded-md p-3 mb-3 text-sm"
         />
 
         <input
@@ -147,7 +147,7 @@ export default function AuthPage() {
           placeholder="Password"
           autoComplete={mode === "login" ? "current-password" : "new-password"}
           disabled={loading}
-          className="w-full border rounded-mdg p-3 mb-4 text-sm"
+          className="w-full border rounded-md p-3 mb-4 text-sm"
         />
 
         {/* Turnstile */}
@@ -167,7 +167,7 @@ export default function AuthPage() {
         <button
           onClick={handleSubmit}
           disabled={loading || !email || !password || !captchaToken}
-          className="w-full bg-blue-600 text-white rounded-mdg p-3 text-sm font-medium disabled:opacity-50"
+          className="w-full bg-blue-600 text-white rounded-md p-3 text-sm font-medium disabled:opacity-50"
         >
           {loading ? "Please wait…" : mode === "login" ? "Log in" : "Sign up"}
         </button>

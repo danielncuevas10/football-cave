@@ -132,7 +132,7 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
                   return (
                     <div
                       key={tieName}
-                      className="bg-custom-gray border border-custom-gray rounded-md overflow-hidden p-0"
+                      className="bg-custom-gray border border-custom-gray rrounded-md overflow-hidden p-0"
                     >
                       {/* Global Aggregate Header Ribbon */}
                       <div className="flex items-center justify-end px-4 py-2 text-xs text-gray-200 tracking-wider">
@@ -155,7 +155,7 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
                             <Link
                               href={`/match/${leg.id}`}
                               key={leg.id}
-                              className="block bg-custom-gray-2  transition-colors border border-transparent hover:bg-custom-gray/30 rounded-mdg overflow-hidden"
+                              className="block bg-custom-gray-2  transition-colors border border-transparent hover:bg-custom-gray/30 rounded-md overflow-hidden"
                             >
                               <div className="grid grid-cols-12 gap-2 items-center p-4">
                                 {/* Column 1: Status & Info */}

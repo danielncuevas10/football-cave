@@ -74,6 +74,36 @@ export async function GET(req: NextRequest) {
     await supabaseAdmin
       .from("matches")
       .upsert(rows, { onConflict: "id" });
+
+    // Fetch and cache events/lineups/stats for each live match so the client
+    // can poll match_details without burning any extra API quota.
+    // One call per live match per cron run — the cron is the sole API caller.
+    await Promise.all(
+      liveFromApi.map(async (m) => {
+        try {
+          const fresh = await footballApi.getMatchDetails(m.fixture.id);
+          if (!fresh) return;
+          await supabaseAdmin.from("match_details").upsert(
+            {
+              match_id: m.fixture.id,
+              events: fresh.events.map((ev) => ({
+                ...ev,
+                player: {
+                  ...ev.player,
+                  id: ev.player.id ?? 0,
+                  name: ev.player.name ?? "",
+                },
+              })),
+              lineups: fresh.lineups,
+              statistics: fresh.statistics,
+            },
+            { onConflict: "match_id" }
+          );
+        } catch (e) {
+          console.error(`[sync-live] event cache failed for ${m.fixture.id}:`, e);
+        }
+      })
+    );
   }
 
   // 2. Close out matches the DB still thinks are live but the API no longer reports

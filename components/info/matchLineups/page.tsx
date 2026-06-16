@@ -12,7 +12,7 @@ export default function MatchCenterLinenups({ details }: DetailsProps) {
 
   if (!details) {
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-mdg">
+      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
         {t("notAvailableYet")}
         <img
           src="/images/specs/clock.svg"
@@ -25,7 +25,7 @@ export default function MatchCenterLinenups({ details }: DetailsProps) {
 
   if (!details.lineups || details.lineups.length === 0) {
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-mdg">
+      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
         {t("notAvailableYet")}
         <img
           src="/images/specs/clock.svg"
@@ -42,13 +42,14 @@ export default function MatchCenterLinenups({ details }: DetailsProps) {
   details.events?.forEach((ev) => {
     if (ev.type === "subst") {
       subbedOut.set(ev.player.id, ev.time.elapsed);
-      if (ev.assist.id != null) subbedIn.set(ev.assist.id, ev.time.elapsed);
+      if (ev.assist && ev.assist.id != null)
+        subbedIn.set(ev.assist.id, ev.time.elapsed);
     }
   });
 
   return (
     <div className="space-y-6 w-full text-white">
-      <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
+      <div className="bg-custom-gray-2 rrounded-md border border-custom-gray overflow-hidden">
         {/* Main Layout Header */}
         <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
           <span>{t("confirmedLineups")}</span>
@@ -73,7 +74,7 @@ export default function MatchCenterLinenups({ details }: DetailsProps) {
                     <span className="font-medium text-gray-200">
                       {t("manager")}:
                     </span>{" "}
-                    {lineup.coach.name}
+                    {lineup.coach?.name}
                   </div>
                 )}
                 <p className="text-xs text-gray-200 pt-2">

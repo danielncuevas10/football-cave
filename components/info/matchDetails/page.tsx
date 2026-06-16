@@ -35,7 +35,7 @@ export default function MatchCenterDetails({ details }: DetailsProps) {
 
   if (!details) {
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-mdg">
+      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
         {t("comingSoon")}
         <img
           src="/images/specs/clock.svg"
@@ -48,7 +48,7 @@ export default function MatchCenterDetails({ details }: DetailsProps) {
 
   if (!details.statistics || details.statistics.length < 2) {
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-mdg">
+      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
         {t("noInfoYet")}
         <img
           src="/images/specs/clock.svg"
@@ -62,7 +62,7 @@ export default function MatchCenterDetails({ details }: DetailsProps) {
   return (
     <div className="space-y-6 w-full text-white">
       {details.statistics && details.statistics.length >= 2 && (
-        <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
+        <div className="bg-custom-gray-2 rrounded-md border border-custom-gray overflow-hidden">
           <div className="bg-custom-gray flex items-center justify-center gap-2 py-4">
             <h3 className="text-xs font-light text-white tracking-wider">
               {t("matchOverview")}
