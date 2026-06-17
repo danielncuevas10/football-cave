@@ -58,7 +58,7 @@ export default async function MatchDetailsPage({
   ] = await Promise.all([
     standingsQuery,
     getOrSyncLeagueData(initialMatch.league_id, currentSeason),
-    getMatchDetails(matchId, initialMatch.status),
+    getMatchDetails(matchId, initialMatch.status, initialMatch.home_score, initialMatch.away_score),
   ]);
 
   const standings = standingsResult.data ?? [];

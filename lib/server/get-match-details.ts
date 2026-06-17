@@ -14,7 +14,9 @@ export interface MatchDetailsResult {
 
 export async function getMatchDetails(
   matchId: number,
-  knownStatus?: string
+  knownStatus?: string,
+  knownHomeScore?: number | null,
+  knownAwayScore?: number | null
 ): Promise<MatchDetailsResult> {
   const isKnownFinished = !!knownStatus && FINISHED_STATUSES.includes(knownStatus);
 
@@ -33,13 +35,24 @@ export async function getMatchDetails(
       (cached.events?.length > 0 || cached.lineups?.length > 0 || cached.statistics?.length > 0);
 
     if (hasData) {
-      // Finished + full data in cache — zero API calls needed.
-      return {
-        details: cached,
-        venueName: cached.venue_name ?? null,
-        venueCity: cached.venue_city ?? null,
-        referee: cached.referee ?? null,
-      };
+      // Validate goal count against the known final score so mid-match snapshots
+      // don't get served as final data. If the counts don't add up, fall through
+      // to the API to refresh — stale cache stays as fallback if quota is gone.
+      const expectedGoals = (knownHomeScore ?? 0) + (knownAwayScore ?? 0);
+      const cachedGoals = (cached.events ?? []).filter(
+        (e: { type: string; detail: string }) =>
+          e.type === "Goal" && e.detail !== "Missed Penalty"
+      ).length;
+      const goalsMatch = expectedGoals === 0 || cachedGoals >= expectedGoals;
+
+      if (goalsMatch) {
+        return {
+          details: cached,
+          venueName: cached.venue_name ?? null,
+          venueCity: cached.venue_city ?? null,
+          referee: cached.referee ?? null,
+        };
+      }
     }
   }
 
