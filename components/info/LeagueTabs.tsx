@@ -59,7 +59,7 @@ export default function LeagueTabs({
           />
         </div>
       ) : (
-        <div className="flex items-center gap-4 p-4 bg-custom-gray rrounded-md border border-custom-gray-2">
+        <div className="flex items-center gap-4 p-4 bg-custom-gray rounded-md border border-custom-gray-2">
           {leagueLogo && (
             <Image
               src={leagueLogo}

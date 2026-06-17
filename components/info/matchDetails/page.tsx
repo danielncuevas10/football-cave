@@ -62,7 +62,7 @@ export default function MatchCenterDetails({ details }: DetailsProps) {
   return (
     <div className="space-y-6 w-full text-white">
       {details.statistics && details.statistics.length >= 2 && (
-        <div className="bg-custom-gray-2 rrounded-md border border-custom-gray overflow-hidden">
+        <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
           <div className="bg-custom-gray flex items-center justify-center gap-2 py-4">
             <h3 className="text-xs font-light text-white tracking-wider">
               {t("matchOverview")}

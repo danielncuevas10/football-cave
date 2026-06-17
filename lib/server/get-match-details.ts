@@ -4,12 +4,21 @@ import type { DbMatchDetails } from "@/types/sports";
 
 const FINISHED_STATUSES = ["FT", "AET", "PEN", "AWD", "WO"];
 const CACHE_TTL_MS = 60_000;
+// How long to wait before retrying a finished match whose API data is still
+// incomplete (API itself missing goals). Prevents burning quota on every ISR cycle.
+const STALE_RETRY_MS = 15 * 60 * 1000;
 
 export interface MatchDetailsResult {
   details: DbMatchDetails | null;
   venueName: string | null;
   venueCity: string | null;
   referee: string | null;
+}
+
+function countGoals(events: { type: string; detail: string }[] | null | undefined): number {
+  return (events ?? []).filter(
+    (e) => e.type === "Goal" && e.detail !== "Missed Penalty"
+  ).length;
 }
 
 export async function getMatchDetails(
@@ -20,9 +29,13 @@ export async function getMatchDetails(
 ): Promise<MatchDetailsResult> {
   const isKnownFinished = !!knownStatus && FINISHED_STATUSES.includes(knownStatus);
 
-  // For finished matches, check Supabase cache BEFORE hitting the API.
-  // The score, status, and event data never change after full-time, so if
-  // we already have lineup/stats data cached we can skip the API call entirely.
+  // ── Finished match fast-path ────────────────────────────────────────────────
+  // Read cache once. If it has data, validate goal count against the known final
+  // score so mid-match snapshots are never served as final data.
+  // Three outcomes:
+  //   a) cache complete  → return immediately (0 API calls)
+  //   b) cache incomplete, recently retried → return stale (avoid quota burn)
+  //   c) cache incomplete, not recently retried → call getMatchDetails only (1 API call)
   if (isKnownFinished) {
     const { data: cached } = await supabaseAdmin
       .from("match_details")
@@ -35,17 +48,12 @@ export async function getMatchDetails(
       (cached.events?.length > 0 || cached.lineups?.length > 0 || cached.statistics?.length > 0);
 
     if (hasData) {
-      // Validate goal count against the known final score so mid-match snapshots
-      // don't get served as final data. If the counts don't add up, fall through
-      // to the API to refresh — stale cache stays as fallback if quota is gone.
       const expectedGoals = (knownHomeScore ?? 0) + (knownAwayScore ?? 0);
-      const cachedGoals = (cached.events ?? []).filter(
-        (e: { type: string; detail: string }) =>
-          e.type === "Goal" && e.detail !== "Missed Penalty"
-      ).length;
+      const cachedGoals = countGoals(cached.events);
       const goalsMatch = expectedGoals === 0 || cachedGoals >= expectedGoals;
 
       if (goalsMatch) {
+        // (a) Cache is complete — zero API calls needed.
         return {
           details: cached,
           venueName: cached.venue_name ?? null,
@@ -53,11 +61,65 @@ export async function getMatchDetails(
           referee: cached.referee ?? null,
         };
       }
+
+      // (b/c) Goal count mismatch — cache was snapshotted mid-match.
+      const cacheAgeMs = Date.now() - new Date(cached.updated_at).getTime();
+      if (cacheAgeMs < STALE_RETRY_MS) {
+        // (b) We already refreshed recently; the API itself may lack the goal.
+        // Return best available rather than burning quota every ISR cycle.
+        return {
+          details: cached,
+          venueName: cached.venue_name ?? null,
+          venueCity: cached.venue_city ?? null,
+          referee: cached.referee ?? null,
+        };
+      }
+
+      // (c) Try a targeted events-only refresh. No getMatchById needed since
+      // a finished match's score never changes — venue stays from cached row.
+      const fresh = await footballApi.getMatchDetails(matchId);
+      if (fresh) {
+        const newRecord: Omit<DbMatchDetails, "updated_at"> = {
+          match_id: matchId,
+          events: fresh.events.map((event) => ({
+            ...event,
+            player: {
+              ...event.player,
+              id: event.player.id ?? 0,
+              name: event.player.name ?? "",
+            },
+          })),
+          lineups: fresh.lineups,
+          statistics: fresh.statistics,
+          venue_name: cached.venue_name,
+          venue_city: cached.venue_city,
+          referee: cached.referee,
+        };
+        await supabaseAdmin
+          .from("match_details")
+          .upsert(newRecord, { onConflict: "match_id" });
+        return {
+          details: newRecord as DbMatchDetails,
+          venueName: cached.venue_name ?? null,
+          venueCity: cached.venue_city ?? null,
+          referee: cached.referee ?? null,
+        };
+      }
+
+      // API failed — return stale data as fallback.
+      return {
+        details: cached,
+        venueName: cached.venue_name ?? null,
+        venueCity: cached.venue_city ?? null,
+        referee: cached.referee ?? null,
+      };
     }
+    // No cached data for a finished match — fall through to full flow below.
   }
 
-  // Live / upcoming match, OR finished match with no cached detail yet:
-  // call the lightweight endpoint to sync the current score and get venue/referee.
+  // ── Live / upcoming match, OR finished match with no cache ──────────────────
+  // Call the lightweight fixture endpoint to sync the current score and get
+  // venue/referee metadata.
   const basicData = await footballApi.getMatchById(matchId);
   const basicRow = basicData?.response?.[0];
 
@@ -81,7 +143,8 @@ export async function getMatchDetails(
       .eq("id", matchId);
   }
 
-  // Check full-details cache (events / lineups / statistics).
+  // Secondary cache check — for live matches the cron may have just written
+  // fresh data; return it if it's within the TTL or the match is confirmed finished.
   const { data: cached } = await supabaseAdmin
     .from("match_details")
     .select("*")
@@ -91,7 +154,10 @@ export async function getMatchDetails(
   if (cached) {
     const statusFromApi = basicRow?.fixture?.status?.short ?? knownStatus ?? "";
     const isFinished = FINISHED_STATUSES.includes(statusFromApi);
-    const hasData = cached.events?.length > 0 || cached.lineups?.length > 0 || cached.statistics?.length > 0;
+    const hasData =
+      cached.events?.length > 0 ||
+      cached.lineups?.length > 0 ||
+      cached.statistics?.length > 0;
     const cacheAgeMs = Date.now() - new Date(cached.updated_at).getTime();
     const isFresh = cacheAgeMs < CACHE_TTL_MS;
 

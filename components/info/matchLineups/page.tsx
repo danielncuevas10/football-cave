@@ -49,7 +49,7 @@ export default function MatchCenterLinenups({ details }: DetailsProps) {
 
   return (
     <div className="space-y-6 w-full text-white">
-      <div className="bg-custom-gray-2 rrounded-md border border-custom-gray overflow-hidden">
+      <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
         {/* Main Layout Header */}
         <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
           <span>{t("confirmedLineups")}</span>
@@ -92,6 +92,7 @@ export default function MatchCenterLinenups({ details }: DetailsProps) {
                           name: string;
                           number: number;
                           pos: string | null;
+                          captain?: boolean;
                         };
                       },
                       playerIdx: number
@@ -105,14 +106,15 @@ export default function MatchCenterLinenups({ details }: DetailsProps) {
                           <span className="text-gray-200 w-5 text-right text-[11px]">
                             {item.player.number}
                           </span>
-                          <span
-                            className={`font-medium min-w-0 flex-1 truncate ${
-                              outMinute !== undefined
-                                ? "text-gray-200"
-                                : "text-gray-200"
-                            }`}
-                          >
+                          <span className="font-medium min-w-0 flex-1 truncate text-gray-200 flex items-center gap-1">
                             {item.player.name}
+                            {item.player.captain && (
+                              <img
+                                src="/images/specs/captain.svg"
+                                alt="captain"
+                                className="w-3 h-3 object-contain shrink-0 opacity-80"
+                              />
+                            )}
                           </span>
                           {outMinute !== undefined && (
                             <span className="flex items-center gap-0.5 ml-auto shrink-0">

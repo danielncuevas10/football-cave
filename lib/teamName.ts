@@ -12,7 +12,7 @@ const TEAM_TO_ISO: Record<string, string> = {
   Jamaica: "JM", Mexico: "MX", Nicaragua: "NI", Panama: "PA",
   Paraguay: "PY", Peru: "PE", "Puerto Rico": "PR", Suriname: "SR",
   "Trinidad and Tobago": "TT", "Trinidad & Tobago": "TT",
-  "United States": "US", Uruguay: "UY", Venezuela: "VE",
+  "United States": "US", USA: "US", Uruguay: "UY", Venezuela: "VE",
   Belize: "BZ", Bermuda: "BM", Barbados: "BB",
   "Antigua and Barbuda": "AG", Grenada: "GD",
   "St. Kitts & Nevis": "KN", "Saint Lucia": "LC",
@@ -22,7 +22,7 @@ const TEAM_TO_ISO: Record<string, string> = {
   Albania: "AL", Andorra: "AD", Armenia: "AM", Austria: "AT",
   Azerbaijan: "AZ", Belarus: "BY", Belgium: "BE",
   "Bosnia and Herzegovina": "BA", "Bosnia-Herzegovina": "BA",
-  Bosnia: "BA", Bulgaria: "BG", Croatia: "HR", Cyprus: "CY",
+  "Bosnia & Herzegovina": "BA", Bosnia: "BA", Bulgaria: "BG", Croatia: "HR", Cyprus: "CY",
   Czechia: "CZ", "Czech Republic": "CZ", Denmark: "DK",
   Estonia: "EE", "Faroe Islands": "FO", Finland: "FI",
   France: "FR", Georgia: "GE", Germany: "DE", Gibraltar: "GI",
@@ -40,7 +40,8 @@ const TEAM_TO_ISO: Record<string, string> = {
   // Africa
   Algeria: "DZ", Angola: "AO", Benin: "BJ", Botswana: "BW",
   "Burkina Faso": "BF", Burundi: "BI", Cameroon: "CM",
-  "Cape Verde": "CV", "Central African Republic": "CF", Chad: "TD",
+  "Cape Verde": "CV", "Cape Verde Islands": "CV", Curaçao: "CW",
+  "Central African Republic": "CF", Chad: "TD",
   Comoros: "KM", Congo: "CG", "DR Congo": "CD", "Congo DR": "CD",
   Djibouti: "DJ", Egypt: "EG", "Equatorial Guinea": "GQ",
   Eritrea: "ER", Eswatini: "SZ", Ethiopia: "ET", Gabon: "GA",
@@ -97,6 +98,23 @@ const TEAM_OVERRIDES: Record<string, Partial<Record<string, string>>> = {
     es: "Irlanda del Norte", fr: "Irlande du Nord", pt: "Irlanda do Norte",
     bs: "Sjeverna Irska", sr: "Severna Irska", ch: "北爱尔兰", gr: "Βόρεια Ιρλανδία",
     jp: "北アイルランド", kr: "북아일랜드", tr: "Kuzey İrlanda",
+  },
+  // Explicit translations — Intl.DisplayNames coverage for CV/CW is inconsistent
+  // across runtimes (edge / small-ICU builds). These ensure correct names everywhere.
+  "Cape Verde Islands": {
+    es: "Cabo Verde", fr: "Cap-Vert", pt: "Cabo Verde",
+    bs: "Zelenortska Ostrva", sr: "Zelenortska Ostrva", ch: "佛得角",
+    gr: "Πράσινο Ακρωτήριο", jp: "カーボベルデ", kr: "카보베르데", tr: "Cabo Verde",
+  },
+  "Cape Verde": {
+    es: "Cabo Verde", fr: "Cap-Vert", pt: "Cabo Verde",
+    bs: "Zelenortska Ostrva", sr: "Zelenortska Ostrva", ch: "佛得角",
+    gr: "Πράσινο Ακρωτήριο", jp: "カーボベルデ", kr: "카보베르데", tr: "Cabo Verde",
+  },
+  Curaçao: {
+    es: "Curazao", fr: "Curaçao", pt: "Curaçau",
+    bs: "Kurasao", sr: "Kurasao", ch: "库拉索",
+    gr: "Κουρασάο", jp: "キュラソー", kr: "퀴라소", tr: "Curaçao",
   },
 };
 

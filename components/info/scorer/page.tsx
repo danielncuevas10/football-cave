@@ -15,7 +15,7 @@ export default function TopScorers({ scorers }: Props) {
 
   if (!scorers || scorers.length === 0) {
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rrounded-md">
+      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
         {tDetails("comingSoon")}
         <img
           src="/images/specs/clock.svg"
@@ -30,7 +30,7 @@ export default function TopScorers({ scorers }: Props) {
   const displayedScorers = isExpanded ? withGoals : withGoals.slice(0, 10);
 
   return (
-    <div className="w-full bg-custom-gray-2 rrounded-md overflow-hidden">
+    <div className="w-full bg-custom-gray-2 rounded-md overflow-hidden">
       <table className="w-full text-sm text-left text-gray-200 table-fixed">
         <thead className="text-xs text-gray-200 bg-custom-gray border-b border-custom-gray">
           <tr>

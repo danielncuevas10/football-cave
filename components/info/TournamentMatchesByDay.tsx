@@ -100,7 +100,7 @@ export default function TournamentMatchesByDay({ matches }: Props) {
 
   if (!matchDays.length) {
     return (
-      <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rrounded-md">
+      <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rounded-md">
         {tTabs("noMatches")}
         <img
           src="/images/specs/clock.svg"

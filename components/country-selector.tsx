@@ -8,7 +8,7 @@ export default async function CountrySelector() {
   const countries = data?.response || [];
 
   return (
-    <div className="w-full max-w-[400px] bg-white rrounded-md shadow-sm border border-gray-100 p-4">
+    <div className="w-full max-w-[400px] bg-white rounded-md shadow-sm border border-gray-100 p-4">
       <h3 className="text-sm font-semibold text-gray-900 mb-3">
         Browse by Country
       </h3>

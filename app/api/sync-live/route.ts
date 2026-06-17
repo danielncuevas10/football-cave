@@ -12,6 +12,45 @@ const TRACKED_LEAGUES = (process.env.TRACKED_LEAGUE_IDS ?? "")
   .map(Number)
   .filter(Boolean);
 
+/**
+ * Normalises events and, for PEN matches where the API omits individual kick
+ * events, appends a synthetic "penaltyResult" event so the UI can display the
+ * shootout score even without per-kick data.
+ */
+function buildEvents(details: {
+  fixture: { status: { short: string } };
+  score?: { penalty?: { home: number | null; away: number | null } | null } | null;
+  events: { type: string; detail: string; time: { elapsed: number; extra?: number | null }; team: { id: number; name: string; logo: string }; player: { id: number | null; name: string | null }; assist?: { id: number | null; name: string | null } | null }[];
+}) {
+  const events = details.events.map((ev) => ({
+    ...ev,
+    player: { ...ev.player, id: ev.player.id ?? 0, name: ev.player.name ?? "" },
+  }));
+
+  const isPenMatch = details.fixture.status.short === "PEN";
+  const pen = details.score?.penalty;
+  if (isPenMatch && pen?.home != null && pen?.away != null) {
+    const hasKicks = events.some(
+      (ev) =>
+        ev.type === "Goal" &&
+        (ev.detail === "Penalty" || ev.detail === "Missed Penalty") &&
+        ev.time.elapsed >= 120
+    );
+    if (!hasKicks) {
+      events.push({
+        type: "penaltyResult",
+        detail: `${pen.home}–${pen.away}`,
+        time: { elapsed: 121, extra: null },
+        team: { id: 0, name: "", logo: "" },
+        player: { id: 0, name: "" },
+        assist: null,
+      });
+    }
+  }
+
+  return events;
+}
+
 export async function GET(req: NextRequest) {
   const blocked = verifyCronSecret(req);
   if (blocked) return blocked;
@@ -160,6 +199,28 @@ export async function GET(req: NextRequest) {
         { onConflict: "id" }
       );
       resolved.forEach(r => affectedLeagues.set(r.apiRow!.league.id, r.apiRow!.league.season));
+
+      // Final event sync for matches that just finished — captures stoppage-time
+      // goals/cards that arrived after the last live-sync run.
+      await Promise.all(
+        resolved.map(async ({ id }) => {
+          try {
+            const details = await footballApi.getMatchDetails(id);
+            if (!details) return;
+            await supabaseAdmin.from("match_details").upsert(
+              {
+                match_id: id,
+                events: buildEvents(details),
+                lineups: details.lineups,
+                statistics: details.statistics,
+              },
+              { onConflict: "match_id" }
+            );
+          } catch (e) {
+            console.error(`[sync-live] final event sync failed for ${id}:`, e);
+          }
+        })
+      );
     }
 
     // One bulk update for matches the API no longer knows about
@@ -230,6 +291,27 @@ export async function GET(req: NextRequest) {
           { onConflict: "id" }
         );
         staleResolved.forEach(r => affectedLeagues.set(r.apiRow!.league.id, r.apiRow!.league.season));
+
+        // Final event sync for stale matches being closed out.
+        await Promise.all(
+          staleResolved.map(async ({ id }) => {
+            try {
+              const details = await footballApi.getMatchDetails(id);
+              if (!details) return;
+              await supabaseAdmin.from("match_details").upsert(
+                {
+                  match_id: id,
+                  events: buildEvents(details),
+                  lineups: details.lineups,
+                  statistics: details.statistics,
+                },
+                { onConflict: "match_id" }
+              );
+            } catch (e) {
+              console.error(`[sync-live] final event sync failed for stale ${id}:`, e);
+            }
+          })
+        );
       }
 
       if (staleVanishedIds.length > 0) {

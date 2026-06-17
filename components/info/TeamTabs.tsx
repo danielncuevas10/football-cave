@@ -217,7 +217,7 @@ export default function TeamTabs({
 
               if (groups.length === 0) {
                 return (
-                  <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rrounded-md">
+                  <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rounded-md">
                     {tTabs("noMatches")}
                   </div>
                 );
@@ -252,7 +252,7 @@ export default function TeamTabs({
                       href={`/match/${nextWcMatch.id}`}
                       className="block hover:opacity-90 transition-opacity"
                     >
-                      <div className="bg-[#303030] rrounded-md overflow-hidden px-6 py-6">
+                      <div className="bg-[#303030] rounded-md overflow-hidden px-6 py-6">
                         <p className="text-[10px] text-gray-200 tracking-widest text-center mb-4">
                           {t("nextMatch")}
                         </p>
@@ -307,7 +307,7 @@ export default function TeamTabs({
 
                   {/* ── WC badge + all WC matches (upcoming then played) ── */}
                   {wcGroup && (
-                    <div className="bg-custom-gray rrounded-md overflow-hidden">
+                    <div className="bg-custom-gray rounded-md overflow-hidden">
                       <img
                         src="/images/WC262nd.svg"
                         alt="FIFA World Cup 2026"
@@ -355,7 +355,7 @@ export default function TeamTabs({
                       return (
                         <div key={group.leagueId} className="space-y-4">
                           {(upcoming.length > 0 || finished.length === 0) && (
-                            <div className="bg-custom-gray rrounded-md overflow-hidden">
+                            <div className="bg-custom-gray rounded-md overflow-hidden">
                               <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
                                 {group.leagueLogo && (
                                   <img
@@ -388,7 +388,7 @@ export default function TeamTabs({
                               <p className="text-[11px] font-light tracking-widest text-gray-300 uppercase px-1">
                                 {t("pastMatches")}
                               </p>
-                              <div className="bg-custom-gray rrounded-md overflow-hidden">
+                              <div className="bg-custom-gray rounded-md overflow-hidden">
                                 <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
                                   {group.leagueLogo && (
                                     <img
@@ -446,7 +446,7 @@ export default function TeamTabs({
                       return (
                         <div
                           key={group.leagueId}
-                          className="bg-custom-gray rrounded-md overflow-hidden"
+                          className="bg-custom-gray rounded-md overflow-hidden"
                         >
                           <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
                             {group.leagueLogo && (

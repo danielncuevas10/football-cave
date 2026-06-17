@@ -132,7 +132,7 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
                   return (
                     <div
                       key={tieName}
-                      className="bg-custom-gray border border-custom-gray rrounded-md overflow-hidden p-0"
+                      className="bg-custom-gray border border-custom-gray rounded-md overflow-hidden p-0"
                     >
                       {/* Global Aggregate Header Ribbon */}
                       <div className="flex items-center justify-end px-4 py-2 text-xs text-gray-200 tracking-wider">

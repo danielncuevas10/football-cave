@@ -13,7 +13,7 @@ interface Props {
 export default function StandingsTable({ standings }: Props) {
   const t = useTranslations("matchTabs");
   return (
-    <div className="w-full overflow-x-auto bg-custom-gray-2 border border-custom-gray-2 rrounded-md">
+    <div className="w-full overflow-x-auto bg-custom-gray-2 border border-custom-gray-2 rounded-md">
       <table className="w-full text-sm text-left text-gray-200 border-collapse">
         <thead className="text-xs text-gray-300 uppercase bg-custom-gray border-b border-custom-gray">
           <tr>

@@ -152,7 +152,7 @@ export interface DbMatch {
     team: { id: number; name: string; logo: string };
     coach?: { id: number | null; name: string | null } | null;
     formation: string;
-    startXI: { player: { id: number; name: string; number: number; pos: string | null } }[];
+    startXI: { player: { id: number; name: string; number: number; pos: string | null; captain?: boolean } }[];
     substitutes: { player: { id: number; name: string; number: number; pos: string | null } }[];
   }
   

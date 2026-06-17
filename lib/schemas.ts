@@ -153,6 +153,7 @@ export const apiLineupSchema = z.object({
       name: z.string().nullable().optional().transform((v) => v ?? ""),
       number: z.number().nullable().optional().transform((v) => v ?? 0),
       pos: z.string().nullable(),
+      captain: z.boolean().optional().default(false),
     })
   })).optional().default([]),
   substitutes: z.array(z.object({
@@ -205,6 +206,12 @@ export const apiMatchDetailsItemSchema = z.object({
     home: z.number().nullable(),
     away: z.number().nullable(),
   }),
+  score: z.object({
+    penalty: z.object({
+      home: z.number().nullable(),
+      away: z.number().nullable(),
+    }).optional().nullable(),
+  }).optional().nullable(),
   events: z.array(apiEventSchema),
   lineups: z.array(apiLineupSchema),
   statistics: z.array(apiStatisticSchema),

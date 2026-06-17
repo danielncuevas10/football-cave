@@ -38,7 +38,7 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
         return (
           <div
             key={groupName}
-            className="bg-custom-gray border border-custom-gray-2 rrounded-md overflow-hidden"
+            className="bg-custom-gray border border-custom-gray-2 rounded-md overflow-hidden"
           >
             <table className="w-full text-xs text-gray-200 bg-custom-gray-2">
               {/* Column headers */}
