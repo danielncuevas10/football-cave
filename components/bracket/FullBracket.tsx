@@ -115,9 +115,9 @@ export default function FullBracket({
             <div
               className="w-3 h-3 rotate-90 ml-3 bg-gray-400 lg:hover:bg-blue-500 transition-colors duration-200"
               style={{
-                mask: "url('/images/specs/arrow.svg') no-repeat center / contain",
+                mask: "url('/images/specs/Arrow.svg') no-repeat center / contain",
                 WebkitMask:
-                  "url('/images/specs/arrow.svg') no-repeat center / contain",
+                  "url('/images/specs/Arrow.svg') no-repeat center / contain",
               }}
             />
           </Link>

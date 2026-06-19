@@ -123,7 +123,7 @@ export default function TournamentMatchesByDay({ matches }: Props) {
           className="p-2 text-gray-200 hover:text-white disabled:opacity-30 transition-colors"
         >
           <img
-            src="/images/specs/arrow.svg"
+            src="/images/specs/Arrow.svg"
             alt="Previous day"
             className="w-4.5 h-4.5 object-contain rotate-90"
           />
@@ -149,7 +149,7 @@ export default function TournamentMatchesByDay({ matches }: Props) {
           className="p-2 text-gray-200 hover:text-white disabled:opacity-30 transition-colors"
         >
           <img
-            src="/images/specs/arrow.svg"
+            src="/images/specs/Arrow.svg"
             alt="Next day"
             className="w-4.5 h-4.5 object-contain rotate-270"
           />

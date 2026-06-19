@@ -51,7 +51,7 @@ export default function BracketBottomSheet({
 
           {/* Bouncing Arrow */}
           <img
-            src="/images/specs/arrow.svg"
+            src="/images/specs/Arrow.svg"
             alt="view knowckout stage"
             className="w-4 h-4 object-contain animate-bounce"
           />

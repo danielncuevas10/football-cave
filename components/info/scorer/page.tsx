@@ -107,7 +107,7 @@ export default function TopScorers({ scorers }: Props) {
             <>
               {t("seeLess")}
               <img
-                src="/images/specs/arrow.svg"
+                src="/images/specs/Arrow.svg"
                 alt=""
                 className="w-3.5 h-3.5 object-contain rotate-180"
               />
@@ -116,7 +116,7 @@ export default function TopScorers({ scorers }: Props) {
             <>
               {t("seeMore")}
               <img
-                src="/images/specs/arrow.svg"
+                src="/images/specs/Arrow.svg"
                 alt=""
                 className="w-3.5 h-3.5 object-contain"
               />

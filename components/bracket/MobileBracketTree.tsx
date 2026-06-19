@@ -246,7 +246,7 @@ export default function MobileBracketTree({
         >
           {t("viewBracket")}
           <img
-            src="/images/specs/arrow.svg"
+            src="/images/specs/Arrow.svg"
             alt=""
             className="w-3 h-3 object-contain rotate-90"
           />

@@ -85,7 +85,7 @@ export default function WorldCupGroups({
             <table className="w-full text-xs text-gray-200 bg-custom-gray-2">
               {/* Column headers */}
               <thead>
-                <tr className="text-[10px] uppercase tracking-wider bg-custom-gray">
+                <tr className="text-[10px] tracking-wider bg-custom-gray">
                   <th className="px-3 py-2 text-center w-7 text-gray-300">#</th>
                   <th className="px-2 py-3 text-left text-white font-black tracking-widest">
                     {t("group")} {letter}

@@ -31,27 +31,18 @@ export default function WorldCupBest3rd({ standings }: WorldCupBest3rdProps) {
       <div className="bg-custom-gray border border-custom-gray-2 rounded-md overflow-hidden">
         <table className="w-full text-xs text-gray-200 bg-custom-gray-2">
           <thead>
-            <tr className="text-[10px] uppercase tracking-wider bg-custom-gray">
+            <tr className="text-[10px] tracking-wider bg-custom-gray">
               <th className="px-3 py-2 text-center w-7 text-gray-300">#</th>
               <th className="px-2 py-3 text-left text-white font-black tracking-widest">
                 {t("bestThirdPlace")}
               </th>
-              <th
-                className="px-2 py-2 text-center w-8"
-                title="Goals For"
-              >
+              <th className="px-2 py-2 text-center w-8" title="Goals For">
                 GF
               </th>
-              <th
-                className="px-2 py-2 text-center w-8"
-                title="Goals Against"
-              >
+              <th className="px-2 py-2 text-center w-8" title="Goals Against">
                 GA
               </th>
-              <th
-                className="px-2 py-2 text-center w-8"
-                title="Goal Difference"
-              >
+              <th className="px-2 py-2 text-center w-8" title="Goal Difference">
                 GD
               </th>
               <th className="px-3 py-2 text-center w-8 text-white font-black">
