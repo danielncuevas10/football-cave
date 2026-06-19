@@ -107,18 +107,20 @@ export default function TopScorers({ scorers }: Props) {
             <>
               {t("seeLess")}
               <img
-                src="/images/specs/Arrow.svg"
+                src="/images/specs/arrow.svg"
                 alt=""
                 className="w-3.5 h-3.5 object-contain rotate-180"
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
               />
             </>
           ) : (
             <>
               {t("seeMore")}
               <img
-                src="/images/specs/Arrow.svg"
+                src="/images/specs/arrow.svg"
                 alt=""
                 className="w-3.5 h-3.5 object-contain"
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
               />
             </>
           )}

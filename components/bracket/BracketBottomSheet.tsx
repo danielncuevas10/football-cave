@@ -51,9 +51,10 @@ export default function BracketBottomSheet({
 
           {/* Bouncing Arrow */}
           <img
-            src="/images/specs/Arrow.svg"
+            src="/images/specs/arrow.svg"
             alt="view knowckout stage"
             className="w-4 h-4 object-contain animate-bounce"
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
           />
         </button>
       </div>

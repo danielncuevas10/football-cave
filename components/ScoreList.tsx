@@ -168,9 +168,10 @@ export default function ScoreList({ initialMatches }: Props) {
             className="p-2 text-sm text-gray-200 hover:text-white transition-colors"
           >
             <img
-              src="/images/specs/Arrow.svg"
+              src="/images/specs/arrow.svg"
               alt="Previous Day"
-              className="w-4.5 h-4.5 object-contain -rotate-90"
+              className="w-4.5 h-4.5 object-contain -rotate-270"
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
             />
           </button>
 
@@ -187,9 +188,10 @@ export default function ScoreList({ initialMatches }: Props) {
               className="text-white"
             >
               <img
-                src="/images/specs/Arrow.svg"
+                src="/images/specs/arrow.svg"
                 alt="Select Date"
-                className="w-3 h-3 object-contain rotate-180"
+                className="w-3 h-3 object-contain"
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
               />
             </button>
 
@@ -210,9 +212,10 @@ export default function ScoreList({ initialMatches }: Props) {
             className="p-2 text-sm text-gray-200 hover:text-white transition-colors"
           >
             <img
-              src="/images/specs/Arrow.svg"
+              src="/images/specs/arrow.svg"
               alt="Next Day"
-              className="w-4.5 h-4.5 object-contain rotate-90"
+              className="w-4.5 h-4.5 object-contain rotate-270"
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
             />
           </button>
         </div>

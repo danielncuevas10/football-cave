@@ -123,9 +123,10 @@ export default function TournamentMatchesByDay({ matches }: Props) {
           className="p-2 text-gray-200 hover:text-white disabled:opacity-30 transition-colors"
         >
           <img
-            src="/images/specs/Arrow.svg"
+            src="/images/specs/arrow.svg"
             alt="Previous day"
             className="w-4.5 h-4.5 object-contain rotate-90"
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
           />
         </button>
 
@@ -149,9 +150,10 @@ export default function TournamentMatchesByDay({ matches }: Props) {
           className="p-2 text-gray-200 hover:text-white disabled:opacity-30 transition-colors"
         >
           <img
-            src="/images/specs/Arrow.svg"
+            src="/images/specs/arrow.svg"
             alt="Next day"
             className="w-4.5 h-4.5 object-contain rotate-270"
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
           />
         </button>
       </div>

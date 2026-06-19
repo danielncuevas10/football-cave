@@ -112,13 +112,11 @@ export default function FullBracket({
             className="inline-flex items-center text-xs text-gray-200 hover:text-white transition-colors  lg:bg-custom-gray lg:p-3 lg:rounded-md lg:text-white lg:hover:bg-white lg:hover:text-black"
           >
             <span>{t("viewBracket")}</span>
-            <div
-              className="w-3 h-3 rotate-90 ml-3 bg-gray-400 lg:hover:bg-blue-500 transition-colors duration-200"
-              style={{
-                mask: "url('/images/specs/Arrow.svg') no-repeat center / contain",
-                WebkitMask:
-                  "url('/images/specs/Arrow.svg') no-repeat center / contain",
-              }}
+            <img
+              src="/images/specs/arrow.svg"
+              alt=""
+              className="w-3 h-3 object-contain rotate-90 ml-3"
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
             />
           </Link>
         </div>

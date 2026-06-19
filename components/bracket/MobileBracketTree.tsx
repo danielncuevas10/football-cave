@@ -246,9 +246,10 @@ export default function MobileBracketTree({
         >
           {t("viewBracket")}
           <img
-            src="/images/specs/Arrow.svg"
+            src="/images/specs/arrow.svg"
             alt=""
-            className="w-3 h-3 object-contain rotate-90"
+            className="w-3 h-3 object-contain rotate-270"
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
           />
         </Link>
       </div>
