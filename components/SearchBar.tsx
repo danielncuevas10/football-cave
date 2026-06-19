@@ -161,7 +161,7 @@ export default function SearchBar() {
           />
           <button
             onClick={close}
-            className="text-gray-400 hover:text-white text-xs transition-colors shrink-0"
+            className="text-gray-200 hover:text-white text-xs transition-colors shrink-0"
           >
             ✕
           </button>
@@ -196,7 +196,7 @@ export default function SearchBar() {
       )}
 
       {open && !loading && query.length >= 1 && results.length === 0 && (
-        <div className="absolute right-0 top-full mt-2 w-64 bg-[#1e1e1e] border border-white/10 rounded-md shadow-2xl z-60 px-4 py-3 text-xs text-gray-400">
+        <div className="absolute right-0 top-full mt-2 w-64 bg-[#1e1e1e] border border-white/10 rounded-md shadow-2xl z-60 px-4 py-3 text-xs text-gray-200">
           No teams found
         </div>
       )}

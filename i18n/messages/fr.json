@@ -20,7 +20,16 @@
     "club": "Club",
     "seeMore": "Voir plus",
     "seeLess": "Voir moins",
-    "loadingMatches": "Chargement des matchs…"
+    "loadingMatches": "Chargement des matchs…",
+    "upcomingMatch": "Match à venir",
+    "roundOf16": "Huitièmes de finale",
+    "roundOf16Best3rd": "Huitièmes – Meilleur 3e",
+    "eliminated": "Éliminé",
+    "knockoutStage": "Phase à élimination directe",
+    "bestThirdPlace": "Meilleurs 3es",
+    "projected": "Projeté",
+    "viewBracket": "Voir le tableau",
+    "bracketTab": "Tableau"
   },
   "matchEvents": {
     "matchStarted": "Match commencé",

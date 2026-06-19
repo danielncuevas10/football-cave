@@ -135,7 +135,7 @@ export default function MatchScoreHeader({
   const hasScore = displayHome !== null && displayAway !== null;
 
   return (
-    <div className="px-6 py-8 bg-[#303030]">
+    <div className="px-6 py-8 bg-custom-gray-2">
       <div className="flex flex-col items-center gap-6 w-full">
         <p className="font-light text-sm text-gray-200">
           {new Date(match.fixture_date).toLocaleDateString("en-US", {
@@ -155,13 +155,22 @@ export default function MatchScoreHeader({
               <>
                 {homeId ? (
                   <Link href={`/team/${homeId}`} className={teamClass}>
-                    <Image
-                      src={match.home_logo || "/placeholder.png"}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="w-15 h-15 object-contain"
-                    />
+                    <div
+                      className={`w-18 h-12 overflow-hidden shrink-0 block relative ${
+                        match.league_id === 1 || match.league_id === 10
+                          ? "border border-gray-300 rounded-tr rounded-bl"
+                          : ""
+                      }`}
+                    >
+                      <Image
+                        src={match.home_logo || "/placeholder.png"}
+                        alt=""
+                        width={72} // Matches w-18 (72px) for Next.js optimization
+                        height={48} // Matches h-12 (48px) for Next.js optimization
+                        className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                      />
+                    </div>
+
                     <span className="text-center text-sm leading-tight line-clamp-2">
                       {getLocalizedTeamName(match.home_team, locale)}
                     </span>
@@ -211,13 +220,21 @@ export default function MatchScoreHeader({
 
                 {awayId ? (
                   <Link href={`/team/${awayId}`} className={teamClass}>
-                    <Image
-                      src={match.away_logo || "/placeholder.png"}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="w-15 h-15 object-contain"
-                    />
+                    <div
+                      className={`w-18 h-12 overflow-hidden shrink-0 block relative ${
+                        match.league_id === 1 || match.league_id === 10
+                          ? "border border-gray-300 rounded-tr rounded-bl"
+                          : ""
+                      }`}
+                    >
+                      <Image
+                        src={match.away_logo || "/placeholder.png"}
+                        alt=""
+                        width={72} // Matches w-18 (72px) for Next.js optimization
+                        height={48} // Matches h-12 (48px) for Next.js optimization
+                        className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                      />
+                    </div>
                     <span className="text-center text-sm leading-tight line-clamp-2">
                       {getLocalizedTeamName(match.away_team, locale)}
                     </span>

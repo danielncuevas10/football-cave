@@ -5,8 +5,8 @@
 <g mask="url(#mask0_80_289)">
 <rect x="-15.0581" y="-16.797" width="88" height="73" fill="white"/>
 </g>
-<line x1="0.808773" y1="39.0064" x2="59.7618" y2="1.26328" stroke="#C50212" stroke-width="3"/>
-<line x1="3.50562" y1="1.46185" x2="62.3288" y2="39.407" stroke="#C50212" stroke-width="3"/>
+<line x1="0.808773" y1="39.0064" x2="59.7618" y2="1.26328" stroke="#C93434" stroke-width="3"/>
+<line x1="3.50562" y1="1.46185" x2="62.3288" y2="39.407" stroke="#C93434" stroke-width="3"/>
 <defs>
 <pattern id="pattern0_80_289" patternContentUnits="objectBoundingBox" width="1" height="1">
 <use xlink:href="#image0_80_289" transform="matrix(0.00195312 0 0 0.00252477 0 -0.146341)"/>

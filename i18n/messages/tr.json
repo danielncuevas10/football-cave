@@ -20,7 +20,16 @@
     "club": "Kulüp",
     "seeMore": "Daha fazla",
     "seeLess": "Daha az",
-    "loadingMatches": "Maçlar yükleniyor…"
+    "loadingMatches": "Maçlar yükleniyor…",
+    "upcomingMatch": "Yaklaşan maç",
+    "roundOf16": "Son 16",
+    "roundOf16Best3rd": "Son 16 – En iyi 3.",
+    "eliminated": "Elendi",
+    "knockoutStage": "Eleme aşaması",
+    "bestThirdPlace": "En İyi 3.",
+    "projected": "Tahmini",
+    "viewBracket": "Tabloya bak",
+    "bracketTab": "Tablo"
   },
   "matchEvents": {
     "matchStarted": "Maç başladı",

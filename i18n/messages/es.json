@@ -20,7 +20,16 @@
     "club": "Club",
     "seeMore": "Ver más",
     "seeLess": "Ver menos",
-    "loadingMatches": "Cargando partidos…"
+    "loadingMatches": "Cargando partidos…",
+    "upcomingMatch": "Partido próximo",
+    "roundOf16": "Octavos de final",
+    "roundOf16Best3rd": "Octavos – Mejor 3°",
+    "eliminated": "Eliminado",
+    "knockoutStage": "Fase eliminatoria",
+    "bestThirdPlace": "Mejor 3°",
+    "projected": "Proyectado",
+    "viewBracket": "Ver cuadro",
+    "bracketTab": "Cuadro"
   },
   "matchEvents": {
     "matchStarted": "Partido iniciado",

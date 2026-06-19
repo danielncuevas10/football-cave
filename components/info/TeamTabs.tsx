@@ -96,14 +96,14 @@ export default function TeamTabs({
   return (
     <div className="w-full text-white">
       {/* Banner — full width, no rounding, no side margins */}
-      <div className="flex items-center gap-4 px-6 py-15 bg-custom-gray w-full">
-        <Image
-          src={teamLogoUrl}
-          alt={teamName}
-          width={56}
-          height={56}
-          className="object-contain w-20 h-20 shrink-0"
-        />
+      <div className="flex items-center gap-4 px-6 py-15 bg-custom-gray-2 w-full">
+        <div className="w-20 h-12 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr rounded-bl">
+          <img
+            src={teamLogoUrl}
+            alt=""
+            className="w-full h-full object-cover scale-[1.15] will-change-transform"
+          />
+        </div>
         <div className="flex flex-col gap-1.5 min-w-0">
           <h1 className="text-xl font-extrabold tracking-tight truncate">
             {getLocalizedTeamName(teamName, locale)}
@@ -259,11 +259,13 @@ export default function TeamTabs({
                         <div className="grid grid-cols-3 items-center gap-2">
                           <div className="flex flex-col items-center gap-2">
                             {nextWcMatch.home_logo && (
-                              <img
-                                src={nextWcMatch.home_logo}
-                                alt=""
-                                className="w-12 h-12 object-contain"
-                              />
+                              <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr rounded-bl">
+                                <img
+                                  src={nextWcMatch.home_logo}
+                                  alt=""
+                                  className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                                />
+                              </div>
                             )}
                             <span className="text-xs text-center font-medium leading-tight text-gray-200 line-clamp-2">
                               {getLocalizedTeamName(
@@ -287,11 +289,13 @@ export default function TeamTabs({
                           </div>
                           <div className="flex flex-col items-center gap-2">
                             {nextWcMatch.away_logo && (
-                              <img
-                                src={nextWcMatch.away_logo}
-                                alt=""
-                                className="w-12 h-12 object-contain"
-                              />
+                              <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr rounded-bl">
+                                <img
+                                  src={nextWcMatch.away_logo}
+                                  alt=""
+                                  className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                                />
+                              </div>
                             )}
                             <span className="text-xs text-center font-medium leading-tight text-gray-200 line-clamp-2">
                               {getLocalizedTeamName(

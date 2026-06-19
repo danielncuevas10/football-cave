@@ -170,7 +170,7 @@ export default function ScoreList({ initialMatches }: Props) {
             <img
               src="/images/specs/arrow.svg"
               alt="Previous Day"
-              className="w-4.5 h-4.5 object-contain rotate-90"
+              className="w-4.5 h-4.5 object-contain -rotate-90"
             />
           </button>
 
@@ -189,7 +189,7 @@ export default function ScoreList({ initialMatches }: Props) {
               <img
                 src="/images/specs/arrow.svg"
                 alt="Select Date"
-                className="w-3 h-3 object-contain"
+                className="w-3 h-3 object-contain rotate-180"
               />
             </button>
 
@@ -212,7 +212,7 @@ export default function ScoreList({ initialMatches }: Props) {
             <img
               src="/images/specs/arrow.svg"
               alt="Next Day"
-              className="w-4.5 h-4.5 object-contain rotate-270"
+              className="w-4.5 h-4.5 object-contain rotate-90"
             />
           </button>
         </div>

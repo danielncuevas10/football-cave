@@ -20,6 +20,59 @@ import Link from "next/link";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
+function applyOptimisticResult(
+  standings: DbStanding[],
+  homeTeamName: string,
+  awayTeamName: string,
+  homeScore: number,
+  awayScore: number
+): DbStanding[] {
+  const updated = standings.map((s) => {
+    const isHome = s.team_name === homeTeamName;
+    const isAway = s.team_name === awayTeamName;
+    if (!isHome && !isAway) return s;
+
+    const scored = isHome ? homeScore : awayScore;
+    const conceded = isHome ? awayScore : homeScore;
+    const teamWon = isHome ? homeScore > awayScore : awayScore > homeScore;
+    const isDraw = homeScore === awayScore;
+
+    return {
+      ...s,
+      played: s.played + 1,
+      won: s.won + (teamWon ? 1 : 0),
+      drawn: s.drawn + (isDraw ? 1 : 0),
+      lost: s.lost + (!teamWon && !isDraw ? 1 : 0),
+      goals_for: s.goals_for + scored,
+      goals_against: s.goals_against + conceded,
+      points: s.points + (teamWon ? 3 : isDraw ? 1 : 0),
+    };
+  });
+
+  // Re-rank within each group by: points → GD → GF
+  const groups = new Map<string, DbStanding[]>();
+  for (const row of updated) {
+    const key = row.group_name ?? "";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(row);
+  }
+
+  const reranked: DbStanding[] = [];
+  for (const group of groups.values()) {
+    group.sort((a, b) => {
+      const ptsDiff = b.points - a.points;
+      if (ptsDiff !== 0) return ptsDiff;
+      const gdDiff =
+        b.goals_for - b.goals_against - (a.goals_for - a.goals_against);
+      if (gdDiff !== 0) return gdDiff;
+      return b.goals_for - a.goals_for;
+    });
+    group.forEach((row, i) => reranked.push({ ...row, rank: i + 1 }));
+  }
+
+  return reranked;
+}
+
 type TabType = "events" | "table" | "scorers" | "details" | "lineups";
 
 interface MatchTabsProps {
@@ -32,12 +85,12 @@ interface MatchTabsProps {
   matchId: number;
   homeTeamName?: string;
   awayTeamName?: string;
-  venueName?: string | null;
-  venueCity?: string | null;
-  referee?: string | null;
   initialIsLive: boolean;
   initialStatus: FixtureStatus;
   initialElapsed: number | null;
+  venueName?: string | null;
+  venueCity?: string | null;
+  referee?: string | null;
 }
 
 export default function MatchTabs({
@@ -49,12 +102,12 @@ export default function MatchTabs({
   matchId,
   homeTeamName,
   awayTeamName,
-  venueName,
-  venueCity,
-  referee,
   initialIsLive,
   initialStatus,
   initialElapsed,
+  venueName,
+  venueCity,
+  referee,
 }: MatchTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("events");
   const [isLive, setIsLive] = useState(initialIsLive);
@@ -65,6 +118,13 @@ export default function MatchTabs({
   const [liveDetails, setLiveDetails] = useState<DbMatchDetails | null>(
     details
   );
+  const [localStandings, setLocalStandings] = useState<DbStanding[]>(standings);
+  const optimisticApplied = useRef(false);
+  const standingsDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  // Season derived from the server-rendered prop; stable for this match's lifetime.
+  const standingsSeason = standings[0]?.season ?? null;
 
   useEffect(() => {
     const channel = supabase
@@ -82,10 +142,31 @@ export default function MatchTabs({
             is_live: boolean;
             status: FixtureStatus;
             elapsed: number | null;
+            home_score: number | null;
+            away_score: number | null;
           };
           setIsLive(updated.is_live);
           setStatus(updated.status);
           setElapsed(updated.elapsed);
+
+          if (
+            !updated.is_live &&
+            FINISHED_STATUSES.includes(updated.status) &&
+            updated.home_score != null &&
+            updated.away_score != null &&
+            !optimisticApplied.current
+          ) {
+            optimisticApplied.current = true;
+            setLocalStandings((prev) =>
+              applyOptimisticResult(
+                prev,
+                homeTeamName ?? "",
+                awayTeamName ?? "",
+                updated.home_score!,
+                updated.away_score!
+              )
+            );
+          }
         }
       )
       .subscribe();
@@ -93,6 +174,53 @@ export default function MatchTabs({
       supabase.removeChannel(channel);
     };
   }, [matchId]);
+
+  // When the cron syncs standings to the DB, Supabase pushes the change here.
+  // We debounce 2 s so all rows in the batch arrive before we re-fetch.
+  useEffect(() => {
+    const channel = supabase
+      .channel(`standings-live-${leagueId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "standings",
+          filter: `league_id=eq.${leagueId}`,
+        },
+        () => {
+          if (standingsDebounceRef.current)
+            clearTimeout(standingsDebounceRef.current);
+          standingsDebounceRef.current = setTimeout(async () => {
+            const query =
+              leagueId === League.WorldCup
+                ? supabase
+                    .from("standings")
+                    .select("*")
+                    .eq("league_id", leagueId)
+                    .order("rank", { ascending: true })
+                : supabase
+                    .from("standings")
+                    .select("*")
+                    .eq("league_id", leagueId)
+                    .eq("season", standingsSeason ?? new Date().getFullYear())
+                    .order("rank", { ascending: true });
+            const { data } = await query;
+            if (data) {
+              optimisticApplied.current = false; // real data arrived, allow future optimistic updates
+              setLocalStandings(data);
+            }
+          }, 2000);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+      if (standingsDebounceRef.current)
+        clearTimeout(standingsDebounceRef.current);
+    };
+  }, [leagueId, standingsSeason]);
 
   // Uncapped per-minute ticker — resets to the latest DB value on every cron
   // update, then keeps ticking beyond 45/90 so added time shows automatically.
@@ -161,14 +289,14 @@ export default function MatchTabs({
 
   const isWorldCup = leagueId === League.WorldCup;
   const matchGroupName = isWorldCup
-    ? standings.find((s) => s.team_id === homeTeamId)?.group_name ??
-      standings.find((s) => s.team_name === homeTeamName)?.group_name ??
-      standings.find((s) => s.team_name === awayTeamName)?.group_name ??
+    ? localStandings.find((s) => s.team_id === homeTeamId)?.group_name ??
+      localStandings.find((s) => s.team_name === homeTeamName)?.group_name ??
+      localStandings.find((s) => s.team_name === awayTeamName)?.group_name ??
       null
     : null;
   const groupStandings = matchGroupName
-    ? standings.filter((s) => s.group_name === matchGroupName)
-    : standings;
+    ? localStandings.filter((s) => s.group_name === matchGroupName)
+    : localStandings;
 
   const isPenStatus = status === "P" || status === "PEN";
 
@@ -320,7 +448,7 @@ export default function MatchTabs({
         >
           <div className="w-full space-y-2">
             {liveDetails?.events && liveDetails.events.length > 0 ? (
-              <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
+              <div className="bg-custom-gray-2 rounded-md overflow-hidden">
                 <div className=" divide-y divide-custom-gray/30">
                   {liveDetails.events.map((ev: MatchEvent, index: number) => {
                     const isOwnGoal =
@@ -641,7 +769,7 @@ export default function MatchTabs({
                                         <span className="text-[#20C547] font-medium truncate">
                                           {ev.assist?.name || tEv("inPlayer")}
                                         </span>
-                                        <span className="text-[#C50212] font-medium truncate">
+                                        <span className="text-[#C93434] font-medium truncate">
                                           {ev.player.name || tEv("outPlayer")}
                                         </span>
                                       </div>
@@ -726,7 +854,7 @@ export default function MatchTabs({
                                         <span className="text-[#20C547] font-medium truncate">
                                           {ev.assist?.name || tEv("inPlayer")}
                                         </span>
-                                        <span className="text-[#C50212] font-medium truncate">
+                                        <span className="text-[#C93434] font-medium truncate">
                                           {ev.player.name || tEv("outPlayer")}
                                         </span>
                                       </div>
@@ -1015,36 +1143,42 @@ export default function MatchTabs({
                 )}
               </div>
             ) : (
-              <div className="py-10 text-center rounded-md bg-custom-gray-2 space-y-2">
-                {venueCity || venueName ? (
-                  <div className="space-y-3">
-                    {/* Venue row */}
-                    <div className="flex items-center justify-center gap-2">
+              <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
+                {tTabs("upcomingMatch")}
+                <img
+                  src="/images/specs/clock.svg"
+                  alt=""
+                  className="w-8 h-8 object-contain mx-auto mt-4"
+                />
+              </div>
+            )}
+
+            {(venueName || venueCity || referee) && (
+              <div className="p-4 text-xs text-gray-200 bg-custom-gray-2 rounded-md">
+                <div className="flex flex-col gap-2">
+                  {(venueName || venueCity) && (
+                    <div className="flex items-center gap-2">
                       <img
                         src="/images/stadium.svg"
                         alt=""
-                        className="w-6 h-6 object-contain opacity-60 shrink-0"
+                        className="w-4 h-4 object-contain shrink-0"
                       />
-                      <span className="text-sm text-gray-200">
+                      <span>
                         {[venueName, venueCity].filter(Boolean).join(", ")}
                       </span>
                     </div>
-
-                    {/* Referee row */}
-                    {referee && (
-                      <div className="flex items-center justify-center gap-2">
-                        <img
-                          src="/images/specs/final.svg"
-                          alt=""
-                          className="w-4 h-4 object-contain opacity-60 shrink-0"
-                        />
-                        <span className="text-sm text-gray-200">{referee}</span>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-300">{tTabs("noInfo")}</p>
-                )}
+                  )}
+                  {referee && (
+                    <div className="flex items-center gap-2">
+                      <img
+                        src="/images/specs/final.svg"
+                        alt=""
+                        className="w-4 h-4 object-contain shrink-0"
+                      />
+                      <span>{referee}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -1101,9 +1235,12 @@ export default function MatchTabs({
               )}
             </Link>
             {isWorldCup ? (
-              <WorldCupGroups standings={groupStandings} />
+              <WorldCupGroups
+                standings={groupStandings}
+                allStandings={localStandings}
+              />
             ) : (
-              <StandingsTable standings={standings} />
+              <StandingsTable standings={localStandings} />
             )}
           </div>
         </div>

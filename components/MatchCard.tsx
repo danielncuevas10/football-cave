@@ -86,11 +86,19 @@ export default function MatchCard({ match }: { match: DbMatch }) {
             {getLocalizedTeamName(match.home_team, locale)}
           </span>
           {match.home_logo && (
-            <img
-              src={match.home_logo}
-              alt=""
-              className="w-8 h-8 object-contain shrink-0"
-            />
+            <div
+              className={`w-12 h-8 overflow-hidden shrink-0 block relative ${
+                match.league_id === 1 || match.league_id === 10
+                  ? "border border-gray-300 rounded-tr rounded-bl"
+                  : ""
+              }`}
+            >
+              <img
+                src={match.home_logo}
+                alt=""
+                className="w-full h-full object-cover scale-[1.15] will-change-transform"
+              />
+            </div>
           )}
         </div>
 
@@ -123,11 +131,19 @@ export default function MatchCard({ match }: { match: DbMatch }) {
         {/* Away team */}
         <div className="flex items-center justify-start gap-2 min-w-0">
           {match.away_logo && (
-            <img
-              src={match.away_logo}
-              alt=""
-              className="w-8 h-8 object-contain shrink-0"
-            />
+            <div
+              className={`w-12 h-8 overflow-hidden shrink-0 block relative ${
+                match.league_id === 1 || match.league_id === 10
+                  ? "border border-gray-300 rounded-tr rounded-bl"
+                  : ""
+              }`}
+            >
+              <img
+                src={match.away_logo}
+                alt=""
+                className="w-full h-full object-cover scale-[1.15] will-change-transform"
+              />
+            </div>
           )}
           <span className="text-sm font-medium text-left leading-tight line-clamp-2">
             {getLocalizedTeamName(match.away_team, locale)}

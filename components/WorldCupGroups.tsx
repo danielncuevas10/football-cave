@@ -5,14 +5,36 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { DbStanding } from "@/types/sports";
 import { getLocalizedTeamName } from "@/lib/teamName";
+import WorldCupBest3rd from "./WorldCupBest3rd";
 
 interface WorldCupGroupsProps {
   standings: DbStanding[];
+  allStandings?: DbStanding[];
 }
 
-export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
+export default function WorldCupGroups({
+  standings,
+  allStandings,
+}: WorldCupGroupsProps) {
   const t = useTranslations("matchTabs");
   const locale = useLocale();
+
+  const pool = allStandings ?? standings;
+  const top8ThirdIds = new Set(
+    pool
+      .filter((s) => s.rank === 3)
+      .sort((a, b) => {
+        const ptsDiff = b.points - a.points;
+        if (ptsDiff !== 0) return ptsDiff;
+        const gdDiff =
+          b.goals_for - b.goals_against - (a.goals_for - a.goals_against);
+        if (gdDiff !== 0) return gdDiff;
+        return b.goals_for - a.goals_for;
+      })
+      .slice(0, 8)
+      .map((s) => s.team_id)
+  );
+
   const grouped = standings.reduce<Record<string, DbStanding[]>>((acc, row) => {
     const key = row.group_name || "Unknown";
     if (!acc[key]) acc[key] = [];
@@ -26,10 +48,30 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
 
   return (
     <div
-      className={`grid gap-4 w-full ${
-        multiGroup ? "sm:grid-cols-2" : "grid-cols-1"
+      className={`grid gap-1 w-full ${
+        multiGroup ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4" : "grid-cols-1"
       }`}
     >
+      <div className="col-span-full flex items-center gap-2 p-2">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-[#4ade80] shrink-0" />
+          <span className="text-[9px] font-light text-white">
+            {t("roundOf16")}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-[#FFC000] shrink-0" />
+          <span className="text-[9px] font-light text-white">
+            {t("roundOf16Best3rd")}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-[#C93434] shrink-0" />
+          <span className="text-[9px] font-light text-white">
+            {t("eliminated")}
+          </span>
+        </div>
+      </div>
       {sortedGroups.map((groupName) => {
         const teams = grouped[groupName].sort((a, b) => a.rank - b.rank);
         // Extract just the letter: "Group A" → "A", or use as-is
@@ -69,14 +111,20 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
               <tbody className="divide-y divide-gray-700/30">
                 {teams.map((team) => {
                   const advances = team.rank <= 2;
+                  const advancesAsThird =
+                    team.rank === 3 && top8ThirdIds.has(team.team_id);
                   return (
                     <tr
                       key={team.team_id}
                       className={`hover:bg-gray-800/20 transition-colors ${
-                        advances ? "shadow-[inset_1.5px_0_0_#4ade80]" : ""
+                        advances
+                          ? "[&>td:first-child]:border-l-2 [&>td:first-child]:border-[#4ade80]"
+                          : advancesAsThird
+                          ? "[&>td:first-child]:border-l-2 [&>td:first-child]:border-[#FFC000]"
+                          : "[&>td:first-child]:border-l-2 [&>td:first-child]:border-[#C93434]"
                       }`}
                     >
-                      <td className="px-3 py-2.5 text-center font-bold text-gray-300">
+                      <td className="px-3 py-2.5 text-center font-bold text-gray-300 ">
                         {team.rank}
                       </td>
                       <td className="px-2 py-2.5">
@@ -85,13 +133,13 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
                           className="flex items-center gap-2 hover:opacity-75 transition-opacity"
                         >
                           {team.team_logo && (
-                            <Image
-                              src={team.team_logo}
-                              alt={team.team_name}
-                              width={18}
-                              height={18}
-                              className="object-contain shrink-0"
-                            />
+                            <div className="w-10 h-6 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr rounded-bl">
+                              <img
+                                src={team.team_logo}
+                                alt=""
+                                className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                              />
+                            </div>
                           )}
                           <span className="truncate max-w-27.5 font-medium">
                             {getLocalizedTeamName(team.team_name, locale)}
@@ -119,6 +167,7 @@ export default function WorldCupGroups({ standings }: WorldCupGroupsProps) {
           </div>
         );
       })}
+      {multiGroup && <WorldCupBest3rd standings={pool} />}
     </div>
   );
 }

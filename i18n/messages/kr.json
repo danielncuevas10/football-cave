@@ -20,7 +20,16 @@
     "club": "클럽",
     "seeMore": "더 보기",
     "seeLess": "접기",
-    "loadingMatches": "경기 불러오는 중…"
+    "loadingMatches": "경기 불러오는 중…",
+    "upcomingMatch": "예정된 경기",
+    "roundOf16": "16강",
+    "roundOf16Best3rd": "16강 – 최고 3위",
+    "eliminated": "탈락",
+    "knockoutStage": "녹아웃 스테이지",
+    "bestThirdPlace": "최고 3위",
+    "projected": "예상",
+    "viewBracket": "브래킷 보기",
+    "bracketTab": "브래킷"
   },
   "matchEvents": {
     "matchStarted": "경기 시작",

@@ -20,7 +20,16 @@
     "club": "Klub",
     "seeMore": "Vidi više",
     "seeLess": "Vidi manje",
-    "loadingMatches": "Učitavanje utakmica…"
+    "loadingMatches": "Učitavanje utakmica…",
+    "upcomingMatch": "Predstojeća utakmica",
+    "roundOf16": "Osmina finala",
+    "roundOf16Best3rd": "Osmina finala – Treće mjesto",
+    "eliminated": "Ispadnut",
+    "knockoutStage": "Nokaut faza",
+    "bestThirdPlace": "Najbolji 3.",
+    "projected": "Predviđeno",
+    "viewBracket": "Vidi tablicu",
+    "bracketTab": "Tablica"
   },
   "matchEvents": {
     "matchStarted": "Utakmica počela",

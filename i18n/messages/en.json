@@ -20,7 +20,16 @@
     "club": "Club",
     "seeMore": "See More",
     "seeLess": "See Less",
-    "loadingMatches": "Loading matches…"
+    "loadingMatches": "Loading matches…",
+    "upcomingMatch": "Upcoming match",
+    "roundOf16": "Round of 16",
+    "roundOf16Best3rd": "Round of 16 – Best 3rd",
+    "eliminated": "Eliminated",
+    "knockoutStage": "Knockout Stage",
+    "bestThirdPlace": "Best 3rd-Place",
+    "projected": "Projected",
+    "viewBracket": "View Full Bracket",
+    "bracketTab": "Bracket"
   },
   "matchEvents": {
     "matchStarted": "Match Started",

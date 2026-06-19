@@ -92,12 +92,12 @@ export default async function MatchDetailsPage({
         matchId={matchId}
         homeTeamName={initialMatch.home_team}
         awayTeamName={initialMatch.away_team}
-        venueName={venueName}
-        venueCity={venueCity}
-        referee={referee}
         initialIsLive={(match ?? initialMatch).is_live}
         initialStatus={(match ?? initialMatch).status}
         initialElapsed={(match ?? initialMatch).elapsed}
+        venueName={venueName}
+        venueCity={venueCity}
+        referee={referee}
       />
     </main>
   );

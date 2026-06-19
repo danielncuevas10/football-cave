@@ -20,7 +20,16 @@
     "club": "Ομάδα",
     "seeMore": "Περισσότερα",
     "seeLess": "Λιγότερα",
-    "loadingMatches": "Φόρτωση αγώνων…"
+    "loadingMatches": "Φόρτωση αγώνων…",
+    "upcomingMatch": "Επερχόμενος αγώνας",
+    "roundOf16": "Φάση 16",
+    "roundOf16Best3rd": "Φάση 16 – Καλύτερος 3ος",
+    "eliminated": "Αποκλείστηκε",
+    "knockoutStage": "Φάση αποκλεισμού",
+    "bestThirdPlace": "Καλύτεροι 3οι",
+    "projected": "Εκτιμώμενο",
+    "viewBracket": "Δείτε πλήρες",
+    "bracketTab": "Ταμπλό"
   },
   "matchEvents": {
     "matchStarted": "Έναρξη αγώνα",

@@ -20,7 +20,16 @@
     "club": "球队",
     "seeMore": "查看更多",
     "seeLess": "收起",
-    "loadingMatches": "加载比赛中…"
+    "loadingMatches": "加载比赛中…",
+    "upcomingMatch": "即将进行的比赛",
+    "roundOf16": "十六强",
+    "roundOf16Best3rd": "十六强 – 最佳第三",
+    "eliminated": "已淘汰",
+    "knockoutStage": "淘汰赛阶段",
+    "bestThirdPlace": "最佳第三名",
+    "projected": "预测",
+    "viewBracket": "查看赛表",
+    "bracketTab": "赛表"
   },
   "matchEvents": {
     "matchStarted": "比赛开始",
