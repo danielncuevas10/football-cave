@@ -3,6 +3,135 @@ import { supabaseAdmin } from "@/lib/server/supabase-admin";
 import { footballApi } from "@/lib/server/football-api";
 import type { DbStanding, DbTopScorer } from "@/types/sports";
 
+/**
+ * Recomputes group-stage standings entirely from the `matches` table —
+ * no external API call. Called the instant a match finishes so the DB
+ * reflects the correct standings before API-Football's own cache clears.
+ *
+ * Safety: only writes columns it computes (played/won/drawn/lost/GF/GA/
+ * points/rank). Preserves team_id, team_logo, group_name from existing
+ * rows via upsert. Never deletes rows. The in-memory "reset to 0" is just
+ * the accumulator — it never writes a 0 that isn't genuinely correct.
+ *
+ * Returns true if GROUP matches were found and standings were updated,
+ * false if no group-stage matches exist yet (e.g. regular league or
+ * tournament hasn't kicked off) — caller uses this to decide whether to
+ * fire an API fallback.
+ */
+export async function recomputeGroupStandings(
+  leagueId: number,
+  season: number
+): Promise<boolean> {
+  // 1. All finished group-stage matches (stage = "GROUP" set by standardizeRound)
+  const { data: groupMatches } = await supabaseAdmin
+    .from("matches")
+    .select("home_team, away_team, home_score, away_score")
+    .eq("league_id", leagueId)
+    .eq("stage", "GROUP")
+    .in("status", ["FT", "AET", "PEN"]);
+
+  if (!groupMatches?.length) return false;
+
+  // 2. Existing standings rows — source of truth for team_id / logo / group
+  const { data: existing } = await supabaseAdmin
+    .from("standings")
+    .select("team_id, team_name, team_logo, group_name")
+    .eq("league_id", leagueId)
+    .eq("season", season);
+
+  if (!existing?.length) return false;
+
+  // 3. Name → metadata map (lower-cased for safe matching)
+  type Meta = { team_id: number; team_name: string; team_logo: string; group_name: string | null };
+  const byName = new Map<string, Meta>();
+  for (const row of existing) {
+    byName.set(row.team_name.toLowerCase().trim(), {
+      team_id: row.team_id,
+      team_name: row.team_name,
+      team_logo: row.team_logo,
+      group_name: row.group_name ?? null,
+    });
+  }
+
+  // 4. In-memory accumulators — start every known team at zero
+  type Acc = Meta & { played: number; won: number; drawn: number; lost: number; goals_for: number; goals_against: number; points: number };
+  const acc = new Map<number, Acc>();
+  for (const meta of byName.values()) {
+    acc.set(meta.team_id, { ...meta, played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, points: 0 });
+  }
+
+  // 5. Accumulate every finished group match
+  for (const m of groupMatches) {
+    if (m.home_score === null || m.away_score === null) continue;
+    const home = byName.get(m.home_team.toLowerCase().trim());
+    const away = byName.get(m.away_team.toLowerCase().trim());
+    if (!home || !away) continue;
+
+    const h = acc.get(home.team_id)!;
+    const a = acc.get(away.team_id)!;
+
+    h.played++; a.played++;
+    h.goals_for += m.home_score; h.goals_against += m.away_score;
+    a.goals_for += m.away_score; a.goals_against += m.home_score;
+
+    if (m.home_score > m.away_score) {
+      h.won++; h.points += 3; a.lost++;
+    } else if (m.away_score > m.home_score) {
+      a.won++; a.points += 3; h.lost++;
+    } else {
+      h.drawn++; h.points += 1; a.drawn++; a.points += 1;
+    }
+  }
+
+  // 6. Sort within each group and assign rank
+  //    Order: points → GD → GF → team name (stable for display; API verify corrects exact ties)
+  const byGroup = new Map<string, Acc[]>();
+  for (const t of acc.values()) {
+    const g = t.group_name ?? "__ungrouped__";
+    if (!byGroup.has(g)) byGroup.set(g, []);
+    byGroup.get(g)!.push(t);
+  }
+
+  const now = new Date().toISOString();
+  const rows: object[] = [];
+
+  for (const groupTeams of byGroup.values()) {
+    groupTeams.sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      const gdDiff = (b.goals_for - b.goals_against) - (a.goals_for - a.goals_against);
+      if (gdDiff !== 0) return gdDiff;
+      if (b.goals_for !== a.goals_for) return b.goals_for - a.goals_for;
+      return a.team_name.localeCompare(b.team_name);
+    });
+
+    groupTeams.forEach((t, i) => {
+      rows.push({
+        team_id: t.team_id,
+        team_name: t.team_name,
+        team_logo: t.team_logo,
+        league_id: leagueId,
+        season,
+        rank: i + 1,
+        points: t.points,
+        played: t.played,
+        won: t.won,
+        drawn: t.drawn,
+        lost: t.lost,
+        goals_for: t.goals_for,
+        goals_against: t.goals_against,
+        group_name: t.group_name,
+        updated_at: now,
+      });
+    });
+  }
+
+  await supabaseAdmin
+    .from("standings")
+    .upsert(rows, { onConflict: "team_id,league_id,season" });
+
+  return true;
+}
+
 export async function syncStandingsForLeague(leagueId: number, season: number): Promise<void> {
   const freshStandings = await footballApi.standings(leagueId, season);
   if (!freshStandings?.response?.[0]?.league?.standings) return;

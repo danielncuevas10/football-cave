@@ -38,6 +38,7 @@
     "noNotableActions": "注目のアクションなし",
     "matchFinished": "試合終了",
     "halfTime": "ハーフタイム",
+    "halfTimeBadge": "HT",
     "regularTimeFinished": "90分終了",
     "extraTimeStartsSoon": "延長戦まもなく開始",
     "firstHalfExtraTimeStarts": "延長前半開始",

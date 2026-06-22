@@ -1,14 +1,20 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { DbMatchDetails, TeamLineup } from "@/types/sports";
+import type { DbMatchDetails, FixtureStatus, TeamLineup } from "@/types/sports";
+
+
+const NOT_STARTED: FixtureStatus[] = ["NS", "TBD"];
 
 interface DetailsProps {
   details: DbMatchDetails | null;
+  status?: FixtureStatus;
 }
 
-export default function MatchCenterLinenups({ details }: DetailsProps) {
+export default function MatchCenterLinenups({ details, status }: DetailsProps) {
   const t = useTranslations("lineups");
+  const tTabs = useTranslations("matchTabs");
+  const matchStarted = !!status && !NOT_STARTED.includes(status);
 
   if (!details) {
     return (
@@ -52,12 +58,18 @@ export default function MatchCenterLinenups({ details }: DetailsProps) {
       <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
         {/* Main Layout Header */}
         <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
-          <span>{t("confirmedLineups")}</span>
-          <img
-            src="/images/specs/check.svg"
-            alt=""
-            className="w-5.5 h-5.5 object-contain"
-          />
+          {matchStarted ? (
+            <span>{tTabs("lineups")}</span>
+          ) : (
+            <>
+              <span>{t("confirmedLineups")}</span>
+              <img
+                src="/images/specs/check.svg"
+                alt=""
+                className="w-5.5 h-5.5 object-contain"
+              />
+            </>
+          )}
         </div>
 
         {/* ROW 1: Starting XI Side-by-Side */}

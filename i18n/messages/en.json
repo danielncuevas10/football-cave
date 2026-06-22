@@ -38,6 +38,7 @@
     "noNotableActions": "No notable actions",
     "matchFinished": "Match Finished",
     "halfTime": "Half Time",
+    "halfTimeBadge": "HT",
     "regularTimeFinished": "Regular Time Finished",
     "extraTimeStartsSoon": "Extra Time Starts Soon",
     "firstHalfExtraTimeStarts": "Extra time 1H starts",

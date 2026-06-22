@@ -38,6 +38,7 @@
     "noNotableActions": "暂无重要事件",
     "matchFinished": "比赛结束",
     "halfTime": "中场",
+    "halfTimeBadge": "中场",
     "regularTimeFinished": "常规时间结束",
     "extraTimeStartsSoon": "加时赛即将开始",
     "firstHalfExtraTimeStarts": "加时赛上半场开始",

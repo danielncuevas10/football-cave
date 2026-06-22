@@ -64,7 +64,7 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <meta name="google-adsense-account" content="ca-pub-9195927112430047" />
+        <meta name="google-adsense-account" content="ca-pub-8066520887443761" />
       </head>
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
@@ -72,7 +72,7 @@ export default async function RootLayout({
           {children}
           <script
             async
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9195927112430047"
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8066520887443761"
             crossOrigin="anonymous"
           ></script>
           <Footer />

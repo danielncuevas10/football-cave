@@ -43,7 +43,7 @@ function StatusBadge({
     case "HT":
       return (
         <span className="text-white text-xs font-mono px-1.5 py-0.5 bg-gray-600 rounded-md">
-          {tEv("halfTime")}
+          {tEv("halfTimeBadge")}
         </span>
       );
     default:
@@ -87,7 +87,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
           </span>
           {match.home_logo && (
             <div
-              className={`w-12 h-8 overflow-hidden shrink-0 block relative ${
+              className={`w-10 h-6 overflow-hidden shrink-0 block relative ${
                 match.league_id === 1 || match.league_id === 10
                   ? "border border-gray-300 rounded-tr rounded-bl"
                   : ""
@@ -132,7 +132,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
         <div className="flex items-center justify-start gap-2 min-w-0">
           {match.away_logo && (
             <div
-              className={`w-12 h-8 overflow-hidden shrink-0 block relative ${
+              className={`w-10 h-6 overflow-hidden shrink-0 block relative ${
                 match.league_id === 1 || match.league_id === 10
                   ? "border border-gray-300 rounded-tr rounded-bl"
                   : ""

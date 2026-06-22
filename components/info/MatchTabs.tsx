@@ -731,7 +731,7 @@ export default function MatchTabs({
                                           : "/images/specs/ball.svg"
                                       }
                                       alt=""
-                                      className="w-4 h-4 object-contain shrink-0"
+                                      className="w-6 h-6 object-contain shrink-0"
                                     />
                                   </div>
                                 )}
@@ -747,7 +747,7 @@ export default function MatchTabs({
                                           : "/images/specs/ball.svg"
                                       }
                                       alt=""
-                                      className="w-4 h-4 object-contain shrink-0"
+                                      className="w-6 h-6 object-contain shrink-0"
                                     />
                                     <span className="text-[11px] text-gray-200 font-medium truncate">
                                       {ev.player.name || tEv("unknownPlayer")}
@@ -818,7 +818,7 @@ export default function MatchTabs({
                                       <img
                                         src={getEventIcon(ev.type, ev.detail)}
                                         alt=""
-                                        className="w-4 h-4 object-contain"
+                                        className="w-5.5 h-5.5 object-contain"
                                       />
                                     </span>
                                   </div>
@@ -843,7 +843,7 @@ export default function MatchTabs({
                                       <img
                                         src={getEventIcon(ev.type, ev.detail)}
                                         alt=""
-                                        className="w-4 h-4 object-contain"
+                                        className="w-5.5 h-5.5 object-contain"
                                       />
                                     </span>
                                   </div>
@@ -1046,7 +1046,7 @@ export default function MatchTabs({
                                           : "/images/specs/ball.svg"
                                       }
                                       alt=""
-                                      className="w-4 h-4 object-contain shrink-0"
+                                      className="w-6 h-6 object-contain shrink-0"
                                     />
                                   </div>
                                 )}
@@ -1062,7 +1062,7 @@ export default function MatchTabs({
                                           : "/images/specs/ball.svg"
                                       }
                                       alt=""
-                                      className="w-4 h-4 object-contain shrink-0"
+                                      className="w-6 h-6 object-contain shrink-0"
                                     />
                                     <span className="text-[11px] text-gray-200 font-medium truncate">
                                       {kick.player.name || tEv("unknownPlayer")}
@@ -1200,7 +1200,7 @@ export default function MatchTabs({
           }`}
         >
           <div className="w-full">
-            <MatchCenterLinenups details={liveDetails} />
+            <MatchCenterLinenups details={liveDetails} status={status} />
           </div>
         </div>
 

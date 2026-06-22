@@ -53,8 +53,11 @@ export default function BracketBottomSheet({
           <img
             src="/images/specs/arrow.svg"
             alt="view knowckout stage"
-            className="w-4 h-4 object-contain animate-bounce"
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
+            className="w-4 h-4 object-contain animate-bounce rotate-180"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "/images/specs/arrow.jpg";
+            }}
           />
         </button>
       </div>

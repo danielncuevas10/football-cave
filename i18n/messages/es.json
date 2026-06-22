@@ -38,6 +38,7 @@
     "noNotableActions": "Sin acciones destacadas",
     "matchFinished": "Partido finalizado",
     "halfTime": "Descanso",
+    "halfTimeBadge": "MT",
     "regularTimeFinished": "Tiempo reglamentario finalizado",
     "extraTimeStartsSoon": "La prórroga comienza pronto",
     "firstHalfExtraTimeStarts": "Primera parte de la prórroga",

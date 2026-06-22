@@ -59,7 +59,7 @@ function Conn({ leftN, rightN }: { leftN: number; rightN: number }) {
 function FlagImg({ src, muted }: { src: string; muted?: boolean }) {
   return (
     <div
-      className={`w-5 h-3.5 overflow-hidden shrink-0 border border-gray-300 rounded-tr-sm rounded-bl-sm ${
+      className={`w-8 h-5.5 overflow-hidden shrink-0 border border-gray-300 rounded-tr-sm rounded-bl-sm ${
         muted ? "opacity-50" : ""
       }`}
     >
@@ -74,7 +74,7 @@ function FlagImg({ src, muted }: { src: string; muted?: boolean }) {
 
 function FlagPlaceholder() {
   return (
-    <div className="w-5 h-3.5 shrink-0 border border-gray-300 rounded-tr-sm rounded-bl-sm" />
+    <div className="w-8 h-5.5 shrink-0 border border-gray-300 rounded-tr-sm rounded-bl-sm" />
   );
 }
 
@@ -90,10 +90,10 @@ function CompactSlot({ slot }: { slot: ResolvedSlot }) {
   const awayWon = hasScore && awayScore! > homeScore!;
 
   return (
-    <div className="bg-custom-gray-2 border border-gray-700/40 rounded overflow-hidden w-full">
+    <div className="bg-custom-gray-2 border border-gray-700/40 rounded overflow-hidden w-full my-1">
       {/* Home */}
       <div
-        className={`flex items-center gap-1.5 px-2 py-1.5 ${
+        className={`flex items-center gap-2.5 px-2 py-1 ${
           homeWon ? "bg-white/5" : ""
         }`}
       >
@@ -114,7 +114,7 @@ function CompactSlot({ slot }: { slot: ResolvedSlot }) {
       <div className="border-t border-gray-700/30" />
       {/* Away */}
       <div
-        className={`flex items-center gap-1.5 px-2 py-1.5 ${
+        className={`flex items-center gap-2.5 px-2 py-1 ${
           awayWon ? "bg-white/5" : ""
         }`}
       >
@@ -249,7 +249,10 @@ export default function MobileBracketTree({
             src="/images/specs/arrow.svg"
             alt=""
             className="w-3 h-3 object-contain rotate-270"
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "/images/specs/arrow.jpg";
+            }}
           />
         </Link>
       </div>

@@ -38,6 +38,7 @@
     "noNotableActions": "Aucune action notable",
     "matchFinished": "Match terminé",
     "halfTime": "Mi-temps",
+    "halfTimeBadge": "MT",
     "regularTimeFinished": "Temps réglementaire terminé",
     "extraTimeStartsSoon": "Les prolongations commencent bientôt",
     "firstHalfExtraTimeStarts": "Première mi-temps des prolongations",

@@ -38,6 +38,7 @@
     "noNotableActions": "Önemli bir gelişme yok",
     "matchFinished": "Maç bitti",
     "halfTime": "Devre arası",
+    "halfTimeBadge": "DA",
     "regularTimeFinished": "Normal süre bitti",
     "extraTimeStartsSoon": "Uzatma devirleri başlıyor",
     "firstHalfExtraTimeStarts": "Uzatmanın ilk yarısı başlıyor",

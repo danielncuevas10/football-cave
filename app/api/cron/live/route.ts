@@ -5,7 +5,8 @@ import { Receiver } from "@upstash/qstash"
 import { supabaseAdmin } from "@/lib/server/supabase-admin"
 import { footballApi } from "@/lib/server/football-api"
 import { standardizeRound } from "@/lib/sync/standardizeRound"
-import { syncStandingsForLeague, syncScorersForLeague, syncScorersFromEvents } from "@/lib/server/sync-league"
+import { revalidatePath } from "next/cache"
+import { syncStandingsForLeague, syncScorersForLeague, syncScorersFromEvents, recomputeGroupStandings } from "@/lib/server/sync-league"
 import { LIVE_STATUSES } from "@/types/sports"
 import type { DbMatch } from "@/types/sports"
 
@@ -180,9 +181,33 @@ export async function POST(req: NextRequest) {
   // 6. Refresh standings + scorers for every league that had a match finish this run
   for (const [leagueId, season] of affectedLeagues) {
     try {
-      await syncStandingsForLeague(leagueId, season)
-      await syncScorersFromEvents(leagueId, season) // events are always fresh
-      await syncScorersForLeague(leagueId, season)  // API adds photos when it catches up
+      // Layer 1: instant local recompute from our own matches table (no API call).
+      // Returns true for tournament leagues with group stages, false for regular leagues.
+      const recomputed = await recomputeGroupStandings(leagueId, season)
+
+      // Scorers from events are always instant and accurate
+      await syncScorersFromEvents(leagueId, season)
+
+      if (recomputed) {
+        // Tournament league: standings are already correct in DB.
+        // Bust ISR cache so the next page request sees fresh data immediately
+        // instead of waiting up to 60 s for the revalidate timer.
+        revalidatePath("/", "layout")
+        revalidatePath("/bracket")
+
+        // Background verify: once API-Football's own cache clears (~30-60 min)
+        // this self-corrects any edge cases (e.g. tiebreaker ordering).
+        void syncStandingsForLeague(leagueId, season).catch((e) =>
+          console.error(`Standings API verify failed for league ${leagueId}:`, e)
+        )
+        void syncScorersForLeague(leagueId, season).catch((e) =>
+          console.error(`Scorers API verify failed for league ${leagueId}:`, e)
+        )
+      } else {
+        // Regular league (no group stage): keep existing awaited API path unchanged
+        await syncStandingsForLeague(leagueId, season)
+        await syncScorersForLeague(leagueId, season)
+      }
     } catch (e) {
       console.error(`Failed to sync league ${leagueId}:`, e)
     }
@@ -224,9 +249,22 @@ export async function POST(req: NextRequest) {
 
     const season = st?.season ?? new Date().getFullYear()
     try {
-      await syncStandingsForLeague(leagueId, season)
+      const recomputed = await recomputeGroupStandings(leagueId, season)
       await syncScorersFromEvents(leagueId, season)
-      await syncScorersForLeague(leagueId, season)
+
+      if (recomputed) {
+        revalidatePath("/", "layout")
+        revalidatePath("/bracket")
+        void syncStandingsForLeague(leagueId, season).catch((e) =>
+          console.error(`Catch-all standings API verify failed for league ${leagueId}:`, e)
+        )
+        void syncScorersForLeague(leagueId, season).catch((e) =>
+          console.error(`Catch-all scorers API verify failed for league ${leagueId}:`, e)
+        )
+      } else {
+        await syncStandingsForLeague(leagueId, season)
+        await syncScorersForLeague(leagueId, season)
+      }
       catchAllSynced++
     } catch (e) {
       console.error(`Catch-all sync failed for league ${leagueId}:`, e)

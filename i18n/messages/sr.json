@@ -38,6 +38,7 @@
     "noNotableActions": "Nema značajnih akcija",
     "matchFinished": "Utakmica završena",
     "halfTime": "Poluvreme",
+    "halfTimeBadge": "PV",
     "regularTimeFinished": "Regularno vreme završeno",
     "extraTimeStartsSoon": "Produžeci uskoro počinju",
     "firstHalfExtraTimeStarts": "Početak prvog produžetka",
