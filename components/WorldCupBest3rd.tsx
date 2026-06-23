@@ -27,12 +27,12 @@ export default function WorldCupBest3rd({ standings }: WorldCupBest3rdProps) {
   const advancingIds = new Set(thirds.slice(0, 8).map((s) => s.team_id));
 
   return (
-    <div className="col-span-full mt-4">
+    <div className="0">
       <div className="bg-custom-gray border border-custom-gray-2 rounded-md overflow-hidden">
         <table className="w-full text-xs text-gray-200 bg-custom-gray-2">
           <thead>
             <tr className="text-[10px] tracking-wider bg-custom-gray">
-              <th className="px-3 py-2 text-center w-7 text-gray-300">#</th>
+              <th className="px-3 py-5 text-center w-7 text-gray-300">#</th>
               <th className="px-2 py-3 text-left text-white font-black tracking-widest">
                 {t("bestThirdPlace")}
               </th>
@@ -75,7 +75,7 @@ export default function WorldCupBest3rd({ standings }: WorldCupBest3rdProps) {
                       className="flex items-center gap-2 hover:opacity-75 transition-opacity"
                     >
                       {team.team_logo && (
-                        <div className="w-10 h-6 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr rounded-bl">
+                        <div className="w-10 h-6 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-md rounded-bl-md">
                           <img
                             src={team.team_logo}
                             alt=""

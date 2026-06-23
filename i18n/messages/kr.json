@@ -29,7 +29,8 @@
     "bestThirdPlace": "최고 3위",
     "projected": "예상",
     "viewBracket": "브래킷 보기",
-    "bracketTab": "브래킷"
+    "bracketTab": "브래킷",
+    "wc26": "WC26"
   },
   "matchEvents": {
     "matchStarted": "경기 시작",
@@ -97,7 +98,9 @@
   "dateLabels": {
     "today": "오늘",
     "yesterday": "어제",
-    "tomorrow": "내일"
+    "tomorrow": "내일",
+    "prev": "이전",
+    "next": "다음"
   },
   "footer": {
     "privacyPolicy": "개인정보 처리방침",

@@ -29,7 +29,8 @@
     "bestThirdPlace": "Najbolji 3.",
     "projected": "Predviđeno",
     "viewBracket": "Vidi tablicu",
-    "bracketTab": "Tablica"
+    "bracketTab": "Tablica",
+    "wc26": "WC26"
   },
   "matchEvents": {
     "matchStarted": "Utakmica počela",
@@ -97,7 +98,9 @@
   "dateLabels": {
     "today": "Danas",
     "yesterday": "Juče",
-    "tomorrow": "Sutra"
+    "tomorrow": "Sutra",
+    "prev": "Pre",
+    "next": "Sled"
   },
   "footer": {
     "privacyPolicy": "Politika privatnosti",

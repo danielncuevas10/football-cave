@@ -69,13 +69,18 @@ export default function TopNav() {
   const opacity = barState === "done" ? 0 : barState === "loading" ? 1 : 0;
 
   return (
-    <header className="sticky top-0 z-50 bg-[#303030] border-b border-[#000000] px-6 py-5">
-      <div className="max-w-7xl mx-auto flex items-center justify-between w-full">
-        <Link
-          href="/"
-          className="font-semibold text-white text-lg tracking-tight hover:opacity-90 transition-opacity"
-        >
-          FootballCave
+    <header className="sticky top-0 z-50 bg-custom-gray px-6 py-5">
+      <div className="max-w-7xl lg:max-w-360 mx-auto flex items-center justify-between w-full">
+        <Link href="/">
+          <img
+            src="/images/specs/title.svg"
+            alt="Match Score"
+            className="h-5 sm:h-12 w-auto object-contain"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "/images/WC26Badge.svg";
+            }}
+          />
         </Link>
 
         <SearchBar />

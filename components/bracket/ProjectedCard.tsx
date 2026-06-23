@@ -15,7 +15,7 @@ interface ProjectedCardProps {
 function Flag({ src, muted }: { src: string; muted?: boolean }) {
   return (
     <div
-      className={`w-12 h-8 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr rounded-bl ${
+      className={`w-12 h-8 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-md rounded-bl-md ${
         muted ? "opacity-50" : ""
       }`}
     >
@@ -31,7 +31,7 @@ function Flag({ src, muted }: { src: string; muted?: boolean }) {
 function FlagPlaceholder({ muted }: { muted?: boolean }) {
   return (
     <div
-      className={`w-12 h-8 shrink-0 border border-gray-300/30 rounded-tr rounded-bl bg-custom-gray ${
+      className={`w-12 h-8 shrink-0 border border-gray-300/30 rounded-tr-md rounded-bl-md bg-custom-gray ${
         muted ? "opacity-50" : ""
       }`}
     />

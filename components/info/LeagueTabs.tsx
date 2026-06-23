@@ -6,11 +6,13 @@ import Image from "next/image";
 import StandingsTable from "@/components/info/standings/page";
 import TopScorers from "@/components/info/scorer/page";
 import TournamentMatchesByDay from "@/components/info/TournamentMatchesByDay";
-import WorldCupGroups from "@/components/WorldCupGroups"; // 1. Added import
-import { League } from "@/types/sports"; // 2. Added import to identify World Cup
+import WorldCupGroups from "@/components/WorldCupGroups";
+import WorldCupBest3rd from "@/components/WorldCupBest3rd";
+import { League } from "@/types/sports";
 import type { DbStanding, DbTopScorer, DbMatch } from "@/types/sports";
+import BackButton from "@/components/ui/BackButton";
 
-type TabType = "table" | "scorers" | "matches";
+type TabType = "table" | "best3rd" | "scorers" | "matches";
 
 interface LeagueTabsProps {
   standings: DbStanding[];
@@ -35,12 +37,14 @@ export default function LeagueTabs({
   const tTabs = useTranslations("matchTabs");
 
   const tabs: { id: TabType; label: string }[] = [
-    // 4. Dynamically change tab title for World Cup
     {
       id: "table",
       label:
         leagueId === League.WorldCup ? tTabs("groupStage") : tTabs("standings"),
     },
+    ...(leagueId === League.WorldCup
+      ? [{ id: "best3rd" as const, label: tTabs("bestThirdPlace") }]
+      : []),
     { id: "scorers", label: tTabs("topScorers") },
     ...(isTournament
       ? [{ id: "matches" as const, label: tTabs("matches") }]
@@ -49,6 +53,7 @@ export default function LeagueTabs({
 
   return (
     <div className="space-y-6 w-full text-white">
+      <BackButton />
       {/* Header */}
       {leagueId === League.WorldCup ? (
         <div className="-mx-6 mt-1 overflow-hidden">
@@ -88,7 +93,7 @@ export default function LeagueTabs({
               className={`flex-1 text-center py-3 text-xs font-light tracking-wider border-b transition-all duration-200 ${
                 isActive
                   ? "border-white text-white"
-                  : "border-transparent text-gray-200 hover:text-white hover:bg-gray-900/30"
+                  : "border-transparent text-gray-200 hover:text-white hover:bg-custom-gray/50"
               }`}
             >
               {tab.label}
@@ -110,6 +115,16 @@ export default function LeagueTabs({
             <StandingsTable standings={standings ?? []} />
           )}
         </div>
+
+        {leagueId === League.WorldCup && (
+          <div
+            className={`col-start-1 row-start-1 w-full ${
+              activeTab === "best3rd" ? "" : "h-0 overflow-hidden"
+            }`}
+          >
+            <WorldCupBest3rd standings={standings} />
+          </div>
+        )}
 
         <div
           className={`col-start-1 row-start-1 w-full ${

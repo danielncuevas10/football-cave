@@ -90,10 +90,10 @@ export default async function HomePage() {
 
   return (
     <>
-      <div className="min-h-screen bg-[#101010] text-white">
+      <div className="bg-[#101010] text-white px-6">
         {/* Responsive wrapper: matches list (left) + bracket panel (right, lg+) */}
-        <div className="flex max-w-7xl mx-auto md:justify-center lg:justify-start">
-          <main className="flex-1 min-w-0 max-w-3xl px-4 pt-6 pb-6">
+        <div className="flex max-w-7xl lg:max-w-360 mx-auto">
+          <main className="flex-1 min-w-0 pt-6 pb-6">
             {/* Matches render on the first byte — no dependency on standings */}
             <Suspense
               fallback={
@@ -109,10 +109,8 @@ export default async function HomePage() {
           {/* Desktop: bracket streams in via its own Suspense boundary.
               Standings are fetched inside BracketPanelServer in parallel
               with the match list render — users see matches first. */}
-          {/* aside stretches to match-list height (flex default align-items:stretch).
-              Inner div is sticky so the bracket panel stays in view while scrolling. */}
-          <aside className="hidden lg:flex flex-col w-[35%] shrink-0 border-l border-custom-gray pl-3 pr-4">
-            <div className="sticky top-0 h-screen overflow-y-auto pt-6 pb-6">
+          <aside className="hidden lg:flex flex-col w-[42%] shrink-0 pl-6">
+            <div className="sticky top-22 flex flex-col flex-1 min-h-0 pt-6 pb-6">
               <Suspense fallback={<BracketSkeleton />}>
                 <BracketPanelServer wcMatches={wcMatches} />
               </Suspense>
@@ -121,13 +119,11 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <About />
-
       {/* Mobile sticky bar + bottom sheet — streams in independently.
           fallback={null} means nothing shows until standings arrive (~100 ms).
           The sheet trigger appears as soon as the stream fills in. */}
       <Suspense fallback={null}>
-        <MobileBracketServer wcMatches={wcMatches} />
+        <MobileBracketServer />
       </Suspense>
     </>
   );

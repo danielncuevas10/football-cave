@@ -395,6 +395,10 @@ export default function MatchTabs({
   const liveSecondHalfExtra =
     status === "2H" && isLive && liveMinute > 90 ? liveMinute - 90 : 0;
 
+  // True only for matches that actually went to extra time (AET/PEN) or are
+  // currently live in ET/BT. Group-stage matches always end FT — never true.
+  const matchHadExtraTime = ["AET", "PEN", "ET", "BT"].includes(status);
+
   // Chronological event timeline state triggers
   let renderedStartDivider = false;
   let renderedHalfTimeDivider = false;
@@ -428,7 +432,7 @@ export default function MatchTabs({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className="w-1/4 text-center py-2 text-xs font-light tracking-wider border-b transition-colors whitespace-nowrap border-transparent text-gray-200 hover:text-white hover:bg-gray-900/30"
+              className="w-1/4 text-center py-2 text-xs font-light tracking-wider border-b transition-colors whitespace-nowrap border-transparent text-gray-200 hover:text-white hover:bg-custom-gray/50"
               style={{
                 borderBottomColor: isActive ? "#ffffff" : "transparent",
                 color: isActive ? "#ffffff" : "",
@@ -504,6 +508,7 @@ export default function MatchTabs({
                     // Extra Time Chronology Triggers
                     const showRegularTimeEnd =
                       !renderedRegularTimeEndDivider &&
+                      matchHadExtraTime &&
                       ev.time.elapsed > 90 &&
                       !isShootoutEvent &&
                       !isPenaltyResult;
@@ -512,6 +517,7 @@ export default function MatchTabs({
 
                     const showEtStart =
                       !renderedEtStartDivider &&
+                      matchHadExtraTime &&
                       ev.time.elapsed > 90 &&
                       !isShootoutEvent &&
                       !isPenaltyResult;
@@ -519,6 +525,7 @@ export default function MatchTabs({
 
                     const showEtHalfTime =
                       !renderedEtHalfTimeDivider &&
+                      matchHadExtraTime &&
                       ev.time.elapsed > 105 &&
                       !isShootoutEvent &&
                       !isPenaltyResult;
@@ -526,6 +533,7 @@ export default function MatchTabs({
 
                     const showEt2ndHalf =
                       !renderedEt2ndHalfDivider &&
+                      matchHadExtraTime &&
                       ev.time.elapsed > 105 &&
                       !isShootoutEvent &&
                       !isPenaltyResult;
@@ -1154,7 +1162,7 @@ export default function MatchTabs({
             )}
 
             {(venueName || venueCity || referee) && (
-              <div className="p-4 text-xs text-gray-200 bg-custom-gray-2 rounded-md">
+              <div className="px-4 py-6 text-xs text-gray-200 bg-custom-gray-2 rounded-md">
                 <div className="flex flex-col gap-2">
                   {(venueName || venueCity) && (
                     <div className="flex items-center gap-2">

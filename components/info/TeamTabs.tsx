@@ -97,7 +97,7 @@ export default function TeamTabs({
     <div className="w-full text-white">
       {/* Banner — full width, no rounding, no side margins */}
       <div className="flex items-center gap-4 px-6 py-15 bg-custom-gray-2 w-full">
-        <div className="w-20 h-12 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr rounded-bl">
+        <div className="w-20 h-12 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-md rounded-bl-md">
           <img
             src={teamLogoUrl}
             alt=""
@@ -166,7 +166,7 @@ export default function TeamTabs({
                   className={`flex-1 text-center py-3 text-xs font-light tracking-wider border-b transition-all duration-200 ${
                     isActive
                       ? "border-white text-white"
-                      : "border-transparent text-gray-200 hover:text-white hover:bg-gray-900/30"
+                      : "border-transparent text-gray-200 hover:text-white hover:bg-custom-gray/50"
                   }`}
                 >
                   {tab.label}
@@ -259,7 +259,7 @@ export default function TeamTabs({
                         <div className="grid grid-cols-3 items-center gap-2">
                           <div className="flex flex-col items-center gap-2">
                             {nextWcMatch.home_logo && (
-                              <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr rounded-bl">
+                              <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-md rounded-bl-md">
                                 <img
                                   src={nextWcMatch.home_logo}
                                   alt=""
@@ -289,7 +289,7 @@ export default function TeamTabs({
                           </div>
                           <div className="flex flex-col items-center gap-2">
                             {nextWcMatch.away_logo && (
-                              <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr rounded-bl">
+                              <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-md rounded-bl-md">
                                 <img
                                   src={nextWcMatch.away_logo}
                                   alt=""

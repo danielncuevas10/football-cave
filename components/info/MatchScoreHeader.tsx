@@ -158,7 +158,7 @@ export default function MatchScoreHeader({
                     <div
                       className={`w-18 h-12 overflow-hidden shrink-0 block relative ${
                         match.league_id === 1 || match.league_id === 10
-                          ? "border border-gray-300 rounded-tr rounded-bl"
+                          ? "border border-gray-300 rounded-tr-md rounded-bl-md"
                           : ""
                       }`}
                     >
@@ -223,7 +223,7 @@ export default function MatchScoreHeader({
                     <div
                       className={`w-18 h-12 overflow-hidden shrink-0 block relative ${
                         match.league_id === 1 || match.league_id === 10
-                          ? "border border-gray-300 rounded-tr rounded-bl"
+                          ? "border border-gray-300 rounded-tr-md rounded-bl-md"
                           : ""
                       }`}
                     >

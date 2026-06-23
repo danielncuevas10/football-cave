@@ -115,8 +115,11 @@ export default function FullBracket({
             <img
               src="/images/specs/arrow.svg"
               alt=""
-              className="w-3 h-3 object-contain rotate-90 ml-3"
-              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
+              className="w-3 h-3 object-contain -rotate-90 ml-3"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/images/specs/arrow.jpg";
+              }}
             />
           </Link>
         </div>

@@ -7,7 +7,6 @@ import { supabase } from "@/lib/supabase";
 import MatchCard from "./MatchCard";
 import type { DbMatch } from "@/types/sports";
 import { LIVE_STATUSES } from "@/types/sports";
-import LiveBadge from "./LiveBadge";
 import Link from "next/link";
 
 interface Props {
@@ -159,21 +158,28 @@ export default function ScoreList({ initialMatches }: Props) {
 
   return (
     <div className="space-y-6">
-      <LiveBadge />
       {/* Date Navigation Bar */}
-      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray p-3 rounded-md">
-        <div className="flex items-center justify-between w-full sm:w-auto gap-4">
-          <button
-            onClick={prevDay}
-            className="p-2 text-sm text-gray-200 hover:text-white transition-colors"
-          >
-            <img
-              src="/images/specs/arrow.svg"
-              alt="Previous Day"
-              className="w-4.5 h-4.5 object-contain -rotate-270"
-              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
-            />
-          </button>
+      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray-2 p-3 rounded-md">
+        <div className="flex items-center justify-between w-full gap-4">
+          <div className="flex flex-col items-center gap-1">
+            <button
+              onClick={prevDay}
+              className="flex flex-col items-center gap-0.5 p-2 text-sm bg-custom-gray hover:bg-custom-gray/50 rounded-2xl text-gray-200 hover:text-white transition-colors cursor-pointer"
+            >
+              <img
+                src="/images/specs/arrow.svg"
+                alt="Previous Day"
+                className="w-4.5 h-4.5 object-contain -rotate-270"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "/images/specs/arrow.jpg";
+                }}
+              />
+            </button>
+            <span className="text-[8px] font-light tracking-wide">
+              {tDate("prev")}
+            </span>
+          </div>
 
           <div className="flex items-center gap-2 text-sm font-bold text-white select-none">
             <span>{displayDate}</span>
@@ -191,7 +197,10 @@ export default function ScoreList({ initialMatches }: Props) {
                 src="/images/specs/arrow.svg"
                 alt="Select Date"
                 className="w-3 h-3 object-contain"
-                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "/images/specs/arrow.jpg";
+                }}
               />
             </button>
 
@@ -206,18 +215,25 @@ export default function ScoreList({ initialMatches }: Props) {
               className="absolute opacity-0 w-0 h-0"
             />
           </div>
-
-          <button
-            onClick={nextDay}
-            className="p-2 text-sm text-gray-200 hover:text-white transition-colors"
-          >
-            <img
-              src="/images/specs/arrow.svg"
-              alt="Next Day"
-              className="w-4.5 h-4.5 object-contain rotate-270"
-              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
-            />
-          </button>
+          <div className="flex flex-col items-center gap-1">
+            <button
+              onClick={nextDay}
+              className="flex flex-col items-center gap-0.5 p-2 text-sm bg-custom-gray hover:bg-custom-gray/50 rounded-2xl text-gray-200 hover:text-white transition-colors cursor-pointer"
+            >
+              <img
+                src="/images/specs/arrow.svg"
+                alt="Next Day"
+                className="w-4.5 h-4.5 object-contain rotate-270"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "/images/specs/arrow.jpg";
+                }}
+              />
+            </button>
+            <span className="text-[9px] font-light tracking-wide">
+              {tDate("next")}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -242,14 +258,8 @@ export default function ScoreList({ initialMatches }: Props) {
                     {leagueId ? (
                       <Link
                         href={`/league/${leagueId}`}
-                        className="flex items-center justify-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors relative"
+                        className="flex items-center justify-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors"
                       >
-                        <img
-                          src="/images/specs/signal.svg"
-                          alt=""
-                          className="absolute left-3 h-15 w-15 animate-pulse object-contain"
-                        />
-                        <p></p>
                         <img
                           src={leagueLogo}
                           alt=""
@@ -260,17 +270,21 @@ export default function ScoreList({ initialMatches }: Props) {
                         </h3>
                       </Link>
                     ) : (
-                      <div className="flex items-center justify-center gap-3 py-4 border-b border-gray-800/40 relative">
-                        <img
-                          src="/images/specs/signal.svg"
-                          alt=""
-                          className="absolute left-3 h-4 w-4 animate-pulse object-contain"
-                        />
+                      <div className="flex items-center justify-center gap-3 py-4 border-b border-gray-800/40">
                         <h3 className="text-[15px] font-bold text-gray-200 tracking-wider">
                           {leagueName}
                         </h3>
                       </div>
                     )}
+                    <div className="h-0.5 overflow-hidden relative">
+                      <div
+                        className="absolute h-full w-50 bg-[#00A800]/50"
+                        style={{
+                          animation: "live-scan 5s ease-in-out infinite",
+                          boxShadow: "0 0 10px rgba(255,255,255,0.5)",
+                        }}
+                      />
+                    </div>
 
                     <div className="divide-y divide-custom-gray">
                       {matches.map((m: DbMatch, index: number) => (

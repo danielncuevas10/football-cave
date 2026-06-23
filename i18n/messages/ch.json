@@ -29,7 +29,8 @@
     "bestThirdPlace": "最佳第三名",
     "projected": "预测",
     "viewBracket": "查看赛表",
-    "bracketTab": "赛表"
+    "bracketTab": "赛表",
+    "wc26": "WC26"
   },
   "matchEvents": {
     "matchStarted": "比赛开始",
@@ -97,7 +98,9 @@
   "dateLabels": {
     "today": "今天",
     "yesterday": "昨天",
-    "tomorrow": "明天"
+    "tomorrow": "明天",
+    "prev": "上",
+    "next": "下"
   },
   "footer": {
     "privacyPolicy": "隐私政策",

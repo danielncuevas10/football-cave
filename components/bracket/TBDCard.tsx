@@ -11,7 +11,7 @@ interface TBDCardProps {
 
 function Flag({ src }: { src: string }) {
   return (
-    <div className="w-12 h-8 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr rounded-bl">
+    <div className="w-12 h-8 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-md rounded-bl-md">
       <img
         src={src}
         alt=""
@@ -23,7 +23,7 @@ function Flag({ src }: { src: string }) {
 
 function FlagPlaceholder() {
   return (
-    <div className="w-12 h-8 shrink-0 border border-gray-300/30 rounded-tr rounded-bl bg-custom-gray" />
+    <div className="w-12 h-8 shrink-0 border border-gray-300/30 rounded-tr-md rounded-bl-md bg-custom-gray" />
   );
 }
 

@@ -29,7 +29,8 @@
     "bestThirdPlace": "Καλύτεροι 3οι",
     "projected": "Εκτιμώμενο",
     "viewBracket": "Δείτε πλήρες",
-    "bracketTab": "Ταμπλό"
+    "bracketTab": "Ταμπλό",
+    "wc26": "WC26"
   },
   "matchEvents": {
     "matchStarted": "Έναρξη αγώνα",
@@ -97,7 +98,9 @@
   "dateLabels": {
     "today": "Σήμερα",
     "yesterday": "Χθες",
-    "tomorrow": "Αύριο"
+    "tomorrow": "Αύριο",
+    "prev": "Προη",
+    "next": "Επόμ"
   },
   "footer": {
     "privacyPolicy": "Πολιτική Απορρήτου",

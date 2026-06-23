@@ -114,7 +114,21 @@ export async function getMatchDetails(
         referee: cached.referee ?? null,
       };
     }
-    // No cached data for a finished match — fall through to full flow below.
+    // Row exists but empty (e.g. pre-seeded before the match played).
+    // If we attempted recently, don't burn quota retrying on every ISR cycle —
+    // the cron will populate it within the next tick; page will catch up then.
+    if (cached) {
+      const cacheAgeMs = Date.now() - new Date(cached.updated_at).getTime();
+      if (cacheAgeMs < STALE_RETRY_MS) {
+        return {
+          details: cached,
+          venueName: cached.venue_name ?? null,
+          venueCity: cached.venue_city ?? null,
+          referee: cached.referee ?? null,
+        };
+      }
+    }
+    // No row, OR row is stale enough to retry — fall through to full flow below.
   }
 
   // ── Live / upcoming match, OR finished match with no cache ──────────────────
@@ -173,7 +187,17 @@ export async function getMatchDetails(
 
   // Cache miss or stale — fetch full details from the API.
   const fresh = await footballApi.getMatchDetails(matchId);
-  if (!fresh) return { details: cached ?? null, venueName, venueCity, referee };
+  if (!fresh) {
+    // Touch updated_at so the STALE_RETRY_MS throttle above prevents repeated
+    // quota burns on every ISR render for finished matches with missing details.
+    if (cached) {
+      await supabaseAdmin
+        .from("match_details")
+        .update({ updated_at: new Date().toISOString() })
+        .eq("match_id", matchId);
+    }
+    return { details: cached ?? null, venueName, venueCity, referee };
+  }
 
   const newRecord: Omit<DbMatchDetails, "updated_at"> = {
     match_id: matchId,

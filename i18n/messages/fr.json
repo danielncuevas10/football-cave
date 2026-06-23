@@ -29,7 +29,8 @@
     "bestThirdPlace": "Meilleurs 3es",
     "projected": "Projeté",
     "viewBracket": "Voir le tableau",
-    "bracketTab": "Tableau"
+    "bracketTab": "Tableau",
+    "wc26": "WC26"
   },
   "matchEvents": {
     "matchStarted": "Match commencé",
@@ -97,7 +98,9 @@
   "dateLabels": {
     "today": "Aujourd'hui",
     "yesterday": "Hier",
-    "tomorrow": "Demain"
+    "tomorrow": "Demain",
+    "prev": "Préc",
+    "next": "Suiv"
   },
   "footer": {
     "privacyPolicy": "Politique de confidentialité",

@@ -29,7 +29,8 @@
     "bestThirdPlace": "En İyi 3.",
     "projected": "Tahmini",
     "viewBracket": "Tabloya bak",
-    "bracketTab": "Tablo"
+    "bracketTab": "Tablo",
+    "wc26": "WC26"
   },
   "matchEvents": {
     "matchStarted": "Maç başladı",
@@ -97,7 +98,9 @@
   "dateLabels": {
     "today": "Bugün",
     "yesterday": "Dün",
-    "tomorrow": "Yarın"
+    "tomorrow": "Yarın",
+    "prev": "Önc",
+    "next": "Son"
   },
   "footer": {
     "privacyPolicy": "Gizlilik Politikası",

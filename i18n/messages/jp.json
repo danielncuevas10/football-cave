@@ -29,7 +29,8 @@
     "bestThirdPlace": "ベスト3位",
     "projected": "予測",
     "viewBracket": "全ブラケット",
-    "bracketTab": "ブラケット"
+    "bracketTab": "ブラケット",
+    "wc26": "WC26"
   },
   "matchEvents": {
     "matchStarted": "試合開始",
@@ -97,7 +98,9 @@
   "dateLabels": {
     "today": "今日",
     "yesterday": "昨日",
-    "tomorrow": "明日"
+    "tomorrow": "明日",
+    "prev": "前",
+    "next": "次"
   },
   "footer": {
     "privacyPolicy": "プライバシーポリシー",

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import TopNav from "@/components/TopNav";
 import Footer from "@/components/Footer";
+import About from "@/components/About";
 import { Analytics } from "@vercel/analytics/next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -69,13 +70,18 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <TopNav />
-          {children}
+          <div className="flex-1 min-h-screen">
+            {children}
+          </div>
           <script
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8066520887443761"
             crossOrigin="anonymous"
           ></script>
-          <Footer />
+          <div className="mt-auto">
+            <About />
+            <Footer />
+          </div>
           <Analytics />
         </NextIntlClientProvider>
       </body>

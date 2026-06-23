@@ -19,9 +19,13 @@ export const rateLimits = {
 }
 
 export function getClientIp(req: Request): string {
+  // x-vercel-forwarded-for is set by Vercel's edge and cannot be spoofed by clients.
+  // Fall back to the last IP in x-forwarded-for (Vercel appends the real IP at the end,
+  // so taking [0] would allow a client to inject a fake leading IP and bypass rate limits).
   return (
+    req.headers.get("x-vercel-forwarded-for") ??
+    req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ??
     req.headers.get("x-real-ip") ??
-    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
     "127.0.0.1"
   )
 }

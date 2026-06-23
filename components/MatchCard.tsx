@@ -68,7 +68,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
     >
       {/* Fixed 4-column layout: [badge][home][score][away]
           The badge column is always reserved so nothing shifts when live */}
-      <div className="bg-custom-gray-2 py-4 px-3 grid grid-cols-[1rem_1fr_auto_1fr] gap-2 items-center border border-custom-gray-2/20">
+      <div className="bg-custom-gray-2 py-5 px-3 grid grid-cols-[1rem_1fr_auto_1fr] gap-2 items-center border border-custom-gray/5">
         {/* Left badge — always occupies 2rem; empty when not live */}
         <div className="flex items-center justify-center">
           {(isLive || match.status === "HT") && (
@@ -89,7 +89,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
             <div
               className={`w-10 h-6 overflow-hidden shrink-0 block relative ${
                 match.league_id === 1 || match.league_id === 10
-                  ? "border border-gray-300 rounded-tr rounded-bl"
+                  ? "border border-gray-300 rounded-tr-md rounded-bl-md"
                   : ""
               }`}
             >
@@ -105,7 +105,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
         {/* Center: score / kickoff / dash */}
         <div className="flex flex-col items-center justify-center gap-0.5 px-2 min-w-14">
           {isScheduled ? (
-            <span className="text-gray-300 text-xs font-medium tabular-nums whitespace-nowrap">
+            <span className="text-gray-300 text-xs font-medium tabular-nums whitespace-nowrap py-3">
               {formatKickoff(match.fixture_date)}
             </span>
           ) : match.home_score !== null && match.away_score !== null ? (
@@ -134,7 +134,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
             <div
               className={`w-10 h-6 overflow-hidden shrink-0 block relative ${
                 match.league_id === 1 || match.league_id === 10
-                  ? "border border-gray-300 rounded-tr rounded-bl"
+                  ? "border border-gray-300 rounded-tr-md rounded-bl-md"
                   : ""
               }`}
             >

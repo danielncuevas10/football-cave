@@ -152,6 +152,40 @@ export async function POST(req: NextRequest) {
 
         affectedLeagues.set(finalData.league.id, finalData.league.season)
         finishedCount++
+
+        // Populate match_details (events/lineups/stats) in the background so
+        // the data is available even if nobody visits the match page.
+        // Only runs if match_details is currently empty for this match.
+        void (async () => {
+          const { data: existing } = await supabaseAdmin
+            .from("match_details")
+            .select("match_id, events")
+            .eq("match_id", matchId)
+            .single()
+
+          const alreadyHasData = (existing?.events?.length ?? 0) > 0
+          if (alreadyHasData) return
+
+          const details = await footballApi.getMatchDetails(matchId)
+          if (!details) return
+
+          await supabaseAdmin.from("match_details").upsert(
+            {
+              match_id: matchId,
+              events: details.events.map((ev) => ({
+                ...ev,
+                player: { ...ev.player, id: ev.player.id ?? 0, name: ev.player.name ?? "" },
+              })),
+              lineups: details.lineups,
+              statistics: details.statistics,
+              venue_name: finalData.fixture?.venue?.name ?? null,
+              venue_city: finalData.fixture?.venue?.city ?? null,
+              referee: finalData.fixture?.referee ?? null,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "match_id" }
+          )
+        })().catch((e) => console.error(`Failed to populate details for match ${matchId}:`, e))
       } else {
         await supabaseAdmin
           .from("matches")
