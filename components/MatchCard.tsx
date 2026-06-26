@@ -5,6 +5,11 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { getLocalizedTeamName } from "@/lib/teamName";
 import { useLiveMinute } from "@/hooks/useLiveMinute";
+import { resolveFlag } from "@/lib/flagUrl";
+
+function isFlag(logo: string | null): boolean {
+  return !!logo && logo.includes("/flags/");
+}
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
@@ -85,36 +90,48 @@ export default function MatchCard({ match }: { match: DbMatch }) {
           <span className="text-sm font-medium text-right leading-tight line-clamp-2">
             {getLocalizedTeamName(match.home_team, locale)}
           </span>
-          {match.home_logo && (
-            <div
-              className={`w-10 h-6 overflow-hidden shrink-0 block relative ${
-                match.league_id === 1 || match.league_id === 10
-                  ? "border border-gray-300 rounded-tr-md rounded-bl-md"
-                  : ""
-              }`}
-            >
-              <img
-                src={match.home_logo}
-                alt=""
-                className="w-full h-full object-cover scale-[1.15] will-change-transform"
+          {match.home_logo &&
+            (isFlag(match.home_logo) ? (
+              <div
+                className={`w-10 h-6 shrink-0 bg-cover bg-center bg-no-repeat bg-origin-border ${
+                  match.league_id === 1 || match.league_id === 10
+                    ? "border border-gray-300 rounded-tr-md rounded-bl-md"
+                    : ""
+                }`}
+                style={{
+                  backgroundImage: `url(${resolveFlag(match.home_logo)})`,
+                }}
               />
-            </div>
-          )}
+            ) : (
+              <div
+                className={`w-10 h-6 overflow-hidden shrink-0 ${
+                  match.league_id === 1 || match.league_id === 10
+                    ? "border border-gray-300 rounded-tr-md rounded-bl-md"
+                    : ""
+                }`}
+              >
+                <img
+                  src={match.home_logo}
+                  alt=""
+                  className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                />
+              </div>
+            ))}
         </div>
 
         {/* Center: score / kickoff / dash */}
         <div className="flex flex-col items-center justify-center gap-0.5 px-2 min-w-14">
           {isScheduled ? (
-            <span className="text-gray-300 text-xs font-medium tabular-nums whitespace-nowrap py-3">
+            <span className="text-gray-400 text-xs font-medium tabular-nums whitespace-nowrap py-3">
               {formatKickoff(match.fixture_date)}
             </span>
           ) : match.home_score !== null && match.away_score !== null ? (
             <div className="flex items-center gap-1.5 justify-center">
-              <span className="text-lg font-extrabold tabular-nums">
+              <span className="text-xl font-extrabold tabular-nums">
                 {match.home_score}
               </span>
               <span className="text-gray-600 font-bold text-sm">–</span>
-              <span className="text-lg font-extrabold tabular-nums">
+              <span className="text-xl font-extrabold tabular-nums">
                 {match.away_score}
               </span>
             </div>
@@ -130,21 +147,33 @@ export default function MatchCard({ match }: { match: DbMatch }) {
 
         {/* Away team */}
         <div className="flex items-center justify-start gap-2 min-w-0">
-          {match.away_logo && (
-            <div
-              className={`w-10 h-6 overflow-hidden shrink-0 block relative ${
-                match.league_id === 1 || match.league_id === 10
-                  ? "border border-gray-300 rounded-tr-md rounded-bl-md"
-                  : ""
-              }`}
-            >
-              <img
-                src={match.away_logo}
-                alt=""
-                className="w-full h-full object-cover scale-[1.15] will-change-transform"
+          {match.away_logo &&
+            (isFlag(match.away_logo) ? (
+              <div
+                className={`w-10 h-6 shrink-0 bg-cover bg-center bg-no-repeat bg-origin-border ${
+                  match.league_id === 1 || match.league_id === 10
+                    ? "border border-gray-300 rounded-tr-md rounded-bl-md"
+                    : ""
+                }`}
+                style={{
+                  backgroundImage: `url(${resolveFlag(match.away_logo)})`,
+                }}
               />
-            </div>
-          )}
+            ) : (
+              <div
+                className={`w-10 h-6 overflow-hidden shrink-0 ${
+                  match.league_id === 1 || match.league_id === 10
+                    ? "border border-gray-300 rounded-tr-md rounded-bl-md"
+                    : ""
+                }`}
+              >
+                <img
+                  src={match.away_logo}
+                  alt=""
+                  className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                />
+              </div>
+            ))}
           <span className="text-sm font-medium text-left leading-tight line-clamp-2">
             {getLocalizedTeamName(match.away_team, locale)}
           </span>

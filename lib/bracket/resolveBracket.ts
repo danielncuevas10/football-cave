@@ -177,15 +177,31 @@ export function resolveBracket(
     const awayInfo = resolveRef(def.away, def.id);
 
     let match: DbMatch | null = null;
+    let fixtureDate: string | null = null;
 
     if (def.round === "R32") {
-      // Match by team names if both are resolved from standings
+      // Full match: requires both teams confirmed in standings
       if (homeInfo.standing && awayInfo.standing) {
         match = findMatchByTeams(
           r32Pool,
           homeInfo.standing.team_name,
           awayInfo.standing.team_name
         );
+        fixtureDate = match?.fixture_date ?? null;
+      }
+
+      // Partial date lookup: find any R32 fixture containing a known team.
+      // Each team plays exactly one R32 game, so this is unambiguous.
+      // Used to show the scheduled time even before both teams are confirmed.
+      if (!fixtureDate) {
+        const knownTeam =
+          homeInfo.standing?.team_name ?? awayInfo.standing?.team_name ?? null;
+        if (knownTeam) {
+          const partial = r32Pool.find(
+            (m) => m.home_team === knownTeam || m.away_team === knownTeam
+          );
+          fixtureDate = partial?.fixture_date ?? null;
+        }
       }
     } else {
       const stageKey = def.round as keyof typeof queues;
@@ -195,6 +211,7 @@ export function resolveBracket(
         match = queue[idx];
         qIdx[stageKey]++;
       }
+      fixtureDate = match?.fixture_date ?? null;
     }
 
     const homeLabel = match ? match.home_team : homeInfo.label;
@@ -212,6 +229,7 @@ export function resolveBracket(
       awayLabel,
       homeLogo: match?.home_logo ?? homeInfo.logo,
       awayLogo: match?.away_logo ?? awayInfo.logo,
+      fixtureDate,
       thirdsResolution,
     };
   });

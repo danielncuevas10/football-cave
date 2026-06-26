@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import type { DbMatch, DbStanding } from "@/types/sports";
 import type { ResolvedSlot } from "@/types/bracket";
 import { resolveBracket } from "@/lib/bracket/resolveBracket";
@@ -212,21 +213,34 @@ const HEADERS = [
   { label: "Round of 32", w: COL_W },
 ] as const;
 
-function HeaderRow() {
+function HeaderRow({ t }: { t: (key: string) => string }) {
   return (
     <div
-      style={{ display: "flex", alignItems: "center", minWidth: "max-content" }}
+      style={{ display: "flex", alignItems: "flex-start", minWidth: "max-content" }}
       className="mb-4"
     >
-      {HEADERS.map(({ label, w }, i) => (
-        <div
-          key={i}
-          style={{ width: w, flexShrink: 0, textAlign: "center" }}
-          className="text-[9px] font-light uppercase tracking-widest text-gray-200"
-        >
-          {label}
-        </div>
-      ))}
+      {HEADERS.map(({ label, w }, i) => {
+        const isR32 = label === "Round of 32";
+        return (
+          <div key={i} style={{ width: w, flexShrink: 0 }}>
+            <div className="text-center text-[9px] font-light uppercase tracking-widest text-gray-200 mb-1">
+              {label}
+            </div>
+            {isR32 && (
+              <div className="flex flex-col items-center gap-1 mt-1">
+                <div className="flex items-center gap-1">
+                  <div className="w-2.5 h-2.5 rounded-sm border border-white/70 shrink-0" />
+                  <span className="text-[8px] text-gray-400">{t("asItStands")}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2.5 h-2.5 rounded-sm border border-[#FFC000] shrink-0" />
+                  <span className="text-[8px] text-gray-400">{t("projected")}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -242,6 +256,7 @@ export default function TournamentBracket({
   matches,
   standings,
 }: TournamentBracketProps) {
+  const t = useTranslations("matchTabs");
   const resolved = useMemo(
     () => resolveBracket(matches, standings),
     [matches, standings]
@@ -295,7 +310,7 @@ export default function TournamentBracket({
 
   return (
     <div className="overflow-x-auto pb-6">
-      <HeaderRow />
+      <HeaderRow t={t} />
 
       {/* Bracket tree */}
       <div

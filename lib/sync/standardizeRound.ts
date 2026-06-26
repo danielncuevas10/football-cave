@@ -6,6 +6,7 @@ export function standardizeRound(round: string | null | undefined): TournamentSt
   const r = round.toLowerCase()
 
   if (r.includes("group")) return "GROUP"
+  if (r.includes("round of 32") || r.includes("1/16-finals") || r.includes("last 32")) return "R32"
   if (r.includes("round of 16") || r.includes("last 16")) return "R16"
   if (r.includes("quarter")) return "QF"
   if (r.includes("semi")) return "SF"

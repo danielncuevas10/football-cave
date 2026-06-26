@@ -7,7 +7,7 @@ export enum League {
     Friendly = 10
 }
 
-export type TournamentStage = "GROUP" | "R16" | "QF" | "SF" | "FINAL" | "UNKNOWN";
+export type TournamentStage = "GROUP" | "R32" | "R16" | "QF" | "SF" | "FINAL" | "UNKNOWN";
 
 
 export type FixtureStatus = 
@@ -19,6 +19,8 @@ export type FixtureStatus =
 export const LIVE_STATUSES: FixtureStatus[] = [
     "1H", "HT", "2H", "ET", "BT", "P", "LIVE"
 ]
+
+export const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"]
 
 export interface ApiTeam {
     readonly id:number,

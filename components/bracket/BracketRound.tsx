@@ -1,12 +1,17 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import type { ResolvedSlot } from "@/types/bracket";
 import BracketSlot from "./BracketSlot";
 
 interface BracketRoundProps {
   label: string;
   slots: ResolvedSlot[];
+  showLegend?: boolean;
 }
 
-export default function BracketRound({ label, slots }: BracketRoundProps) {
+export default function BracketRound({ label, slots, showLegend }: BracketRoundProps) {
+  const t = useTranslations("matchTabs");
   // Group into pairs so we can draw bracket connector lines
   const pairs: [ResolvedSlot, ResolvedSlot | null][] = [];
   for (let i = 0; i < slots.length; i += 2) {
@@ -16,9 +21,22 @@ export default function BracketRound({ label, slots }: BracketRoundProps) {
   return (
     <div className="flex flex-col min-w-[280px]">
       {label && (
-        <h3 className="text-[10px] font-light tracking-widest text-gray-200 px-1 mb-3">
+        <h3 className="text-[10px] font-light tracking-widest text-gray-200 px-1 mb-1">
           {label}
         </h3>
+      )}
+
+      {showLegend && (
+        <div className="flex items-center gap-3 px-1 mb-3 flex-wrap">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-sm border border-white/70 shrink-0" />
+            <span className="text-[9px] text-gray-400">{t("asItStands")}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-sm border border-[#FFC000] shrink-0" />
+            <span className="text-[9px] text-gray-400">{t("projected")}</span>
+          </div>
+        </div>
       )}
 
       <div className="flex flex-col gap-4">

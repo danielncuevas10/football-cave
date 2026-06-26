@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import ScoreList from "@/components/ScoreList";
 import About from "@/components/About";
 import BracketPanelServer from "@/components/bracket/BracketPanelServer";
-import MobileBracketServer from "@/components/bracket/MobileBracketServer";
 import { supabaseAdmin } from "@/lib/server/supabase-admin";
 import { footballApi } from "@/lib/server/football-api";
 import type { DbMatch } from "@/types/sports";
@@ -119,12 +118,6 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* Mobile sticky bar + bottom sheet — streams in independently.
-          fallback={null} means nothing shows until standings arrive (~100 ms).
-          The sheet trigger appears as soon as the stream fills in. */}
-      <Suspense fallback={null}>
-        <MobileBracketServer />
-      </Suspense>
     </>
   );
 }

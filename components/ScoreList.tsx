@@ -8,6 +8,7 @@ import MatchCard from "./MatchCard";
 import type { DbMatch } from "@/types/sports";
 import { LIVE_STATUSES } from "@/types/sports";
 import Link from "next/link";
+import { getWcRoundKey } from "@/lib/wcRoundLabel";
 
 interface Props {
   initialMatches: DbMatch[];
@@ -107,10 +108,11 @@ export default function ScoreList({ initialMatches }: Props) {
   const merged = [
     ...liveMatches,
     ...allMatches.filter((m) => !liveIds.has(m.id)),
-  ].sort(
-    (a, b) =>
-      new Date(a.fixture_date).getTime() - new Date(b.fixture_date).getTime()
-  );
+  ].sort((a, b) => {
+    const d =
+      new Date(a.fixture_date).getTime() - new Date(b.fixture_date).getTime();
+    return d !== 0 ? d : a.id - b.id;
+  });
 
   // Filter ALL matches down to the selected calendar day first
   const matchesForDate = merged.filter((m) => {
@@ -258,7 +260,7 @@ export default function ScoreList({ initialMatches }: Props) {
                     {leagueId ? (
                       <Link
                         href={`/league/${leagueId}`}
-                        className="flex items-center justify-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors"
+                        className="relative flex items-center justify-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors"
                       >
                         <img
                           src={leagueLogo}
@@ -268,6 +270,15 @@ export default function ScoreList({ initialMatches }: Props) {
                         <h3 className="text-[15px] font-bold text-white tracking-wider">
                           {leagueName}
                         </h3>
+                        {leagueId === 1 &&
+                          (() => {
+                            const key = getWcRoundKey(matches[0]?.round);
+                            return key ? (
+                              <span className="absolute right-3 text-[12px] text-gray-200 font-bold tracking-wide">
+                                {tTabs(key)}
+                              </span>
+                            ) : null;
+                          })()}
                       </Link>
                     ) : (
                       <div className="flex items-center justify-center gap-3 py-4 border-b border-gray-800/40">
@@ -326,7 +337,7 @@ export default function ScoreList({ initialMatches }: Props) {
                   {leagueId ? (
                     <Link
                       href={`/league/${leagueId}`}
-                      className="flex items-center justify-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors"
+                      className="relative flex items-center justify-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors"
                     >
                       <img
                         src={leagueLogo}
@@ -336,6 +347,15 @@ export default function ScoreList({ initialMatches }: Props) {
                       <h3 className="text-[15px] font-bold text-white tracking-wider">
                         {leagueName}
                       </h3>
+                      {leagueId === 1 &&
+                        (() => {
+                          const key = getWcRoundKey(matches[0]?.round);
+                          return key ? (
+                            <span className="absolute right-3 text-[12px] text-gray-200 font-bold tracking-wide">
+                              {tTabs(key)}
+                            </span>
+                          ) : null;
+                        })()}
                     </Link>
                   ) : (
                     <div className="flex items-center justify-center gap-3 py-4 border-b border-gray-800/40">

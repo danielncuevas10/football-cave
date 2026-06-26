@@ -2,18 +2,19 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import type { DbMatch, DbStanding } from "@/types/sports";
+import type { DbMatch, DbStanding, DbTopScorer } from "@/types/sports";
 import WorldCupBest3rd from "@/components/WorldCupBest3rd";
 import WorldCupGroups from "@/components/WorldCupGroups";
-import FullBracket from "./FullBracket";
+import TopScorers from "@/components/info/scorer/page";
 import MatchCarousel from "./MatchCarousel";
 import type { GoalsMap } from "./BracketPanelServer";
 
-type Tab = "wc26" | "matches" | "bracket" | "best3rd";
+type Tab = "wc26" | "matches" | "scorers" | "best3rd";
 
 interface BracketPanelProps {
   wcMatches: DbMatch[];
   wcStandings: DbStanding[];
+  wcScorers: DbTopScorer[];
   venues: Record<number, { name: string | null; city: string | null }>;
   goals: GoalsMap;
 }
@@ -21,6 +22,7 @@ interface BracketPanelProps {
 export default function BracketPanel({
   wcMatches,
   wcStandings,
+  wcScorers,
   venues,
   goals,
 }: BracketPanelProps) {
@@ -30,7 +32,7 @@ export default function BracketPanel({
   const tabs: { id: Tab; label: string }[] = [
     { id: "matches", label: t("matches") },
     { id: "wc26", label: t("wc26") },
-    { id: "bracket", label: t("bracketTab") },
+    { id: "scorers", label: t("allTime") },
     { id: "best3rd", label: t("bestThirdPlace") },
   ];
 
@@ -63,13 +65,9 @@ export default function BracketPanel({
             <WorldCupGroups standings={wcStandings} />
           </div>
         )}
-        {activeTab === "bracket" && (
+        {activeTab === "scorers" && (
           <div className="flex-1 overflow-y-auto">
-            <FullBracket
-              matches={wcMatches}
-              standings={wcStandings}
-              showFullBracketLink
-            />
+            <TopScorers scorers={wcScorers} isWorldCup defaultView="allTime" />
           </div>
         )}
         {activeTab === "best3rd" && (

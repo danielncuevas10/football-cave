@@ -183,7 +183,18 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
         </div>
 
         {/* Card container — clips the slide */}
-        <div className="flex-1 overflow-hidden rounded-md relative bg-custom-gray min-h-0">
+        <div className="flex-1 overflow-hidden rounded-md relative bg-custom-gray-2 min-h-0">
+          {isLive && (
+            <div className="hidden md:block h-0.5 overflow-hidden relative">
+              <div
+                className="absolute h-full w-50 bg-[#00A800]/50"
+                style={{
+                  animation: "live-scan 5s ease-in-out infinite",
+                  boxShadow: "0 0 10px rgba(255,255,255,0.5)",
+                }}
+              />
+            </div>
+          )}
           <Link
             key={animKey}
             href={`/match/${match.id}`}
@@ -218,22 +229,28 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                     <span className="text-[11px] text-center leading-tight line-clamp-2 text-white font-medium">
                       {getLocalizedTeamName(match.home_team, locale)}
                     </span>
-                    {isFinished &&
-                      matchGoals?.home.slice(0, 3).map((g, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-center gap-0.5 w-full px-1 leading-tight"
-                        >
-                          <img
-                            src={g.isOwnGoal ? "/images/specs/own-goal.svg" : "/images/specs/ball.svg"}
-                            alt=""
-                            className="w-2.5 h-2.5 object-contain shrink-0 opacity-70"
-                          />
-                          <span className="text-[9px] text-gray-400 truncate">
-                            {lastName(g.name)} {g.minute}′
-                          </span>
-                        </div>
-                      ))}
+                    <div className="min-h-10.5">
+                      {isFinished &&
+                        matchGoals?.home.slice(0, 3).map((g, i) => (
+                          <div
+                            key={i}
+                            className="flex items-center justify-center gap-0.5 w-full px-1 leading-tight"
+                          >
+                            <img
+                              src={
+                                g.isOwnGoal
+                                  ? "/images/specs/own-goal.svg"
+                                  : "/images/specs/ball.svg"
+                              }
+                              alt=""
+                              className="w-2.5 h-2.5 object-contain shrink-0 opacity-70"
+                            />
+                            <span className="text-[9px] text-gray-400 truncate">
+                              {lastName(g.name)} {g.minute}′
+                            </span>
+                          </div>
+                        ))}
+                    </div>
                   </div>
 
                   {/* Score / kickoff time */}
@@ -270,39 +287,43 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                     <span className="text-[11px] text-center leading-tight line-clamp-2 text-white font-medium">
                       {getLocalizedTeamName(match.away_team, locale)}
                     </span>
-                    {isFinished &&
-                      matchGoals?.away.slice(0, 3).map((g, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-center gap-0.5 w-full px-1 leading-tight"
-                        >
-                          <img
-                            src={g.isOwnGoal ? "/images/specs/own-goal.svg" : "/images/specs/ball.svg"}
-                            alt=""
-                            className="w-2.5 h-2.5 object-contain shrink-0 opacity-70"
-                          />
-                          <span className="text-[9px] text-gray-400 truncate">
-                            {lastName(g.name)} {g.minute}′
-                          </span>
-                        </div>
-                      ))}
+                    <div className="min-h-10.5">
+                      {isFinished &&
+                        matchGoals?.away.slice(0, 3).map((g, i) => (
+                          <div
+                            key={i}
+                            className="flex items-center justify-center gap-0.5 w-full px-1 leading-tight"
+                          >
+                            <img
+                              src={
+                                g.isOwnGoal
+                                  ? "/images/specs/own-goal.svg"
+                                  : "/images/specs/ball.svg"
+                              }
+                              alt=""
+                              className="w-2.5 h-2.5 object-contain shrink-0 opacity-70"
+                            />
+                            <span className="text-[9px] text-gray-400 truncate">
+                              {lastName(g.name)} {g.minute}′
+                            </span>
+                          </div>
+                        ))}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Bottom: venue */}
-              {(venue?.name || venue?.city) && (
-                <div className="shrink-0 flex items-center gap-1.5 border-t border-custom-gray-2 pt-2 mt-2">
-                  <img
-                    src="/images/stadium.svg"
-                    alt=""
-                    className="w-3.5 h-3.5 object-contain opacity-40 shrink-0"
-                  />
-                  <span className="text-[10px] text-gray-400 truncate">
-                    {[venue.name, venue.city].filter(Boolean).join(", ")}
-                  </span>
-                </div>
-              )}
+              {/* Bottom: venue — always rendered to keep card height stable */}
+              <div className={`shrink-0 flex items-center gap-1.5 border-t border-custom-gray pt-2 mt-2 ${!(venue?.name || venue?.city) ? "invisible" : ""}`}>
+                <img
+                  src="/images/stadium.svg"
+                  alt=""
+                  className="w-3.5 h-3.5 object-contain opacity-40 shrink-0"
+                />
+                <span className="text-[10px] text-gray-400 truncate">
+                  {[venue?.name, venue?.city].filter(Boolean).join(", ")}
+                </span>
+              </div>
             </div>
           </Link>
 

@@ -36,6 +36,8 @@ export interface ResolvedSlot {
   awayLabel: string;
   homeLogo: string | null;
   awayLogo: string | null;
+  // Best available fixture date — from linked match or partial team-name lookup for R32
+  fixtureDate: string | null;
   // Populated only for R32_T* slots
   thirdsResolution?: ThirdsSlotResolution;
 }

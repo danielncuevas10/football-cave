@@ -11,6 +11,8 @@ type BarState = "hidden" | "loading" | "done";
 
 export default function TopNav() {
   const t = useTranslations("nav");
+  const tTabs = useTranslations("matchTabs");
+  const tBadge = useTranslations("liveBadge");
   const [user, setUser] = useState<{ email?: string } | null>(null);
   const pathname = usePathname();
   const [barState, setBarState] = useState<BarState>("hidden");
@@ -83,10 +85,27 @@ export default function TopNav() {
           />
         </Link>
 
-        <SearchBar />
+        <div className="flex gap-5">
+          <nav className="hidden lg:flex items-center gap-6 text-xs font-light tracking-widest">
+            <Link
+              href="/league/1"
+              className="text-gray-200 hover:text-white transition-colors uppercase"
+            >
+              {tBadge("worldCup")}
+            </Link>
+            <Link
+              href="/bracket"
+              className="text-gray-200 hover:text-white transition-colors uppercase"
+            >
+              {tTabs("knockoutStage")}
+            </Link>
+          </nav>
+
+          <SearchBar />
+        </div>
       </div>
       <div
-        className="absolute bottom-0 left-0 h-0.5 bg-white"
+        className="absolute bottom-0 left-0 h-0.5 bg-[#00A800]"
         style={{ width, opacity, transition }}
       />
     </header>

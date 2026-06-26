@@ -175,7 +175,15 @@ export async function getMatchDetails(
     const cacheAgeMs = Date.now() - new Date(cached.updated_at).getTime();
     const isFresh = cacheAgeMs < CACHE_TTL_MS;
 
-    if ((isFinished && hasData) || isFresh) {
+    // For finished matches, validate cached goal count against the API's final
+    // score so mid-match snapshots with missing goals aren't served as final data.
+    const apiHomeScore = basicRow?.goals?.home ?? null;
+    const apiAwayScore = basicRow?.goals?.away ?? null;
+    const expectedGoals = (apiHomeScore ?? 0) + (apiAwayScore ?? 0);
+    const cachedGoalCount = countGoals(cached.events);
+    const goalsOk = !isFinished || expectedGoals === 0 || cachedGoalCount >= expectedGoals;
+
+    if ((isFinished && hasData && goalsOk) || isFresh) {
       return {
         details: cached,
         venueName: venueName ?? cached.venue_name ?? null,

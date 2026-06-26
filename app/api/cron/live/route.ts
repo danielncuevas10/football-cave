@@ -131,6 +131,8 @@ export async function POST(req: NextRequest) {
   // 5. Final score updates
   let finishedCount = 0
   const affectedLeagues = new Map<number, number>() // leagueId → season
+  // Collect detail-write promises so scorer sync always reads fresh match_details.
+  const detailPromises: Promise<void>[] = []
 
   for (const matchId of newlyFinishedIds) {
     try {
@@ -153,19 +155,10 @@ export async function POST(req: NextRequest) {
         affectedLeagues.set(finalData.league.id, finalData.league.season)
         finishedCount++
 
-        // Populate match_details (events/lineups/stats) in the background so
-        // the data is available even if nobody visits the match page.
-        // Only runs if match_details is currently empty for this match.
-        void (async () => {
-          const { data: existing } = await supabaseAdmin
-            .from("match_details")
-            .select("match_id, events")
-            .eq("match_id", matchId)
-            .single()
-
-          const alreadyHasData = (existing?.events?.length ?? 0) > 0
-          if (alreadyHasData) return
-
+        // Always fetch and write final match_details when a match just finishes.
+        // Mid-match cron snapshots are partial — skipping this caused late events
+        // (substitutions, cards, goals scored near FT) to be permanently missing.
+        const detailPromise = (async () => {
           const details = await footballApi.getMatchDetails(matchId)
           if (!details) return
 
@@ -186,6 +179,7 @@ export async function POST(req: NextRequest) {
             { onConflict: "match_id" }
           )
         })().catch((e) => console.error(`Failed to populate details for match ${matchId}:`, e))
+        detailPromises.push(detailPromise)
       } else {
         await supabaseAdmin
           .from("matches")
@@ -212,6 +206,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Wait for all match_details writes to complete before syncing scorers.
+  // syncScorersFromEvents reads from match_details — without this, it would
+  // process stale event data and miss goals scored in the just-finished matches.
+  await Promise.allSettled(detailPromises)
+
   // 6. Refresh standings + scorers for every league that had a match finish this run
   for (const [leagueId, season] of affectedLeagues) {
     try {
@@ -224,23 +223,35 @@ export async function POST(req: NextRequest) {
 
       if (recomputed) {
         // Tournament league: standings are already correct in DB.
-        // Bust ISR cache so the next page request sees fresh data immediately
-        // instead of waiting up to 60 s for the revalidate timer.
+        // Bust ISR cache immediately so the next page request sees fresh data.
         revalidatePath("/", "layout")
         revalidatePath("/bracket")
+        revalidatePath(`/league/${leagueId}`)
 
         // Background verify: once API-Football's own cache clears (~30-60 min)
         // this self-corrects any edge cases (e.g. tiebreaker ordering).
-        void syncStandingsForLeague(leagueId, season).catch((e) =>
-          console.error(`Standings API verify failed for league ${leagueId}:`, e)
-        )
+        void syncStandingsForLeague(leagueId, season)
+          .then(() => revalidatePath(`/league/${leagueId}`))
+          .catch((e) =>
+            console.error(`Standings API verify failed for league ${leagueId}:`, e)
+          )
         void syncScorersForLeague(leagueId, season).catch((e) =>
           console.error(`Scorers API verify failed for league ${leagueId}:`, e)
         )
       } else {
-        // Regular league (no group stage): keep existing awaited API path unchanged
-        await syncStandingsForLeague(leagueId, season)
-        await syncScorersForLeague(leagueId, season)
+        // Regular league: fire API sync in background so cron returns immediately.
+        // revalidatePath runs once the API data lands in Supabase.
+        void syncStandingsForLeague(leagueId, season)
+          .then(() => {
+            revalidatePath("/", "layout")
+            revalidatePath(`/league/${leagueId}`)
+          })
+          .catch((e) =>
+            console.error(`Standings sync failed for league ${leagueId}:`, e)
+          )
+        void syncScorersForLeague(leagueId, season).catch((e) =>
+          console.error(`Scorers sync failed for league ${leagueId}:`, e)
+        )
       }
     } catch (e) {
       console.error(`Failed to sync league ${leagueId}:`, e)
@@ -289,15 +300,27 @@ export async function POST(req: NextRequest) {
       if (recomputed) {
         revalidatePath("/", "layout")
         revalidatePath("/bracket")
-        void syncStandingsForLeague(leagueId, season).catch((e) =>
-          console.error(`Catch-all standings API verify failed for league ${leagueId}:`, e)
-        )
+        revalidatePath(`/league/${leagueId}`)
+        void syncStandingsForLeague(leagueId, season)
+          .then(() => revalidatePath(`/league/${leagueId}`))
+          .catch((e) =>
+            console.error(`Catch-all standings API verify failed for league ${leagueId}:`, e)
+          )
         void syncScorersForLeague(leagueId, season).catch((e) =>
           console.error(`Catch-all scorers API verify failed for league ${leagueId}:`, e)
         )
       } else {
-        await syncStandingsForLeague(leagueId, season)
-        await syncScorersForLeague(leagueId, season)
+        void syncStandingsForLeague(leagueId, season)
+          .then(() => {
+            revalidatePath("/", "layout")
+            revalidatePath(`/league/${leagueId}`)
+          })
+          .catch((e) =>
+            console.error(`Catch-all standings sync failed for league ${leagueId}:`, e)
+          )
+        void syncScorersForLeague(leagueId, season).catch((e) =>
+          console.error(`Catch-all scorers sync failed for league ${leagueId}:`, e)
+        )
       }
       catchAllSynced++
     } catch (e) {

@@ -7,12 +7,14 @@ import { useTranslations, useLocale } from "next-intl";
 import { getLocalizedTeamName } from "@/lib/teamName";
 import { supabase } from "@/lib/supabase";
 import { useLiveMinute } from "@/hooks/useLiveMinute";
+import { getWcRoundKey } from "@/lib/wcRoundLabel";
 import type {
   DbMatch,
   DbMatchDetails,
   FixtureStatus,
   MatchEvent,
 } from "@/types/sports";
+import { LIVE_STATUSES } from "@/types/sports";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
@@ -54,7 +56,7 @@ function StatusLabel({
 
   if (FINISHED_STATUSES.includes(status))
     return (
-      <span className="text-gray-200 text-xs uppercase tracking-wider">
+      <span className="text-gray-200 text-xs tracking-wider">
         {tEv("matchFinished")}
       </span>
     );
@@ -71,11 +73,7 @@ function StatusLabel({
 
   if (status === "NS" || status === "TBD") return null;
 
-  return (
-    <span className="text-gray-200 text-xs uppercase tracking-wider">
-      {status}
-    </span>
-  );
+  return <span className="text-gray-200 text-xs tracking-wider">{status}</span>;
 }
 
 function teamIdFromLogo(logo: string | null | undefined): number | null {
@@ -92,6 +90,7 @@ export default function MatchScoreHeader({
   details: DbMatchDetails | null;
 }) {
   const tEv = useTranslations("matchEvents");
+  const tTabs = useTranslations("matchTabs");
   const locale = useLocale();
   const [match, setMatch] = useState(initialMatch);
 
@@ -118,6 +117,7 @@ export default function MatchScoreHeader({
   const kickoffPassed = new Date(match.fixture_date) < new Date();
   const isScheduled =
     (match.status === "NS" || match.status === "TBD") && !kickoffPassed;
+  const isLive = match.is_live || LIVE_STATUSES.includes(match.status);
 
   // Prefer DB score; fall back to counting goal events (handles sync lag).
   // statistics[0] is always the home team and is more reliably populated than lineups.
@@ -135,129 +135,153 @@ export default function MatchScoreHeader({
   const hasScore = displayHome !== null && displayAway !== null;
 
   return (
-    <div className="px-6 py-8 bg-custom-gray-2">
-      <div className="flex flex-col items-center gap-6 w-full">
-        <p className="font-light text-sm text-gray-200">
-          {new Date(match.fixture_date).toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          })}
-        </p>
+    <div className="bg-custom-gray-2">
+      <div className="px-6 py-8">
+        <div className="flex flex-col items-center gap-6 w-full">
+          <div className="flex flex-col items-center gap-2 w-full">
+            {match.league_id === 1 &&
+              (() => {
+                const key = getWcRoundKey(match.round);
+                return key ? (
+                  <span className="text-[12px] text-gray-200 font-bold tracking-wide">
+                    {tTabs(key)}
+                  </span>
+                ) : null;
+              })()}
+            <p className="font-light text-sm text-gray-200">
+              {new Date(match.fixture_date).toLocaleDateString("en-US", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+              })}
+            </p>
+          </div>
 
-        <div className="grid grid-cols-3 gap-4 w-full">
-          {(() => {
-            const homeId = teamIdFromLogo(match.home_logo);
-            const awayId = teamIdFromLogo(match.away_logo);
-            const teamClass =
-              "flex items-center gap-3 flex-col hover:opacity-80 transition-opacity";
-            return (
-              <>
-                {homeId ? (
-                  <Link href={`/team/${homeId}`} className={teamClass}>
-                    <div
-                      className={`w-18 h-12 overflow-hidden shrink-0 block relative ${
-                        match.league_id === 1 || match.league_id === 10
-                          ? "border border-gray-300 rounded-tr-md rounded-bl-md"
-                          : ""
-                      }`}
-                    >
+          <div className="grid grid-cols-3 gap-4 w-full">
+            {(() => {
+              const homeId = teamIdFromLogo(match.home_logo);
+              const awayId = teamIdFromLogo(match.away_logo);
+              const teamClass =
+                "flex items-center gap-3 flex-col hover:opacity-80 transition-opacity";
+              return (
+                <>
+                  {homeId ? (
+                    <Link href={`/team/${homeId}`} className={teamClass}>
+                      <div
+                        className={`w-18 h-12 overflow-hidden scale[1.15] shrink-0 block relative ${
+                          match.league_id === 1 || match.league_id === 10
+                            ? "border border-gray-300 rounded-tr-md rounded-bl-md"
+                            : ""
+                        }`}
+                      >
+                        <Image
+                          src={match.home_logo || "/placeholder.png"}
+                          alt=""
+                          width={72} // Matches w-18 (72px) for Next.js optimization
+                          height={48} // Matches h-12 (48px) for Next.js optimization
+                          className="w-full h-full object-cover  will-change-transform scale-[1.20]"
+                        />
+                      </div>
+
+                      <span className="text-center text-sm leading-tight line-clamp-2">
+                        {getLocalizedTeamName(match.home_team, locale)}
+                      </span>
+                    </Link>
+                  ) : (
+                    <div className={teamClass}>
                       <Image
                         src={match.home_logo || "/placeholder.png"}
                         alt=""
-                        width={72} // Matches w-18 (72px) for Next.js optimization
-                        height={48} // Matches h-12 (48px) for Next.js optimization
-                        className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                        width={40}
+                        height={40}
+                        className="w-15 h-15 object-contain"
                       />
-                    </div>
-
-                    <span className="text-center text-sm leading-tight line-clamp-2">
-                      {getLocalizedTeamName(match.home_team, locale)}
-                    </span>
-                  </Link>
-                ) : (
-                  <div className={teamClass}>
-                    <Image
-                      src={match.home_logo || "/placeholder.png"}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="w-15 h-15 object-contain"
-                    />
-                    <span className="text-center text-sm leading-tight line-clamp-2">
-                      {getLocalizedTeamName(match.home_team, locale)}
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-center gap-2 flex-col text-center">
-                  <div className="text-xl font-bold">
-                    {isScheduled ? (
-                      <span className="text-gray-300 text-sm font-medium">
-                        {formatKickoff(match.fixture_date)}
+                      <span className="text-center text-sm leading-tight line-clamp-2">
+                        {getLocalizedTeamName(match.home_team, locale)}
                       </span>
-                    ) : hasScore ? (
-                      <>
-                        {displayHome} – {displayAway}
-                      </>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-center gap-2 flex-col text-center">
+                    <div className="text-xl font-bold">
+                      {isScheduled ? (
+                        <span className="text-gray-300 text-sm font-medium">
+                          {formatKickoff(match.fixture_date)}
+                        </span>
+                      ) : hasScore ? (
+                        <>
+                          {displayHome} – {displayAway}
+                        </>
+                      ) : (
+                        <span className="text-gray-300 text-sm">–</span>
+                      )}
+                    </div>
+                    {!match.is_live &&
+                    FINISHED_STATUSES.includes(match.status) ? (
+                      <span className="text-gray-200 text-xs tracking-wider">
+                        {tEv("matchFinished")}
+                      </span>
                     ) : (
-                      <span className="text-gray-300 text-sm">–</span>
+                      <StatusLabel
+                        status={match.status}
+                        elapsed={match.elapsed}
+                        fixtureDate={match.fixture_date}
+                      />
                     )}
                   </div>
-                  {!match.is_live &&
-                  FINISHED_STATUSES.includes(match.status) ? (
-                    <span className="text-gray-200 text-xs uppercase tracking-wider">
-                      {tEv("matchFinished")}
-                    </span>
-                  ) : (
-                    <StatusLabel
-                      status={match.status}
-                      elapsed={match.elapsed}
-                      fixtureDate={match.fixture_date}
-                    />
-                  )}
-                </div>
 
-                {awayId ? (
-                  <Link href={`/team/${awayId}`} className={teamClass}>
-                    <div
-                      className={`w-18 h-12 overflow-hidden shrink-0 block relative ${
-                        match.league_id === 1 || match.league_id === 10
-                          ? "border border-gray-300 rounded-tr-md rounded-bl-md"
-                          : ""
-                      }`}
-                    >
+                  {awayId ? (
+                    <Link href={`/team/${awayId}`} className={teamClass}>
+                      <div
+                        className={`w-18 h-12 overflow-hidden scale[1.15] shrink-0 block relative ${
+                          match.league_id === 1 || match.league_id === 10
+                            ? "border border-gray-300 rounded-tr-md rounded-bl-md"
+                            : ""
+                        }`}
+                      >
+                        <Image
+                          src={match.away_logo || "/placeholder.png"}
+                          alt=""
+                          width={72} // Matches w-18 (72px) for Next.js optimization
+                          height={48} // Matches h-12 (48px) for Next.js optimization
+                          className="w-full h-full object-cover  will-change-transform scale-[1.20]"
+                        />
+                      </div>
+                      <span className="text-center text-sm leading-tight line-clamp-2">
+                        {getLocalizedTeamName(match.away_team, locale)}
+                      </span>
+                    </Link>
+                  ) : (
+                    <div className={teamClass}>
                       <Image
                         src={match.away_logo || "/placeholder.png"}
                         alt=""
-                        width={72} // Matches w-18 (72px) for Next.js optimization
-                        height={48} // Matches h-12 (48px) for Next.js optimization
-                        className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                        width={40}
+                        height={40}
+                        className="w-15 h-15 object-contain"
                       />
+                      <span className="text-center text-sm leading-tight line-clamp-2">
+                        {getLocalizedTeamName(match.away_team, locale)}
+                      </span>
                     </div>
-                    <span className="text-center text-sm leading-tight line-clamp-2">
-                      {getLocalizedTeamName(match.away_team, locale)}
-                    </span>
-                  </Link>
-                ) : (
-                  <div className={teamClass}>
-                    <Image
-                      src={match.away_logo || "/placeholder.png"}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="w-15 h-15 object-contain"
-                    />
-                    <span className="text-center text-sm leading-tight line-clamp-2">
-                      {getLocalizedTeamName(match.away_team, locale)}
-                    </span>
-                  </div>
-                )}
-              </>
-            );
-          })()}
+                  )}
+                </>
+              );
+            })()}
+          </div>
         </div>
       </div>
+      {isLive && (
+        <div className="h-0.5 overflow-hidden relative">
+          <div
+            className="absolute h-full w-50 bg-[#00A800]/50"
+            style={{
+              animation: "live-scan 5s ease-in-out infinite",
+              boxShadow: "0 0 10px rgba(255,255,255,0.5)",
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

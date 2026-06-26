@@ -1,5 +1,6 @@
-export const revalidate = 300; // re-render at most every 5 minutes
+export const revalidate = 300;
 
+import { Suspense } from "react";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import MatchTabs from "@/components/info/MatchTabs";
@@ -8,6 +9,7 @@ import { getOrSyncLeagueData } from "@/lib/server/sync-league";
 import { getMatchDetails } from "@/lib/server/get-match-details";
 import BackButton from "@/components/ui/BackButton";
 import { League } from "@/types/sports";
+import type { DbMatch } from "@/types/sports";
 
 function getCurrentSeason(leagueId: number): number {
   const now = new Date();
@@ -15,28 +17,36 @@ function getCurrentSeason(leagueId: number): number {
   return now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
 }
 
-export default async function MatchDetailsPage({
-  params,
+function MatchTabsSkeleton() {
+  return (
+    <div className="space-y-6 w-full px-4 animate-pulse">
+      {/* Tab bar */}
+      <div className="flex justify-center border-b border-custom-gray">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="w-1/4 py-3 px-2">
+            <div className="h-2.5 bg-custom-gray rounded mx-auto w-3/4" />
+          </div>
+        ))}
+      </div>
+      {/* Content rows */}
+      <div className="space-y-3">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-14 bg-custom-gray rounded-md" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function MatchContent({
+  matchId,
+  initialMatch,
 }: {
-  params: Promise<{ id: string }>;
+  matchId: number;
+  initialMatch: DbMatch;
 }) {
-  const { id } = await params;
-  const matchId = parseInt(id);
-
-  const { data: initialMatch } = await supabase
-    .from("matches")
-    .select("*")
-    .eq("id", matchId)
-    .single();
-
-  if (!initialMatch) {
-    notFound();
-  }
-
   const currentSeason = getCurrentSeason(initialMatch.league_id);
 
-  // World Cup standings are keyed by calendar year, not cross-year season,
-  // so query without season filter to ensure we always get the live group data.
   const standingsQuery =
     initialMatch.league_id === League.WorldCup
       ? supabase
@@ -58,7 +68,12 @@ export default async function MatchDetailsPage({
   ] = await Promise.all([
     standingsQuery,
     getOrSyncLeagueData(initialMatch.league_id, currentSeason),
-    getMatchDetails(matchId, initialMatch.status, initialMatch.home_score, initialMatch.away_score),
+    getMatchDetails(
+      matchId,
+      initialMatch.status,
+      initialMatch.home_score,
+      initialMatch.away_score
+    ),
   ]);
 
   const standings = standingsResult.data ?? [];
@@ -72,33 +87,57 @@ export default async function MatchDetailsPage({
     .single();
 
   return (
+    <MatchTabs
+      details={details}
+      standings={standings}
+      scorers={scorers}
+      leagueName={initialMatch.league_name}
+      leagueLogo={initialMatch.league_logo}
+      leagueId={initialMatch.league_id}
+      matchId={matchId}
+      homeTeamName={initialMatch.home_team}
+      awayTeamName={initialMatch.away_team}
+      initialIsLive={(match ?? initialMatch).is_live}
+      initialStatus={(match ?? initialMatch).status}
+      initialElapsed={(match ?? initialMatch).elapsed}
+      venueName={venueName}
+      venueCity={venueCity}
+      referee={referee}
+    />
+  );
+}
+
+export default async function MatchDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const matchId = parseInt(id);
+
+  const { data: initialMatch } = await supabase
+    .from("matches")
+    .select("*")
+    .eq("id", matchId)
+    .single();
+
+  if (!initialMatch) {
+    notFound();
+  }
+
+  return (
     <main className="max-w-3xl bg-[#101010] mx-auto py-4 text-white space-y-6">
       <div className="flex justify-start px-4">
         <BackButton />
       </div>
 
-      <MatchScoreHeader
-        initialMatch={match ?? initialMatch}
-        details={details}
-      />
+      {/* Renders immediately — only needs initialMatch from the DB */}
+      <MatchScoreHeader initialMatch={initialMatch} details={null} />
 
-      <MatchTabs
-        details={details}
-        standings={standings}
-        scorers={scorers}
-        leagueName={initialMatch.league_name}
-        leagueLogo={initialMatch.league_logo}
-        leagueId={initialMatch.league_id}
-        matchId={matchId}
-        homeTeamName={initialMatch.home_team}
-        awayTeamName={initialMatch.away_team}
-        initialIsLive={(match ?? initialMatch).is_live}
-        initialStatus={(match ?? initialMatch).status}
-        initialElapsed={(match ?? initialMatch).elapsed}
-        venueName={venueName}
-        venueCity={venueCity}
-        referee={referee}
-      />
+      {/* Streams in once standings + scorers + match details are ready */}
+      <Suspense fallback={<MatchTabsSkeleton />}>
+        <MatchContent matchId={matchId} initialMatch={initialMatch} />
+      </Suspense>
     </main>
   );
 }

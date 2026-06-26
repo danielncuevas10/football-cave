@@ -2,9 +2,14 @@
 
 export const revalidate = 300; // re-render with fresh standings every 5 minutes
 
+import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import LeagueTabs from "@/components/info/LeagueTabs";
+import MatchCarouselServer from "@/components/bracket/MatchCarouselServer";
+import TopScorers from "@/components/info/scorer/page";
+import BackButton from "@/components/ui/BackButton";
 import {
   getOrSyncLeagueData,
   syncStandingsForLeague,
@@ -183,17 +188,108 @@ export default async function LeaguePage({ params }: PageProps) {
     notFound();
   }
 
+  const wcMatches = matchesResult.data ?? [];
+  const isWorldCup = leagueId === League.WorldCup;
+
+  if (isWorldCup) {
+    const tBadge = await getTranslations("liveBadge");
+
+    return (
+      <div className="bg-[#101010] text-white px-6 min-h-screen">
+        {/* ── Mobile layout ── */}
+        <main className="lg:hidden pt-6 pb-6">
+          <LeagueTabs
+            standings={standings}
+            scorers={scorers}
+            matches={wcMatches}
+            leagueName={meta.name}
+            leagueLogo={meta.logo}
+            leagueId={leagueId}
+            isTournament={isTournament}
+          />
+        </main>
+
+        {/* ── Desktop layout ── */}
+        <div className="hidden lg:flex flex-col max-w-7xl lg:max-w-360 mx-auto">
+          {/* Back button */}
+          <div className="pt-6 pb-3">
+            <BackButton />
+          </div>
+
+          {/* Header row: SVG (left) and carousel (right) share the same CSS grid row
+              so they automatically have the same height at every viewport width. */}
+          <div className="grid grid-cols-[1fr_42%]">
+            <div className="overflow-hidden rounded-md relative lg:h-full">
+              <img
+                src="/images/WC26.svg"
+                alt="FIFA World Cup 2026"
+                className="w-full h-auto object-cover lg:hidden"
+              />
+              <img
+                src="/images/WC262.svg"
+                alt="FIFA World Cup 2026 Large"
+                className="hidden lg:block w-full h-full object-cover"
+              />
+              <span className="absolute inset-0 flex items-center justify-center text-black text-[18px] font-sans font-medium tracking-[0.5em] uppercase pointer-events-none">
+                {tBadge("worldCup")}
+              </span>
+            </div>
+            <div className="pl-6 flex flex-col h-full">
+              <Suspense fallback={<CarouselSkeleton />}>
+                <MatchCarouselServer wcMatches={wcMatches} />
+              </Suspense>
+            </div>
+          </div>
+
+          {/* Content row: tabs + group stage (left) | scorers (right).
+              pt-6 on main + tab bar (~40px) + space-y-6 gap (24px) = 88px before
+              the group stage starts. pt-22 (88px) on the right aligns scorers. */}
+          <div className="flex">
+            <main className="flex-1 min-w-0 pt-6 pb-6">
+              <LeagueTabs
+                standings={standings}
+                scorers={scorers}
+                matches={wcMatches}
+                leagueName={meta.name}
+                leagueLogo={meta.logo}
+                leagueId={leagueId}
+                isTournament={isTournament}
+                renderHeader={null}
+              />
+            </main>
+            <div className="w-[42%] shrink-0 pl-6 pb-6 pt-22">
+              <TopScorers
+                scorers={scorers}
+                isWorldCup={false}
+                defaultView="allTime"
+                channelId="top-scorers-sidebar"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <main className="max-w-3xl bg-[#101010] mx-auto p-6 text-white min-h-screen">
       <LeagueTabs
         standings={standings}
         scorers={scorers}
-        matches={matchesResult.data ?? []}
+        matches={wcMatches}
         leagueName={meta.name}
         leagueLogo={meta.logo}
         leagueId={leagueId}
         isTournament={isTournament}
       />
     </main>
+  );
+}
+
+function CarouselSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 animate-pulse flex-1">
+      <div className="flex-1 rounded-md bg-custom-gray" />
+    </div>
   );
 }

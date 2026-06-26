@@ -63,11 +63,7 @@ function FlagImg({ src, muted }: { src: string; muted?: boolean }) {
         muted ? "opacity-50" : ""
       }`}
     >
-      <img
-        src={src}
-        alt=""
-        className="w-full h-full object-cover scale-[1.15]"
-      />
+      <img src={src} alt="" className="w-full h-full object-cover " />
     </div>
   );
 }
@@ -79,6 +75,7 @@ function FlagPlaceholder() {
 }
 
 function CompactSlot({ slot }: { slot: ResolvedSlot }) {
+  const t = useTranslations("matchTabs");
   const { homeLabel, awayLabel, homeLogo, awayLogo, match, thirdsResolution } =
     slot;
   const isProjected = !match && thirdsResolution?.slotStatus === "projected";
@@ -99,7 +96,7 @@ function CompactSlot({ slot }: { slot: ResolvedSlot }) {
       >
         {homeLogo ? <FlagImg src={homeLogo} /> : <FlagPlaceholder />}
         <span className="flex-1 text-[9px] font-medium text-gray-200 truncate leading-none">
-          {homeLabel || "TBD"}
+          {homeLabel || t("teamTBC")}
         </span>
         {hasScore && (
           <span
@@ -124,7 +121,7 @@ function CompactSlot({ slot }: { slot: ResolvedSlot }) {
           <FlagPlaceholder />
         )}
         <span className="flex-1 text-[9px] font-medium text-gray-200 truncate leading-none">
-          {awayLabel || "TBD"}
+          {awayLabel || t("teamTBC")}
         </span>
         {hasScore && (
           <span

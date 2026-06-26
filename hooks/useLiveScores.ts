@@ -38,11 +38,10 @@ export function useLiveScores() {
             const exists = prev.some(m => m.id === updated.id)
 
             if (!exists && updated.is_live) {
-              return [...prev, updated].sort(
-                (a, b) =>
-                  new Date(a.fixture_date).getTime() -
-                  new Date(b.fixture_date).getTime()
-              )
+              return [...prev, updated].sort((a, b) => {
+                const d = new Date(a.fixture_date).getTime() - new Date(b.fixture_date).getTime();
+                return d !== 0 ? d : a.id - b.id;
+              })
             }
 
             if (exists) {

@@ -202,6 +202,7 @@ export default function FullBracket({
                 <BracketRoundColumn
                   label={ROUND_LABEL[round]}
                   slots={roundSlots}
+                  showLegend={round === "R32"}
                 />
               </div>
             );

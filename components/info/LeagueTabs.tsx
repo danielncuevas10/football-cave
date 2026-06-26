@@ -22,6 +22,8 @@ interface LeagueTabsProps {
   leagueLogo: string | null;
   leagueId: number;
   isTournament?: boolean;
+  /** When provided (even null), replaces the default BackButton + banner header. */
+  renderHeader?: React.ReactNode;
 }
 
 export default function LeagueTabs({
@@ -30,11 +32,13 @@ export default function LeagueTabs({
   matches = [],
   leagueName,
   leagueLogo,
-  leagueId, // 3. Destructured leagueId so it can be used below
+  leagueId,
   isTournament = false,
+  renderHeader,
 }: LeagueTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("table");
   const tTabs = useTranslations("matchTabs");
+  const tBadge = useTranslations("liveBadge");
 
   const tabs: { id: TabType; label: string }[] = [
     {
@@ -51,36 +55,45 @@ export default function LeagueTabs({
       : []),
   ];
 
+  const defaultHeader = leagueId === League.WorldCup ? (
+    <>
+      <div className="lg:hidden"><BackButton /></div>
+      <div className="-mx-6 mt-.5 overflow-hidden relative lg:mx-0 lg:rounded-md lg:mt-0!">
+        <img
+          src="/images/WC26.svg"
+          alt="FIFA World Cup 2026"
+          className="w-full h-auto object-cover"
+        />
+        <span className="absolute inset-0 flex items-center justify-center text-black text-[11px] lg:text-[18px] font-sans font-medium tracking-[0.5em] uppercase pointer-events-none">
+          {tBadge("worldCup")}
+        </span>
+      </div>
+    </>
+  ) : (
+    <>
+      <BackButton />
+      <div className="flex items-center gap-4 p-4 bg-custom-gray rounded-md border border-custom-gray-2">
+        {leagueLogo && (
+          <Image
+            src={leagueLogo}
+            alt={leagueName}
+            width={50}
+            height={50}
+            className="object-contain w-15 h-12"
+          />
+        )}
+        <div>
+          <h1 className="text-xl font-extrabold tracking-tight">
+            {leagueName}
+          </h1>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="space-y-6 w-full text-white">
-      <BackButton />
-      {/* Header */}
-      {leagueId === League.WorldCup ? (
-        <div className="-mx-6 mt-1 overflow-hidden">
-          <img
-            src="/images/WC26.svg"
-            alt="FIFA World Cup 2026"
-            className="w-full h-auto object-cover"
-          />
-        </div>
-      ) : (
-        <div className="flex items-center gap-4 p-4 bg-custom-gray rounded-md border border-custom-gray-2">
-          {leagueLogo && (
-            <Image
-              src={leagueLogo}
-              alt={leagueName}
-              width={50}
-              height={50}
-              className="object-contain w-15 h-12"
-            />
-          )}
-          <div>
-            <h1 className="text-xl font-extrabold tracking-tight">
-              {leagueName}
-            </h1>
-          </div>
-        </div>
-      )}
+      {renderHeader !== undefined ? renderHeader : defaultHeader}
 
       {/* Tab Navigation */}
       <div className="flex overflow-hidden">
@@ -110,7 +123,7 @@ export default function LeagueTabs({
           }`}
         >
           {leagueId === League.WorldCup ? (
-            <WorldCupGroups standings={standings} />
+            <WorldCupGroups standings={standings} showDropdown />
           ) : (
             <StandingsTable standings={standings ?? []} />
           )}
@@ -131,7 +144,10 @@ export default function LeagueTabs({
             activeTab === "scorers" ? "" : "h-0 overflow-hidden"
           }`}
         >
-          <TopScorers scorers={scorers ?? []} />
+          <TopScorers
+            scorers={scorers ?? []}
+            isWorldCup={leagueId === League.WorldCup}
+          />
         </div>
 
         {isTournament && (

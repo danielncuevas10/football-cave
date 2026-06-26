@@ -9,17 +9,70 @@ import { getLocalizedTeamName } from "@/lib/teamName";
 interface WorldCupGroupsProps {
   standings: DbStanding[];
   allStandings?: DbStanding[];
+  showDropdown?: boolean;
+  hideLegends?: boolean;
 }
 
 const PAGE_SIZE = 4;
 
+export function WorldCupLegend() {
+  const t = useTranslations("matchTabs");
+  return (
+    <div>
+      <div className="flex items-center gap-3 px-1 py-2 text-[9px] text-gray-300 font-light">
+        <span>
+          <span className="text-gray-200 font-bold">
+            {t("standingsGdAbbr")}
+          </span>
+          : {t("standingsGdFull")}
+        </span>
+        <span className="text-gray-400">·</span>
+        <span>
+          <span className="text-gray-200 font-bold">{t("scorerMpAbbr")}</span>:{" "}
+          {t("scorerMpFull")}
+        </span>
+        <span className="text-gray-400">·</span>
+        <span>
+          <span className="text-gray-200 font-bold">
+            {t("standingsPtsAbbr")}
+          </span>
+          : {t("standingsPtsFull")}
+        </span>
+      </div>
+      <div className="flex items-center gap-2 p-2">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-[#4ade80] shrink-0" />
+          <span className="text-[9px] font-light text-white">
+            {t("roundOf16")}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-[#FFC000] shrink-0" />
+          <span className="text-[9px] font-light text-white">
+            {t("roundOf16Best3rd")}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-[#C93434] shrink-0" />
+          <span className="text-[9px] font-light text-white">
+            {t("eliminated")}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function WorldCupGroups({
   standings,
   allStandings,
+  showDropdown = false,
+  hideLegends = false,
 }: WorldCupGroupsProps) {
   const t = useTranslations("matchTabs");
   const locale = useLocale();
   const [page, setPage] = useState(0);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
   const pool = allStandings ?? standings;
   const top8ThirdIds = new Set(
@@ -59,7 +112,7 @@ export default function WorldCupGroups({
     return (
       <div
         key={groupName}
-        className="bg-custom-gray rounded-md overflow-hidden"
+        className={hideLegends ? "overflow-hidden" : "bg-custom-gray rounded-md overflow-hidden"}
       >
         <table className="w-full text-xs text-gray-200 bg-custom-gray-2">
           <thead>
@@ -68,14 +121,23 @@ export default function WorldCupGroups({
               <th className="px-2 py-5 text-left text-white font-light tracking-widest">
                 {t("group")} {letter}
               </th>
-              <th className="px-2 py-2 text-center w-8" title="Goal Difference">
-                GD
+              <th
+                className="px-2 py-2 text-center w-8"
+                title={t("standingsGdFull")}
+              >
+                {t("standingsGdAbbr")}
               </th>
-              <th className="px-2 py-2 text-center w-8" title="Matches Played">
-                MP
+              <th
+                className="px-2 py-2 text-center w-8"
+                title={t("scorerMpFull")}
+              >
+                {t("scorerMpAbbr")}
               </th>
-              <th className="px-3 py-2 text-center w-8 text-white font-black">
-                Pts
+              <th
+                className="px-3 py-2 text-center w-8 text-white font-black"
+                title={t("standingsPtsFull")}
+              >
+                {t("standingsPtsAbbr")}
               </th>
             </tr>
           </thead>
@@ -104,11 +166,11 @@ export default function WorldCupGroups({
                       className="flex items-center gap-2 hover:opacity-75 transition-opacity"
                     >
                       {team.team_logo && (
-                        <div className="w-8 h-4 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-md rounded-bl-md">
+                        <div className="w-8 h-5 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-md rounded-bl-md">
                           <img
                             src={team.team_logo}
                             alt=""
-                            className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                            className="w-full h-full object-cover  will-change-transform scale-[1.15]"
                           />
                         </div>
                       )}
@@ -162,26 +224,110 @@ export default function WorldCupGroups({
     </div>
   );
 
+  const statsLegend = (
+    <div className="flex items-center gap-3 px-1 py-2 text-[9px] lg:text-[12px] text-gray-300 font-light">
+      <span>
+        <span className="text-gray-200 font-bold">{t("standingsGdAbbr")}</span>:{" "}
+        {t("standingsGdFull")}
+      </span>
+      <span className="text-gray-400">·</span>
+      <span>
+        <span className="text-gray-200 font-bold">{t("scorerMpAbbr")}</span>:{" "}
+        {t("scorerMpFull")}
+      </span>
+      <span className="text-gray-400">·</span>
+      <span>
+        <span className="text-gray-200 font-bold">{t("standingsPtsAbbr")}</span>
+        : {t("standingsPtsFull")}
+      </span>
+    </div>
+  );
+
+  // legend placement logic:
+  // showDropdown + no selected group (See All) → above, no bg
+  // showDropdown + group selected           → below
+  // no dropdown + not hidden (team context) → below
+  // hideLegends (match context)        → none (caller renders outside)
+  const showLegendsAbove = showDropdown && !selectedGroup && !hideLegends;
+  const showLegendsBelow = !hideLegends && (!showDropdown || !!selectedGroup);
+
+  const mobileGroups =
+    showDropdown && selectedGroup
+      ? sortedGroups.filter((g) => g === selectedGroup)
+      : sortedGroups;
+
   return (
     <div className="w-full space-y-1">
-      {/* Legend above groups on mobile/tablet only */}
-      <div className="lg:hidden">{legend}</div>
+      {/* Mobile / tablet */}
+      <div className="lg:hidden space-y-1">
+        {/* Group filter dropdown */}
+        {showDropdown && (
+          <div className="relative mb-1">
+            <select
+              value={selectedGroup ?? ""}
+              onChange={(e) => setSelectedGroup(e.target.value || null)}
+              className="w-full bg-custom-gray text-white text-xs px-3 py-2.5 rounded-md border border-gray-700/50 appearance-none cursor-pointer focus:outline-none focus:border-gray-500"
+            >
+              <option value="">{t("seeAll")}</option>
+              {sortedGroups.map((g) => {
+                const letter = g.replace(/^Group\s*/i, "").trim() || g;
+                return (
+                  <option key={g} value={g}>
+                    {t("group")} {letter}
+                  </option>
+                );
+              })}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+              <svg
+                className="w-3 h-3 text-gray-400"
+                viewBox="0 0 12 12"
+                fill="none"
+              >
+                <path
+                  d="M2 4l4 4 4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+        )}
 
-      {/* Mobile / tablet: all groups, original layout */}
-      <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-1 w-full">
-        {sortedGroups.map(renderGroup)}
+        {/* Legends above — only when showing all groups (See All) */}
+        {showLegendsAbove && (
+          <>
+            {statsLegend}
+            {legend}
+          </>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-1 w-full">
+          {mobileGroups.map(renderGroup)}
+        </div>
+
+        {/* Legends below — one group selected, or team-page context */}
+        {showLegendsBelow && (
+          <>
+            {statsLegend}
+            {legend}
+          </>
+        )}
       </div>
 
       {/* Desktop: paginated 2×2 grid with arrows */}
       {totalPages > 0 && (
         <div className="hidden lg:block w-full space-y-3">
           {/* Full-width 2×2 group grid */}
-          <div className="grid grid-cols-2 gap-1 w-full">
+          <div className="grid grid-cols-2 lg:grid-cols-1 gap-1 w-full">
             {desktopGroups.map(renderGroup)}
           </div>
 
           {/* Legend below groups on desktop */}
-          {legend}
+          {!hideLegends && legend}
+          {!hideLegends && statsLegend}
 
           {/* Bottom bar: prev arrow — dots — next arrow */}
           {totalPages > 1 && (

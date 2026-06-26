@@ -115,47 +115,59 @@ export default function TournamentMatchesByDay({ matches }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Day navigation — same style as ScoreList */}
-      <div className="flex items-center justify-between bg-custom-gray p-3 rounded-md">
-        <button
-          onClick={() => setDayIndex((i) => Math.max(0, i - 1))}
-          disabled={dayIndex === 0}
-          className="p-2 text-gray-200 hover:text-white disabled:opacity-30 transition-colors"
-        >
-          <img
-            src="/images/specs/arrow.svg"
-            alt="Previous day"
-            className="w-4.5 h-4.5 object-contain rotate-90"
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
-          />
-        </button>
+      {/* Day navigation */}
+      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray-2 p-3 rounded-md">
+        <div className="flex items-center justify-between w-full gap-4">
+          <div className="flex flex-col items-center gap-1">
+            <button
+              onClick={() => setDayIndex((i) => Math.max(0, i - 1))}
+              disabled={dayIndex === 0}
+              className="flex flex-col items-center gap-0.5 p-2 text-sm bg-custom-gray hover:bg-custom-gray/50 rounded-2xl text-gray-200 hover:text-white disabled:opacity-30 transition-colors cursor-pointer"
+            >
+              <img
+                src="/images/specs/arrow.svg"
+                alt="Previous day"
+                className="w-4.5 h-4.5 object-contain -rotate-270"
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
+              />
+            </button>
+            <span className="text-[8px] font-light tracking-wide">
+              {tDate("prev")}
+            </span>
+          </div>
 
-        <span className="text-sm font-bold text-white select-none">
-          {getDisplayDate(
-            currentDay,
-            {
-              today: tDate("today"),
-              yesterday: tDate("yesterday"),
-              tomorrow: tDate("tomorrow"),
-            },
-            bcp47
-          )}
-        </span>
+          <span className="text-sm font-bold text-white select-none">
+            {getDisplayDate(
+              currentDay,
+              {
+                today: tDate("today"),
+                yesterday: tDate("yesterday"),
+                tomorrow: tDate("tomorrow"),
+              },
+              bcp47
+            )}
+          </span>
 
-        <button
-          onClick={() =>
-            setDayIndex((i) => Math.min(matchDays.length - 1, i + 1))
-          }
-          disabled={dayIndex === matchDays.length - 1}
-          className="p-2 text-gray-200 hover:text-white disabled:opacity-30 transition-colors"
-        >
-          <img
-            src="/images/specs/arrow.svg"
-            alt="Next day"
-            className="w-4.5 h-4.5 object-contain rotate-270"
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
-          />
-        </button>
+          <div className="flex flex-col items-center gap-1">
+            <button
+              onClick={() =>
+                setDayIndex((i) => Math.min(matchDays.length - 1, i + 1))
+              }
+              disabled={dayIndex === matchDays.length - 1}
+              className="flex flex-col items-center gap-0.5 p-2 text-sm bg-custom-gray hover:bg-custom-gray/50 rounded-2xl text-gray-200 hover:text-white disabled:opacity-30 transition-colors cursor-pointer"
+            >
+              <img
+                src="/images/specs/arrow.svg"
+                alt="Next day"
+                className="w-4.5 h-4.5 object-contain rotate-270"
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
+              />
+            </button>
+            <span className="text-[9px] font-light tracking-wide">
+              {tDate("next")}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Match list for the selected day */}

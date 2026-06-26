@@ -26,8 +26,33 @@ export default function WorldCupBest3rd({ standings }: WorldCupBest3rdProps) {
 
   const advancingIds = new Set(thirds.slice(0, 8).map((s) => s.team_id));
 
+  const statsLegend = (
+    <div className="flex items-center gap-3 px-3 py-2 text-[8px] lg:text-[12px] text-gray-300 flex-wrap font-light">
+      <span>
+        <span className="text-gray-200 font-bold">{t("standingsGfAbbr")}</span>:{" "}
+        {t("standingsGfFull")}
+      </span>
+      <span className="text-gray-300">·</span>
+      <span>
+        <span className="text-gray-200 font-bold ">{t("standingsGaAbbr")}</span>
+        : {t("standingsGaFull")}
+      </span>
+      <span className="text-gray-300">·</span>
+      <span>
+        <span className="text-gray-200 font-bold">{t("standingsGdAbbr")}</span>:{" "}
+        {t("standingsGdFull")}
+      </span>
+      <span className="text-gray-300">·</span>
+      <span>
+        <span className="text-gray-200 font-bold">{t("standingsPtsAbbr")}</span>
+        : {t("standingsPtsFull")}
+      </span>
+    </div>
+  );
+
   return (
-    <div className="0">
+    <div>
+      <div className="lg:hidden">{statsLegend}</div>
       <div className="bg-custom-gray border border-custom-gray-2 rounded-md overflow-hidden">
         <table className="w-full text-xs text-gray-200 bg-custom-gray-2">
           <thead>
@@ -36,17 +61,29 @@ export default function WorldCupBest3rd({ standings }: WorldCupBest3rdProps) {
               <th className="px-2 py-3 text-left text-white font-black tracking-widest">
                 {t("bestThirdPlace")}
               </th>
-              <th className="px-2 py-2 text-center w-8" title="Goals For">
-                GF
+              <th
+                className="px-2 py-2 text-center w-8"
+                title={t("standingsGfFull")}
+              >
+                {t("standingsGfAbbr")}
               </th>
-              <th className="px-2 py-2 text-center w-8" title="Goals Against">
-                GA
+              <th
+                className="px-2 py-2 text-center w-8"
+                title={t("standingsGaFull")}
+              >
+                {t("standingsGaAbbr")}
               </th>
-              <th className="px-2 py-2 text-center w-8" title="Goal Difference">
-                GD
+              <th
+                className="px-2 py-2 text-center w-8"
+                title={t("standingsGdFull")}
+              >
+                {t("standingsGdAbbr")}
               </th>
-              <th className="px-3 py-2 text-center w-8 text-white font-black">
-                Pts
+              <th
+                className="px-3 py-2 text-center w-8 text-white font-black"
+                title={t("standingsPtsFull")}
+              >
+                {t("standingsPtsAbbr")}
               </th>
             </tr>
           </thead>
@@ -79,7 +116,7 @@ export default function WorldCupBest3rd({ standings }: WorldCupBest3rdProps) {
                           <img
                             src={team.team_logo}
                             alt=""
-                            className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                            className="w-full h-full object-cover  will-change-transform scale-[1.15]"
                           />
                         </div>
                       )}
@@ -111,6 +148,7 @@ export default function WorldCupBest3rd({ standings }: WorldCupBest3rdProps) {
           </tbody>
         </table>
       </div>
+      <div className="hidden lg:block">{statsLegend}</div>
     </div>
   );
 }

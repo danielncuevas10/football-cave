@@ -34,7 +34,7 @@ export default async function BracketPage() {
 
   return (
     <div className="min-h-screen bg-[#101010] text-white">
-      <div className="w-full px-4 pt-6 pb-12">
+      <div className="w-full px-4 pt-5 pb-12">
         <div className="flex items-center gap-3 mb-6">
           <BackButton />
           <h1 className="text-sm font-extrabold tracking-widest uppercase text-white">

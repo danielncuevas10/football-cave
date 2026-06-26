@@ -4,6 +4,7 @@ import "./globals.css";
 import TopNav from "@/components/TopNav";
 import Footer from "@/components/Footer";
 import About from "@/components/About";
+import BracketBottomSheet from "@/components/bracket/BracketBottomSheet";
 import { Analytics } from "@vercel/analytics/next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -32,15 +33,15 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/icon.jpg",
-        width: 1200,
-        height: 630,
+        width: 138,
+        height: 138,
         alt: "Football Cave – Live Scores",
       },
     ],
     type: "website",
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Football Cave",
     description: "Check the latest matches",
     images: ["/icon.jpg"],
@@ -70,9 +71,10 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <TopNav />
-          <div className="flex-1 min-h-screen">
+          <div className="flex-1 min-h-screen pb-16 lg:pb-0">
             {children}
           </div>
+          <BracketBottomSheet />
           <script
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8066520887443761"

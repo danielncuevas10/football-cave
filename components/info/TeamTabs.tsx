@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { getWcRoundKey } from "@/lib/wcRoundLabel";
 import { getLocalizedTeamName } from "@/lib/teamName";
-import Image from "next/image";
 import Link from "next/link";
 import MatchCard from "@/components/MatchCard";
 import StandingsTable from "@/components/info/standings/page";
 import WorldCupGroups from "@/components/WorldCupGroups";
-import { League } from "@/types/sports";
+import { League, LIVE_STATUSES } from "@/types/sports";
 import type { DbMatch, DbStanding, FixtureStatus } from "@/types/sports";
+import { supabase } from "@/lib/supabase";
+import { useLiveMinute } from "@/hooks/useLiveMinute";
+import { resolveFlag } from "@/lib/flagUrl";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
@@ -33,19 +36,144 @@ function formatMatchDate(dateStr: string): string {
   });
 }
 
+function isFlag(logo: string | null): boolean {
+  return !!logo && logo.includes("/flags/");
+}
+
+function TeamLogo({
+  logo,
+  size = "md",
+}: {
+  logo: string | null;
+  size?: "sm" | "md";
+}) {
+  if (!logo) return null;
+  const cls = size === "md" ? "w-12 h-8" : "w-9 h-6";
+  const inner = isFlag(logo) ? (
+    <div
+      className={`${cls} shrink-0 bg-cover bg-center border border-gray-300 rounded-tr-md rounded-bl-md`}
+      style={{ backgroundImage: `url(${resolveFlag(logo)})` }}
+    />
+  ) : (
+    <div
+      className={`${cls} overflow-hidden shrink-0 border border-gray-300 rounded-tr-md rounded-bl-md`}
+    >
+      <img
+        src={logo}
+        alt=""
+        className="w-full h-full object-cover scale-[1.15]"
+      />
+    </div>
+  );
+  return inner;
+}
+
+function LiveMatchBanner({ match }: { match: DbMatch }) {
+  const locale = useLocale();
+  const minute = useLiveMinute(match.status, match.elapsed, match.fixture_date);
+  const showMinute =
+    match.status === "1H" || match.status === "2H" || match.status === "ET";
+
+  return (
+    <Link
+      href={`/match/${match.id}`}
+      className="block hover:opacity-90 transition-opacity"
+    >
+      <div className="relative bg-[#1a1a1a] border border-[#00A800]/30 rounded-md overflow-hidden">
+        {/* Header row */}
+        <div className="flex items-center justify-between px-4 pt-3 pb-2">
+          {showMinute && (
+            <span className="text-white text-xs font-mono bg-[#00A800] px-2 py-0.5 rounded-md">
+              {minute}′
+            </span>
+          )}
+          {match.status === "HT" && (
+            <span className="text-white text-xs font-mono bg-gray-600 px-2 py-0.5 rounded-md">
+              HT
+            </span>
+          )}
+        </div>
+
+        {/* Teams + score */}
+        <div className="grid grid-cols-3 items-center gap-2 px-4 pb-4">
+          <div className="flex flex-col items-center gap-2">
+            <TeamLogo logo={match.home_logo} />
+            <span className="text-xs text-center font-medium leading-tight text-gray-200 line-clamp-2">
+              {getLocalizedTeamName(match.home_team, locale)}
+            </span>
+          </div>
+          <div className="flex items-center justify-center gap-1.5">
+            <span className="text-2xl font-extrabold tabular-nums">
+              {match.home_score ?? 0}
+            </span>
+            <span className="text-gray-600 font-bold text-sm">–</span>
+            <span className="text-2xl font-extrabold tabular-nums">
+              {match.away_score ?? 0}
+            </span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <TeamLogo logo={match.away_logo} />
+            <span className="text-xs text-center font-medium leading-tight text-gray-200 line-clamp-2">
+              {getLocalizedTeamName(match.away_team, locale)}
+            </span>
+          </div>
+        </div>
+
+        {/* Sweeping green live line */}
+        <div className="h-0.5 w-full bg-gray-800 relative overflow-hidden">
+          <div
+            className="h-full w-1/2 bg-[#00A800] absolute"
+            style={{ animation: "live-scan 2s ease-in-out infinite" }}
+          />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 export default function TeamTabs({
   teamId,
   teamName,
   teamLogoUrl,
-  matches,
+  matches: initialMatches,
   standings,
   leagueId,
   managerName,
 }: TeamTabsProps) {
   const t = useTranslations("teamPage");
   const tTabs = useTranslations("matchTabs");
+  const tBadge = useTranslations("liveBadge");
   const locale = useLocale();
   const [activeTab, setActiveTab] = useState<TabType>("matches");
+  const [matches, setMatches] = useState<DbMatch[]>(initialMatches);
+
+  // Subscribe to live updates for this team's matches from Supabase
+  useEffect(() => {
+    const matchIds = new Set(initialMatches.map((m) => m.id));
+
+    const channel = supabase
+      .channel(`team-matches-${teamId}`)
+      .on<DbMatch>(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "matches" },
+        (payload) => {
+          const updated = payload.new as DbMatch;
+          if (!matchIds.has(updated.id)) return;
+          setMatches((prev) =>
+            prev.map((m) => (m.id === updated.id ? updated : m))
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamId]);
+
+  const liveMatch =
+    matches.find((m) => LIVE_STATUSES.includes(m.status)) ?? null;
 
   // Last 5 finished matches, oldest → newest for left-to-right display
   const last5 = matches
@@ -101,7 +229,7 @@ export default function TeamTabs({
           <img
             src={teamLogoUrl}
             alt=""
-            className="w-full h-full object-cover scale-[1.15] will-change-transform"
+            className="w-full h-full object-cover  will-change-transform scale-[1.15]"
           />
         </div>
         <div className="flex flex-col gap-1.5 min-w-0">
@@ -229,7 +357,11 @@ export default function TeamTabs({
                 (g) => g.leagueId === League.WorldCup
               );
               const wcUpcoming = (wcGroup?.matches ?? [])
-                .filter((m) => !FINISHED_STATUSES.includes(m.status))
+                .filter(
+                  (m) =>
+                    !FINISHED_STATUSES.includes(m.status) &&
+                    !LIVE_STATUSES.includes(m.status)
+                )
                 .sort(
                   (a, b) =>
                     new Date(a.fixture_date).getTime() -
@@ -246,16 +378,29 @@ export default function TeamTabs({
 
               return (
                 <div className="space-y-6">
-                  {/* ── Prominent Next Match card (WC teams only) ── */}
-                  {nextWcMatch && (
+                  {/* ── Live match banner — shown when team is currently playing ── */}
+                  {liveMatch && <LiveMatchBanner match={liveMatch} />}
+
+                  {/* ── Prominent Next Match card (WC teams only, not shown when live) ── */}
+                  {nextWcMatch && !liveMatch && (
                     <Link
                       href={`/match/${nextWcMatch.id}`}
                       className="block hover:opacity-90 transition-opacity"
                     >
                       <div className="bg-[#303030] rounded-md overflow-hidden px-6 py-6">
-                        <p className="text-[10px] text-gray-200 tracking-widest text-center mb-4">
-                          {t("nextMatch")}
-                        </p>
+                        <div className="flex flex-col items-center gap-1 mb-4">
+                          <p className="text-[10px] text-gray-200 tracking-widest text-center">
+                            {t("nextMatch")}
+                          </p>
+                          {(() => {
+                            const key = getWcRoundKey(nextWcMatch.round);
+                            return key ? (
+                              <span className="text-[10px] text-gray-400 font-light tracking-wide">
+                                {tTabs(key)}
+                              </span>
+                            ) : null;
+                          })()}
+                        </div>
                         <div className="grid grid-cols-3 items-center gap-2">
                           <div className="flex flex-col items-center gap-2">
                             {nextWcMatch.home_logo && (
@@ -263,7 +408,7 @@ export default function TeamTabs({
                                 <img
                                   src={nextWcMatch.home_logo}
                                   alt=""
-                                  className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                                  className="w-full h-full object-cover  will-change-transform scale-[1.15]"
                                 />
                               </div>
                             )}
@@ -293,7 +438,7 @@ export default function TeamTabs({
                                 <img
                                   src={nextWcMatch.away_logo}
                                   alt=""
-                                  className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                                  className="w-full h-full object-cover  will-change-transform scale-[1.15]"
                                 />
                               </div>
                             )}
@@ -312,11 +457,16 @@ export default function TeamTabs({
                   {/* ── WC badge + all WC matches (upcoming then played) ── */}
                   {wcGroup && (
                     <div className="bg-custom-gray rounded-md overflow-hidden">
-                      <img
-                        src="/images/WC262nd.svg"
-                        alt="FIFA World Cup 2026"
-                        className="w-full h-auto object-cover"
-                      />
+                      <div className="relative">
+                        <img
+                          src="/images/WC26200nd.svg"
+                          alt="FIFA World Cup 2026"
+                          className="w-full h-auto object-cover"
+                        />
+                        <span className="absolute inset-0 flex items-center justify-center text-black text-[11px] lg:text-[18px] font-sans font-medium tracking-[0.5em] uppercase tracking-wide pointer-events-none">
+                          {tBadge("worldCup")}
+                        </span>
+                      </div>
                       {[...wcUpcoming.slice(1), ...wcFinished].map((m) => (
                         <div
                           key={m.id}

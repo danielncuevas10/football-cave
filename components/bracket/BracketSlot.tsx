@@ -17,7 +17,7 @@ const springTransition = {
 } as const;
 
 export default function BracketSlot({ slot }: BracketSlotProps) {
-  const { match, homeLabel, awayLabel, homeLogo, awayLogo, thirdsResolution } = slot;
+  const { match, homeLabel, awayLabel, homeLogo, awayLogo, fixtureDate, thirdsResolution } = slot;
   const isProjected = !match && thirdsResolution?.slotStatus === "projected";
 
   return (
@@ -47,6 +47,7 @@ export default function BracketSlot({ slot }: BracketSlotProps) {
               awayLabel={awayLabel}
               homeLogo={homeLogo}
               awayLogo={awayLogo}
+              fixtureDate={fixtureDate}
             />
           </motion.div>
         ) : (
@@ -62,6 +63,7 @@ export default function BracketSlot({ slot }: BracketSlotProps) {
               awayLabel={awayLabel}
               homeLogo={homeLogo}
               awayLogo={awayLogo}
+              fixtureDate={fixtureDate}
             />
           </motion.div>
         )}

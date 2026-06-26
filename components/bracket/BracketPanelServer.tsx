@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/server/supabase-admin";
-import type { DbMatch, DbStanding, MatchEvent, TeamLineup, TeamStatistics } from "@/types/sports";
+import type { DbMatch, DbStanding, DbTopScorer, MatchEvent, TeamLineup, TeamStatistics } from "@/types/sports";
 import BracketPanel from "./BracketPanel";
 
 const FINISHED_STATUSES = ["FT", "AET", "PEN", "AWD", "WO"];
@@ -16,7 +16,7 @@ export default async function BracketPanelServer({
     .filter((m) => FINISHED_STATUSES.includes(m.status))
     .map((m) => m.id);
 
-  const [standingsResult, venuesResult, goalsResult] = await Promise.all([
+  const [standingsResult, venuesResult, goalsResult, scorersResult] = await Promise.all([
     supabaseAdmin
       .from("standings")
       .select("*")
@@ -32,9 +32,17 @@ export default async function BracketPanelServer({
           .select("match_id, events, lineups, statistics")
           .in("match_id", finishedIds)
       : Promise.resolve({ data: [] as { match_id: number; events: unknown; lineups: unknown; statistics: unknown }[] }),
+    supabaseAdmin
+      .from("top_scorers")
+      .select("*")
+      .eq("league_id", 1)
+      .gt("goals", 0)
+      .order("goals", { ascending: false })
+      .limit(20),
   ]);
 
   const wcStandings = (standingsResult.data ?? []) as DbStanding[];
+  const wcScorers = (scorersResult.data ?? []) as DbTopScorer[];
 
   const venues: Record<number, { name: string | null; city: string | null }> = {};
   for (const d of venuesResult.data ?? []) {
@@ -66,6 +74,7 @@ export default async function BracketPanelServer({
     <BracketPanel
       wcMatches={wcMatches}
       wcStandings={wcStandings}
+      wcScorers={wcScorers}
       venues={venues}
       goals={goals}
     />

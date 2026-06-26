@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, Fragment } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import StandingsTable from "@/components/info/standings/page";
-import WorldCupGroups from "@/components/WorldCupGroups";
+import WorldCupGroups, { WorldCupLegend } from "@/components/WorldCupGroups";
 import MatchCenterDetails from "@/components/info/matchDetails/page";
 import MatchCenterLinenups from "./matchLineups/page";
 import type {
@@ -279,6 +279,7 @@ export default function MatchTabs({
 
   const tTabs = useTranslations("matchTabs");
   const tEv = useTranslations("matchEvents");
+  const tBadge = useTranslations("liveBadge");
 
   const isConfirmedFinished = !isLive && FINISHED_STATUSES.includes(status);
   const isFriendly = leagueId === 10;
@@ -1217,14 +1218,19 @@ export default function MatchTabs({
             activeTab === "table" ? "" : "h-0 overflow-hidden"
           }`}
         >
-          <div className="w-full bg-custom-gray rounded-md overflow-hidden">
+          <div className="w-full bg-custom-gray-2 rounded-md overflow-hidden">
             <Link href={`/league/${leagueId}`} className="block">
               {isWorldCup ? (
-                <img
-                  src="/images/WC262nd.svg"
-                  alt="FIFA World Cup 2026"
-                  className="w-full h-auto object-cover"
-                />
+                <div className="relative">
+                  <img
+                    src="/images/WC262nd.svg"
+                    alt="FIFA World Cup 2026"
+                    className="w-full h-auto object-cover"
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center text-black text-[11px] lg:text-[18px] font-sans font-medium tracking-[0.5em] uppercase tracking-wide pointer-events-none">
+                    {tBadge("worldCup")}
+                  </span>
+                </div>
               ) : (
                 <div className="flex items-center gap-4 p-4">
                   {leagueLogo && (
@@ -1246,11 +1252,13 @@ export default function MatchTabs({
               <WorldCupGroups
                 standings={groupStandings}
                 allStandings={localStandings}
+                hideLegends
               />
             ) : (
               <StandingsTable standings={localStandings} />
             )}
           </div>
+          {isWorldCup && <WorldCupLegend />}
         </div>
       </div>
     </div>
