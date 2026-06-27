@@ -178,7 +178,7 @@ export async function syncScorersFromEvents(leagueId: number, season: number): P
     .from("matches")
     .select("id")
     .eq("league_id", leagueId)
-    .in("status", ["FT", "AET", "PEN"]);
+    .or("status.in.(FT,AET,PEN),is_live.eq.true");
 
   if (!matches?.length) return;
 

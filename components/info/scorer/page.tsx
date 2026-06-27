@@ -47,6 +47,7 @@ const BASE_ALL_TIME = [
     baseGoals: 8,
     matchKey: "ronaldo",
     matchTeam: "portugal",
+    knownWc2026Goals: 2,
   },
   {
     name: "Harry Kane",

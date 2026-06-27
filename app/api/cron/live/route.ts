@@ -123,6 +123,43 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // 3b. Refresh match_details for live matches and sync scorer counts mid-game
+  if (liveMatches.length > 0) {
+    const liveLeagues = new Map<number, number>() // leagueId → season
+    await Promise.allSettled(
+      liveMatches.map(async (m) => {
+        try {
+          const details = await footballApi.getMatchDetails(m.fixture.id)
+          if (!details) return
+          await supabaseAdmin.from("match_details").upsert(
+            {
+              match_id: m.fixture.id,
+              events: details.events.map((ev) => ({
+                ...ev,
+                player: { ...ev.player, id: ev.player.id ?? 0, name: ev.player.name ?? "" },
+              })),
+              lineups: details.lineups,
+              statistics: details.statistics,
+              venue_name: null,
+              venue_city: null,
+              referee: null,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "match_id" }
+          )
+          liveLeagues.set(m.league.id, m.league.season)
+        } catch (e) {
+          console.error(`Failed to fetch live details for match ${m.fixture.id}:`, e)
+        }
+      })
+    )
+    for (const [leagueId, season] of liveLeagues) {
+      await syncScorersFromEvents(leagueId, season).catch((e) =>
+        console.error(`Live scorer sync failed for league ${leagueId}:`, e)
+      )
+    }
+  }
+
   // 4. Find matches that were live but are no longer live
   const newlyFinishedIds = previouslyLiveIds.filter(
     id => !currentlyLiveIds.includes(id)
