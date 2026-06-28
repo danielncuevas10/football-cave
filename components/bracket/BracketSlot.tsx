@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import MatchCard from "@/components/MatchCard";
+import BracketMatchCard from "./BracketMatchCard";
 import TBDCard from "./TBDCard";
 import ProjectedCard from "./ProjectedCard";
 import type { ResolvedSlot } from "@/types/bracket";
@@ -32,7 +32,7 @@ export default function BracketSlot({ slot }: BracketSlotProps) {
             transition={springTransition}
             className="will-change-transform"
           >
-            <MatchCard match={match} />
+            <BracketMatchCard match={match} />
           </motion.div>
         ) : isProjected ? (
           <motion.div

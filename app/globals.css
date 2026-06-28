@@ -6,6 +6,12 @@
   --custom-gray: #3C3C3C;
   --custom-gray-2: #232323;
   color-scheme: dark;
+  --bracket-col-w: 120px;
+}
+@media (min-width: 768px) {
+  :root {
+    --bracket-col-w: 190px;
+  }
 }
 
 @theme inline {

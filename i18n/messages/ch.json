@@ -140,5 +140,11 @@
     "lastMatches": "近期比赛",
     "nextMatch": "下一场比赛",
     "manager": "主教练"
+  },
+  "consent": {
+    "message": "我们使用 Cookie 来改善您的体验并分析网站流量。",
+    "accept": "接受",
+    "reject": "拒绝",
+    "privacyPolicy": "隐私政策"
   }
 }

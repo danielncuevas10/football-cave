@@ -123,16 +123,20 @@ const R32_THIRDS: BracketMatchDef[] = [
 ];
 
 // ─── Round of 16 ─────────────────────────────────────────────────────────────
-// Each R16 match pairs the winner of a fixed R32 slot vs the winner of its
-// corresponding thirds R32 slot (same index).
+// Pairings follow the official FIFA WC 2026 bracket draw.
+// Left half: T4/T6 → R16_1, F1/F2 → R16_2, F5/F6 → R16_3, T3/T5 → R16_4
+// Right half: F3/F4 → R16_5, T1/T8 → R16_6, F7/F8 → R16_7, T2/T7 → R16_8
 
-const R16_SLOTS: BracketMatchDef[] = Array.from({ length: 8 }, (_, i) => ({
-  id: `R16_${i + 1}`,
-  round: "R16" as const,
-  label: `W(R32_F${i + 1}) v W(R32_T${i + 1})`,
-  home: { type: "winner" as const, slotId: `R32_F${i + 1}` },
-  away: { type: "winner" as const, slotId: `R32_T${i + 1}` },
-}));
+const R16_SLOTS: BracketMatchDef[] = [
+  { id: "R16_1", round: "R16", label: "W(R32_T4) v W(R32_T6)", home: { type: "winner", slotId: "R32_T4" }, away: { type: "winner", slotId: "R32_T6" } },
+  { id: "R16_2", round: "R16", label: "W(R32_F1) v W(R32_F2)", home: { type: "winner", slotId: "R32_F1" }, away: { type: "winner", slotId: "R32_F2" } },
+  { id: "R16_3", round: "R16", label: "W(R32_F5) v W(R32_F6)", home: { type: "winner", slotId: "R32_F5" }, away: { type: "winner", slotId: "R32_F6" } },
+  { id: "R16_4", round: "R16", label: "W(R32_T3) v W(R32_T5)", home: { type: "winner", slotId: "R32_T3" }, away: { type: "winner", slotId: "R32_T5" } },
+  { id: "R16_5", round: "R16", label: "W(R32_F3) v W(R32_F4)", home: { type: "winner", slotId: "R32_F3" }, away: { type: "winner", slotId: "R32_F4" } },
+  { id: "R16_6", round: "R16", label: "W(R32_T1) v W(R32_T8)", home: { type: "winner", slotId: "R32_T1" }, away: { type: "winner", slotId: "R32_T8" } },
+  { id: "R16_7", round: "R16", label: "W(R32_F7) v W(R32_F8)", home: { type: "winner", slotId: "R32_F7" }, away: { type: "winner", slotId: "R32_F8" } },
+  { id: "R16_8", round: "R16", label: "W(R32_T2) v W(R32_T7)", home: { type: "winner", slotId: "R32_T2" }, away: { type: "winner", slotId: "R32_T7" } },
+];
 
 // ─── Quarter-Finals ───────────────────────────────────────────────────────────
 

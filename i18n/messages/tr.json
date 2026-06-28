@@ -140,5 +140,11 @@
     "lastMatches": "Son maçlar",
     "nextMatch": "Sonraki maç",
     "manager": "Teknik Direktör"
+  },
+  "consent": {
+    "message": "Deneyiminizi geliştirmek ve site trafiğini analiz etmek için çerez kullanıyoruz.",
+    "accept": "Kabul Et",
+    "reject": "Reddet",
+    "privacyPolicy": "Gizlilik Politikası"
   }
 }

@@ -66,6 +66,16 @@ export default function MatchCard({ match }: { match: DbMatch }) {
   const isConfirmedFinished =
     !match.is_live && FINISHED_STATUSES.includes(match.status);
 
+  const hasScore =
+    isConfirmedFinished &&
+    match.home_score !== null &&
+    match.away_score !== null;
+  const homeWon = hasScore && match.home_score! > match.away_score!;
+  const awayWon = hasScore && match.away_score! > match.home_score!;
+  const isDraw = hasScore && match.home_score === match.away_score;
+  const homeDim = awayWon || isDraw;
+  const awayDim = homeWon || isDraw;
+
   return (
     <Link
       href={`/match/${match.id}`}
@@ -86,7 +96,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
         </div>
 
         {/* Home team */}
-        <div className="flex items-center justify-end gap-2 min-w-0">
+        <div className={`flex items-center justify-end gap-2 min-w-0 transition-opacity ${homeDim ? "opacity-70" : ""}`}>
           <span className="text-sm font-medium text-right leading-tight line-clamp-2">
             {getLocalizedTeamName(match.home_team, locale)}
           </span>
@@ -130,7 +140,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
               <span className="text-xl font-extrabold tabular-nums">
                 {match.home_score}
               </span>
-              <span className="text-gray-600 font-bold text-sm">–</span>
+              <span className="text-gray-400 font-bold text-sm">–</span>
               <span className="text-xl font-extrabold tabular-nums">
                 {match.away_score}
               </span>
@@ -146,7 +156,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
         </div>
 
         {/* Away team */}
-        <div className="flex items-center justify-start gap-2 min-w-0">
+        <div className={`flex items-center justify-start gap-2 min-w-0 transition-opacity ${awayDim ? "opacity-70" : ""}`}>
           {match.away_logo &&
             (isFlag(match.away_logo) ? (
               <div

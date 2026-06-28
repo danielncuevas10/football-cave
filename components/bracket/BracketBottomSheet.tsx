@@ -26,12 +26,7 @@ function FieldIcon() {
 
 function StandingsIcon() {
   return (
-    <svg
-      width="18"
-      height="14"
-      viewBox="0 0 18 14"
-      fill="currentColor"
-    >
+    <svg width="18" height="14" viewBox="0 0 18 14" fill="currentColor">
       <rect x="0" y="0" width="18" height="3" rx="1" />
       <rect x="0" y="5" width="18" height="3" rx="1" />
       <rect x="0" y="10" width="18" height="3" rx="1" />
@@ -61,9 +56,24 @@ function BracketIcon() {
 }
 
 const TABS = [
-  { href: "/", Icon: FieldIcon, labelKey: "matches" as const, ns: "matchTabs" as const },
-  { href: "/league/1", Icon: StandingsIcon, labelKey: "standings" as const, ns: "nav" as const },
-  { href: "/bracket", Icon: BracketIcon, labelKey: "knockoutStage" as const, ns: "matchTabs" as const },
+  {
+    href: "/",
+    Icon: FieldIcon,
+    labelKey: "matches" as const,
+    ns: "matchTabs" as const,
+  },
+  {
+    href: "/league/1",
+    Icon: StandingsIcon,
+    labelKey: "standings" as const,
+    ns: "nav" as const,
+  },
+  {
+    href: "/bracket",
+    Icon: BracketIcon,
+    labelKey: "knockoutStage" as const,
+    ns: "matchTabs" as const,
+  },
 ] as const;
 
 export default function BracketBottomSheet() {
@@ -71,7 +81,7 @@ export default function BracketBottomSheet() {
   const tNav = useTranslations("nav");
   const pathname = usePathname();
 
-  const getLabel = (tab: typeof TABS[number]) => {
+  const getLabel = (tab: (typeof TABS)[number]) => {
     if (tab.ns === "nav") return tNav(tab.labelKey as "standings");
     return tTabs(tab.labelKey as "matches" | "knockoutStage");
   };
@@ -81,14 +91,22 @@ export default function BracketBottomSheet() {
       <div className="flex items-stretch">
         {TABS.map(({ href, Icon, ...rest }, i) => {
           const isActive = pathname === href;
-          const label = getLabel({ href, Icon, ...rest } as typeof TABS[number]);
+          const label = getLabel({
+            href,
+            Icon,
+            ...rest,
+          } as (typeof TABS)[number]);
           return (
             <Link
               key={href}
               href={href}
               className={`relative flex-1 flex flex-col items-center justify-center gap-1.5 px-2 py-3 transition-colors
                 ${i < TABS.length - 1 ? "border-r border-custom-gray" : ""}
-                ${isActive ? "text-[#00A800]" : "text-white/70 hover:text-white"}`}
+                ${
+                  isActive
+                    ? "text-[#00A800] bg-custom-gray/30"
+                    : "text-white/70 hover:text-white"
+                }`}
             >
               <Icon />
               <span className="text-[10px] font-light tracking-wide leading-none">

@@ -140,5 +140,11 @@
     "lastMatches": "Poslednje utakmice",
     "nextMatch": "Sledeća utakmica",
     "manager": "Trener"
+  },
+  "consent": {
+    "message": "Koristimo kolačiće kako bismo poboljšali vaše iskustvo i analizirali promet sajta.",
+    "accept": "Prihvati",
+    "reject": "Odbij",
+    "privacyPolicy": "Politika privatnosti"
   }
 }

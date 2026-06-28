@@ -140,5 +140,11 @@
     "lastMatches": "最近の試合",
     "nextMatch": "次の試合",
     "manager": "監督"
+  },
+  "consent": {
+    "message": "サイト体験の向上とアクセス解析のためにCookieを使用しています。",
+    "accept": "同意する",
+    "reject": "拒否する",
+    "privacyPolicy": "プライバシーポリシー"
   }
 }

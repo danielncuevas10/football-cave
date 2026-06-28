@@ -140,5 +140,11 @@
     "lastMatches": "Derniers matchs",
     "nextMatch": "Prochain match",
     "manager": "Entraîneur"
+  },
+  "consent": {
+    "message": "Nous utilisons des cookies pour améliorer votre expérience et analyser le trafic du site.",
+    "accept": "Accepter",
+    "reject": "Refuser",
+    "privacyPolicy": "Politique de confidentialité"
   }
 }

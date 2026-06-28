@@ -178,9 +178,6 @@ export default function ScoreList({ initialMatches }: Props) {
                 }}
               />
             </button>
-            <span className="text-[8px] font-light tracking-wide">
-              {tDate("prev")}
-            </span>
           </div>
 
           <div className="flex items-center gap-2 text-sm font-bold text-white select-none">
@@ -232,9 +229,6 @@ export default function ScoreList({ initialMatches }: Props) {
                 }}
               />
             </button>
-            <span className="text-[9px] font-light tracking-wide">
-              {tDate("next")}
-            </span>
           </div>
         </div>
       </div>
@@ -260,7 +254,7 @@ export default function ScoreList({ initialMatches }: Props) {
                     {leagueId ? (
                       <Link
                         href={`/league/${leagueId}`}
-                        className="relative flex items-center justify-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors"
+                        className={`relative flex items-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors ${leagueId === 1 ? "justify-start px-4" : "justify-center"}`}
                       >
                         <img
                           src={leagueLogo}
@@ -337,7 +331,7 @@ export default function ScoreList({ initialMatches }: Props) {
                   {leagueId ? (
                     <Link
                       href={`/league/${leagueId}`}
-                      className="relative flex items-center justify-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors"
+                      className={`relative flex items-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors ${leagueId === 1 ? "justify-start px-4" : "justify-center"}`}
                     >
                       <img
                         src={leagueLogo}

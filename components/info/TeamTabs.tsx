@@ -80,18 +80,9 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
       className="block hover:opacity-90 transition-opacity"
     >
       <div className="relative bg-[#1a1a1a] border border-[#00A800]/30 rounded-md overflow-hidden">
-        {/* Header row */}
-        <div className="flex items-center justify-between px-4 pt-3 pb-2">
-          {showMinute && (
-            <span className="text-white text-xs font-mono bg-[#00A800] px-2 py-0.5 rounded-md">
-              {minute}′
-            </span>
-          )}
-          {match.status === "HT" && (
-            <span className="text-white text-xs font-mono bg-gray-600 px-2 py-0.5 rounded-md">
-              HT
-            </span>
-          )}
+        {/* Live indicator dot */}
+        <div className="flex items-center px-4 pt-3 pb-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00A800] animate-pulse" />
         </div>
 
         {/* Teams + score */}
@@ -102,14 +93,24 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
               {getLocalizedTeamName(match.home_team, locale)}
             </span>
           </div>
-          <div className="flex items-center justify-center gap-1.5">
-            <span className="text-2xl font-extrabold tabular-nums">
-              {match.home_score ?? 0}
-            </span>
-            <span className="text-gray-600 font-bold text-sm">–</span>
-            <span className="text-2xl font-extrabold tabular-nums">
-              {match.away_score ?? 0}
-            </span>
+          <div className="flex flex-col items-center justify-center gap-1">
+            <div className="flex items-center justify-center gap-1.5">
+              <span className="text-2xl font-extrabold tabular-nums">
+                {match.home_score ?? 0}
+              </span>
+              <span className="text-gray-600 font-bold text-sm">–</span>
+              <span className="text-2xl font-extrabold tabular-nums">
+                {match.away_score ?? 0}
+              </span>
+            </div>
+            {showMinute && (
+              <span className="text-[#00A800] text-xs font-mono tabular-nums">
+                {minute}′
+              </span>
+            )}
+            {match.status === "HT" && (
+              <span className="text-gray-400 text-xs font-mono">HT</span>
+            )}
           </div>
           <div className="flex flex-col items-center gap-2">
             <TeamLogo logo={match.away_logo} />
@@ -123,7 +124,7 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
         <div className="h-0.5 w-full bg-gray-800 relative overflow-hidden">
           <div
             className="h-full w-1/2 bg-[#00A800] absolute"
-            style={{ animation: "live-scan 2s ease-in-out infinite" }}
+            style={{ animation: "live-scan 6s ease-in-out infinite" }}
           />
         </div>
       </div>

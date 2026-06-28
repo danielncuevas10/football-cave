@@ -140,5 +140,11 @@
   "about": {
     "body": "Your dedicated home for football insights. We're here to help you follow your favorite clubs and never miss a defining moment. We're proud to have you as part of our community. Thanks for letting us keep you in the loop.",
     "title": "About Us"
+  },
+  "consent": {
+    "message": "We use cookies to improve your experience and analyse site traffic.",
+    "accept": "Accept",
+    "reject": "Decline",
+    "privacyPolicy": "Privacy Policy"
   }
 }

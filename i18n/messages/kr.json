@@ -140,5 +140,11 @@
     "lastMatches": "최근 경기",
     "nextMatch": "다음 경기",
     "manager": "감독"
+  },
+  "consent": {
+    "message": "경험 개선 및 트래픽 분석을 위해 쿠키를 사용합니다.",
+    "accept": "동의",
+    "reject": "거부",
+    "privacyPolicy": "개인정보 처리방침"
   }
 }

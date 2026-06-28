@@ -121,6 +121,11 @@ export function resolveBracket(
     return { slotStatus };
   }
 
+  // Declared before resolveRef so the closure captures these maps;
+  // populated after queues/r32Pool are built (pre-pass below).
+  const slotWinners = new Map<string, { label: string; logo: string | null }>();
+  const slotLosers = new Map<string, { label: string; logo: string | null }>();
+
   // ── Team-label resolver for a single SlotRef ──────────────────────────────
   function resolveRef(
     ref: SlotRef,
@@ -149,7 +154,20 @@ export function resolveBracket(
           };
     }
 
-    // winner/loser refs — cannot be resolved without match results
+    if (ref.type === "winner") {
+      const w = slotWinners.get(ref.slotId);
+      return w
+        ? { label: w.label, logo: w.logo, standing: null }
+        : { label: "TBD", logo: null, standing: null };
+    }
+
+    if (ref.type === "loser") {
+      const l = slotLosers.get(ref.slotId);
+      return l
+        ? { label: l.label, logo: l.logo, standing: null }
+        : { label: "TBD", logo: null, standing: null };
+    }
+
     return { label: "TBD", logo: null, standing: null };
   }
 
@@ -170,6 +188,50 @@ export function resolveBracket(
   };
 
   const r32Pool = matches.filter(isR32);
+
+  // ── Pre-pass: derive winners/losers from finished matches ─────────────────
+  // Populates slotWinners/slotLosers so resolveRef can propagate them to
+  // later rounds (e.g. R32 winner shows in the R16 card before fixture exists).
+  // PEN excluded — home_score/away_score reflect AET draw, winner is unknowable.
+  const FINISHED_STATUSES = new Set(["FT", "AET"]);
+
+  function setWinnerLoser(defId: string, m: DbMatch) {
+    if (!FINISHED_STATUSES.has(m.status)) return;
+    if (m.home_score === null || m.away_score === null) return;
+    if (m.home_score === m.away_score) return; // draw / PEN placeholder
+    const homeWon = m.home_score > m.away_score;
+    slotWinners.set(defId, homeWon
+      ? { label: m.home_team, logo: m.home_logo ?? null }
+      : { label: m.away_team, logo: m.away_logo ?? null });
+    slotLosers.set(defId, homeWon
+      ? { label: m.away_team, logo: m.away_logo ?? null }
+      : { label: m.home_team, logo: m.home_logo ?? null });
+  }
+
+  // R32 — look up match by team names from standings
+  for (const def of ALL_BRACKET_DEFS) {
+    if (def.round !== "R32") break;
+    const homeInfo = resolveRef(def.home, def.id);
+    const awayInfo = resolveRef(def.away, def.id);
+    let m: DbMatch | null = null;
+    if (homeInfo.standing && awayInfo.standing) {
+      m = findMatchByTeams(r32Pool, homeInfo.standing.team_name, awayInfo.standing.team_name);
+    } else if (homeInfo.standing) {
+      m = r32Pool.find(x => x.home_team === homeInfo.standing!.team_name || x.away_team === homeInfo.standing!.team_name) ?? null;
+    }
+    if (m) setWinnerLoser(def.id, m);
+  }
+
+  // R16+ — assign sequentially by queue (separate index counters from main pass)
+  const preIdx: Record<string, number> = { R16: 0, QF: 0, SF: 0, FINAL: 0, THIRD: 0 };
+  for (const def of ALL_BRACKET_DEFS) {
+    if (def.round === "R32") continue;
+    const key = def.round as keyof typeof queues;
+    const q = queues[key];
+    if (!q) continue;
+    const idx = preIdx[key]++;
+    if (idx < q.length) setWinnerLoser(def.id, q[idx]);
+  }
 
   // ── Map each definition to a ResolvedSlot ─────────────────────────────────
   return ALL_BRACKET_DEFS.map((def) => {
