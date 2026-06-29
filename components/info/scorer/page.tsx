@@ -152,7 +152,12 @@ function getPlayerPhoto(player: DbTopScorer): string {
   return "/images/placeholderPlayer.svg";
 }
 
-export default function TopScorers({ scorers, isWorldCup = false, defaultView = "current", channelId = "top-scorers-live" }: Props) {
+export default function TopScorers({
+  scorers,
+  isWorldCup = false,
+  defaultView = "current",
+  channelId = "top-scorers-live",
+}: Props) {
   const t = useTranslations("matchTabs");
   const tDetails = useTranslations("matchDetails");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -172,16 +177,23 @@ export default function TopScorers({ scorers, isWorldCup = false, defaultView = 
       .channel(`${channelId}-${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "top_scorers", filter: "league_id=eq.1" },
+        {
+          event: "*",
+          schema: "public",
+          table: "top_scorers",
+          filter: "league_id=eq.1",
+        },
         (payload) => {
           const updated = payload.new as DbTopScorer;
           if (!updated?.player_id) return;
           setLiveScorers((prev) => {
             const exists = prev.some((s) => s.player_id === updated.player_id);
             if (exists) {
-              return [...prev.map((s) => (s.player_id === updated.player_id ? updated : s))].sort(
-                (a, b) => b.goals - a.goals
-              );
+              return [
+                ...prev.map((s) =>
+                  s.player_id === updated.player_id ? updated : s
+                ),
+              ].sort((a, b) => b.goals - a.goals);
             }
             if (updated.goals > 0) {
               return [...prev, updated].sort((a, b) => b.goals - a.goals);
@@ -200,7 +212,7 @@ export default function TopScorers({ scorers, isWorldCup = false, defaultView = 
 
   if (!liveScorers || liveScorers.length === 0) {
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
+      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
         {tDetails("comingSoon")}
         <img
           src="/images/specs/clock.svg"
@@ -240,7 +252,7 @@ export default function TopScorers({ scorers, isWorldCup = false, defaultView = 
     <>
       {/* View toggle — World Cup only */}
       {isWorldCup && (
-        <div className="flex rounded-md overflow-hidden bg-custom-gray mb-3">
+        <div className="flex rounded-xl overflow-hidden bg-custom-gray mb-3">
           <button
             onClick={() => setView("current")}
             className={`flex-1 text-xs py-2.5 font-medium transition-colors ${
@@ -267,7 +279,7 @@ export default function TopScorers({ scorers, isWorldCup = false, defaultView = 
 
       {/* ── All-time list ── */}
       {view === "allTime" ? (
-        <div className="w-full border-2 border-[#C5A059]/30 rounded-md overflow-hidden bg-custom-gray-2">
+        <div className="w-full border-2 border-[#C5A059]/30 rounded-xl overflow-hidden bg-custom-gray-2">
           {/* Header */}
           <div className="flex items-center bg-custom-gray border-b border-gray-800/60 px-2 py-3 text-xs font-medium text-gray-200">
             <div className="w-8 text-center shrink-0">#</div>
@@ -299,7 +311,7 @@ export default function TopScorers({ scorers, isWorldCup = false, defaultView = 
                   key={player.name}
                   className={`flex items-center transition-all relative ${
                     isFirst
-                      ? "py-3.5 px-4 -mx-2 rounded-md bg-zinc-900 shadow-xl shadow-[#C5A059]/10 border border-transparent bg-clip-padding before:absolute before:inset-0 before:rounded-md before:border before:border-transparent before:bg-gradient-to-r before:from-[#C5A059] before:to-transparent before:[mask:linear-gradient(#fff_0_0)_padding-box,linear-gradient(#fff_0_0)] before:[mask-composite:exclude] before:pointer-events-none"
+                      ? "py-3.5 px-4 -mx-2 rounded-xl bg-zinc-900 shadow-xl shadow-[#C5A059]/10 border border-transparent bg-clip-padding before:absolute before:inset-0 before:rounded-xl before:border before:border-transparent before:bg-gradient-to-r before:from-[#C5A059] before:to-transparent before:[mask:linear-gradient(#fff_0_0)_padding-box,linear-gradient(#fff_0_0)] before:[mask-composite:exclude] before:pointer-events-none"
                       : "py-2.5 px-2 hover:bg-gray-800/30 border-b border-gray-800/50 z-0"
                   }`}
                 >
@@ -360,7 +372,7 @@ export default function TopScorers({ scorers, isWorldCup = false, defaultView = 
                   </div>
                   <div className="w-12 text-center shrink-0 z-30">
                     {isFirst ? (
-                      <span className="inline-block text-[#C5A059] font-bold text-xl px-2.5 py-0.5 rounded-md z-30">
+                      <span className="inline-block text-[#C5A059] font-bold text-xl px-2.5 py-0.5 rounded-xl z-30">
                         {player.totalGoals}
                       </span>
                     ) : (
@@ -400,7 +412,7 @@ export default function TopScorers({ scorers, isWorldCup = false, defaultView = 
             </span>
           </div>
 
-          <div className="w-full bg-custom-gray-2 rounded-md overflow-hidden">
+          <div className="w-full bg-custom-gray-2 rounded-xl overflow-hidden">
             <table className="w-full text-sm text-left text-gray-200 table-fixed">
               <thead className="text-xs text-gray-200 bg-custom-gray border-b border-custom-gray">
                 <tr>

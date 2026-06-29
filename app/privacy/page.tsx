@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   const lastUpdated = "June 5, 2026";
 
   return (
-    <div className="min-h-screen bg-[#101010] text-white">
+    <div className="min-h-screen bg-background text-white">
       <main className="max-w-3xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
         <p className="text-gray-200 text-sm mb-10">

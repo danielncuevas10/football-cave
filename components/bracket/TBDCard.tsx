@@ -57,7 +57,7 @@ export default function TBDCard({
   // Both teams fully unknown (R16+ slot awaiting confirmed fixture) → compact flag-border pill
   if (homeLabel === "TBD" && awayLabel === "TBD" && !fixtureDate) {
     return (
-      <div className="bg-custom-gray-2/40 rounded-md flex items-center justify-center gap-2.5 my-1 px-3 py-2 border border-custom-gray-2/20 select-none opacity-70">
+      <div className="bg-custom-gray-2/40 rounded-xl flex items-center justify-center gap-2.5 my-1 px-3 py-2 border border-custom-gray-2/20 select-none opacity-70">
         <div className="w-7 h-5 shrink-0 border border-gray-300/30 rounded-tr-sm rounded-bl-sm" />
         <span className="text-gray-600 text-[9px] font-light">vs</span>
         <div className="w-7 h-5 shrink-0 border border-gray-300/30 rounded-tr-sm rounded-bl-sm" />
@@ -66,8 +66,7 @@ export default function TBDCard({
   }
 
   return (
-    <div className="bg-custom-gray-2 py-2 px-1 grid grid-cols-[1fr_auto_1fr] gap-1 items-center border border-custom-gray-2/20 opacity-90 select-none rounded-md">
-
+    <div className="bg-custom-gray-2 py-2 px-1 grid grid-cols-[1fr_auto_1fr] gap-1 items-center border border-custom-gray-2/20 opacity-90 select-none rounded-xl">
       {/* home */}
       <div className="flex flex-col items-center justify-center gap-1.5 min-w-0">
         {homeLogo ? <Flag src={homeLogo} /> : <FlagPlaceholder />}

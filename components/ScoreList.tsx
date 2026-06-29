@@ -161,7 +161,7 @@ export default function ScoreList({ initialMatches }: Props) {
   return (
     <div className="space-y-6">
       {/* Date Navigation Bar */}
-      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray-2 p-3 rounded-md">
+      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray-2 p-3 rounded-xl">
         <div className="flex items-center justify-between w-full gap-4">
           <div className="flex flex-col items-center gap-1">
             <button
@@ -193,9 +193,9 @@ export default function ScoreList({ initialMatches }: Props) {
               className="text-white"
             >
               <img
-                src="/images/specs/arrow.svg"
+                src="/images/specs/calendar.svg"
                 alt="Select Date"
-                className="w-3 h-3 object-contain"
+                className="w-2 h-2 object-contain"
                 onError={(e) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = "/images/specs/arrow.jpg";
@@ -249,12 +249,16 @@ export default function ScoreList({ initialMatches }: Props) {
                 return (
                   <div
                     key={`live-${leagueName}`}
-                    className="bg-custom-gray rounded-md overflow-hidden"
+                    className="bg-custom-gray rounded-xl overflow-hidden"
                   >
                     {leagueId ? (
                       <Link
                         href={`/league/${leagueId}`}
-                        className={`relative flex items-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors ${leagueId === 1 ? "justify-start px-4" : "justify-center"}`}
+                        className={`relative flex items-center gap-3 py-4 border-b border-[#38383A] hover:bg-gray-900/20 transition-colors ${
+                          leagueId === 1
+                            ? "justify-start px-4"
+                            : "justify-center"
+                        }`}
                       >
                         <img
                           src={leagueLogo}
@@ -326,12 +330,14 @@ export default function ScoreList({ initialMatches }: Props) {
               return (
                 <div
                   key={leagueName}
-                  className="bg-custom-gray rounded-md overflow-hidden"
+                  className="bg-custom-gray rounded-xl overflow-hidden"
                 >
                   {leagueId ? (
                     <Link
                       href={`/league/${leagueId}`}
-                      className={`relative flex items-center gap-3 py-4 border-b border-gray-800/40 hover:bg-gray-900/20 transition-colors ${leagueId === 1 ? "justify-start px-4" : "justify-center"}`}
+                      className={`relative flex items-center gap-3 py-4 hover:bg-gray-900/20 transition-colors ${
+                        leagueId === 1 ? "justify-start px-4" : "justify-center"
+                      }`}
                     >
                       <img
                         src={leagueLogo}
@@ -380,7 +386,7 @@ export default function ScoreList({ initialMatches }: Props) {
 
       {/* FIX: Absolute clean fallback empty state container. Shows ONLY if total count is zero */}
       {matchesForDate.length === 0 && (
-        <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
+        <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
           {tTabs("noMatches")}
           <img
             src="/images/specs/clock.svg"

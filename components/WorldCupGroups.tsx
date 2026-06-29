@@ -112,7 +112,11 @@ export default function WorldCupGroups({
     return (
       <div
         key={groupName}
-        className={hideLegends ? "overflow-hidden" : "bg-custom-gray rounded-md overflow-hidden"}
+        className={
+          hideLegends
+            ? "overflow-hidden"
+            : "bg-custom-gray rounded-xl overflow-hidden"
+        }
       >
         <table className="w-full text-xs text-gray-200 bg-custom-gray-2">
           <thead>
@@ -266,7 +270,7 @@ export default function WorldCupGroups({
             <select
               value={selectedGroup ?? ""}
               onChange={(e) => setSelectedGroup(e.target.value || null)}
-              className="w-full bg-custom-gray text-white text-xs px-3 py-2.5 rounded-md border border-gray-700/50 appearance-none cursor-pointer focus:outline-none focus:border-gray-500"
+              className="w-full bg-custom-gray text-white text-xs px-3 py-2.5 rounded-xl border border-gray-700/50 appearance-none cursor-pointer focus:outline-none focus:border-gray-500"
             >
               <option value="">{t("seeAll")}</option>
               {sortedGroups.map((g) => {

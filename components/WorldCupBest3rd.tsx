@@ -53,7 +53,7 @@ export default function WorldCupBest3rd({ standings }: WorldCupBest3rdProps) {
   return (
     <div>
       <div className="lg:hidden">{statsLegend}</div>
-      <div className="bg-custom-gray border border-custom-gray-2 rounded-md overflow-hidden">
+      <div className="bg-custom-gray border border-custom-gray-2 rounded-xl overflow-hidden">
         <table className="w-full text-xs text-gray-200 bg-custom-gray-2">
           <thead>
             <tr className="text-[10px] tracking-wider bg-custom-gray">

@@ -41,13 +41,13 @@ function StatusBadge({
     case "2H":
     case "ET":
       return (
-        <span className="text-white text-xs font-mono px-1.5 py-1.5 bg-[#00A800] rounded-md">
+        <span className="text-white text-xs font-mono px-1.5 py-1.5 bg-[#00A800] rounded-xl">
           {minute}′
         </span>
       );
     case "HT":
       return (
-        <span className="text-white text-xs font-mono px-1.5 py-0.5 bg-gray-600 rounded-md">
+        <span className="text-white text-xs font-mono px-1.5 py-0.5 bg-gray-600 rounded-xl">
           {tEv("halfTimeBadge")}
         </span>
       );
@@ -76,6 +76,15 @@ export default function MatchCard({ match }: { match: DbMatch }) {
   const homeDim = awayWon || isDraw;
   const awayDim = homeWon || isDraw;
 
+  const isWcKnockout =
+    (match.league_id === 1 || match.league_id === 10) &&
+    match.stage !== null &&
+    match.stage !== "GROUP" &&
+    match.stage !== "UNKNOWN";
+
+  const homeIsLoser = isWcKnockout && hasScore && match.home_score! < match.away_score!;
+  const awayIsLoser = isWcKnockout && hasScore && match.away_score! < match.home_score!;
+
   return (
     <Link
       href={`/match/${match.id}`}
@@ -83,7 +92,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
     >
       {/* Fixed 4-column layout: [badge][home][score][away]
           The badge column is always reserved so nothing shifts when live */}
-      <div className="bg-custom-gray-2 py-5 px-3 grid grid-cols-[1rem_1fr_auto_1fr] gap-2 items-center border border-custom-gray/5">
+      <div className="bg-custom-gray-2 py-3 px-3 grid grid-cols-[1rem_1fr_auto_1fr] gap-2 items-center">
         {/* Left badge — always occupies 2rem; empty when not live */}
         <div className="flex items-center justify-center">
           {(isLive || match.status === "HT") && (
@@ -96,8 +105,12 @@ export default function MatchCard({ match }: { match: DbMatch }) {
         </div>
 
         {/* Home team */}
-        <div className={`flex items-center justify-end gap-2 min-w-0 transition-opacity ${homeDim ? "opacity-70" : ""}`}>
-          <span className="text-sm font-medium text-right leading-tight line-clamp-2">
+        <div
+          className={`flex items-center justify-end gap-2 min-w-0 transition-opacity ${
+            !isWcKnockout && homeDim ? "opacity-70" : ""
+          }`}
+        >
+          <span className={`text-xs lg:text-md font-medium text-right leading-tight line-clamp-2${homeIsLoser ? " line-through opacity-50" : ""}`}>
             {getLocalizedTeamName(match.home_team, locale)}
           </span>
           {match.home_logo &&
@@ -149,14 +162,18 @@ export default function MatchCard({ match }: { match: DbMatch }) {
             <span className="text-gray-300 text-sm font-medium">–</span>
           )}
           {isConfirmedFinished && (
-            <span className="text-gray-200 text-[10px] uppercase tracking-wider">
+            <span className="text-gray-200 text-[8px] lg:text-[10px] uppercase tracking-wider">
               {tEv("ftLabel")}
             </span>
           )}
         </div>
 
         {/* Away team */}
-        <div className={`flex items-center justify-start gap-2 min-w-0 transition-opacity ${awayDim ? "opacity-70" : ""}`}>
+        <div
+          className={`flex items-center justify-start gap-2 min-w-0 transition-opacity ${
+            !isWcKnockout && awayDim ? "opacity-70" : ""
+          }`}
+        >
           {match.away_logo &&
             (isFlag(match.away_logo) ? (
               <div
@@ -184,7 +201,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
                 />
               </div>
             ))}
-          <span className="text-sm font-medium text-left leading-tight line-clamp-2">
+          <span className={`text-xs lg:text-md font-medium text-left leading-tight line-clamp-2${awayIsLoser ? " line-through opacity-50" : ""}`}>
             {getLocalizedTeamName(match.away_team, locale)}
           </span>
         </div>

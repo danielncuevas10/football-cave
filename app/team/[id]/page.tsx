@@ -98,7 +98,7 @@ export default async function TeamPage({ params }: PageProps) {
   }
 
   return (
-    <main className="w-full bg-[#101010] py-4 text-white space-y-6">
+    <main className="w-full bg-background py-4 text-white space-y-6">
       <div className="flex justify-start px-4">
         <BackButton />
       </div>

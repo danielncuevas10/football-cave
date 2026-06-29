@@ -89,7 +89,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <div className="bg-[#101010] text-white px-6">
+      <div className="bg-background text-white px-6">
         {/* Responsive wrapper: matches list (left) + bracket panel (right, lg+) */}
         <div className="flex max-w-7xl lg:max-w-360 mx-auto">
           <main className="flex-1 min-w-0 pt-6 pb-6">
@@ -117,7 +117,6 @@ export default async function HomePage() {
           </aside>
         </div>
       </div>
-
     </>
   );
 }

@@ -40,11 +40,18 @@ function FlagPlaceholder({ muted }: { muted?: boolean }) {
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString([], { month: "short", day: "numeric" });
+  return new Date(dateStr).toLocaleDateString([], {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function formatTime(dateStr: string): string {
-  return new Date(dateStr).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true });
+  return new Date(dateStr).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
 }
 
 export default function ProjectedCard({
@@ -59,8 +66,7 @@ export default function ProjectedCard({
   const displayAway = awayLabel === "TBD" ? t("teamTBC") : awayLabel;
 
   return (
-    <div className="bg-custom-gray-2 py-2 px-1 my-2 grid grid-cols-[1fr_auto_1fr] gap-1 items-center border border-custom-gray-2/20 opacity-90 select-none rounded-md">
-
+    <div className="bg-custom-gray-2 py-2 px-1 my-2 grid grid-cols-[1fr_auto_1fr] gap-1 items-center border border-custom-gray-2/20 opacity-90 select-none rounded-xl">
       {/* home — confirmed group winner */}
       <div className="flex flex-col items-center justify-center gap-1.5 min-w-0 w-full">
         {homeLogo ? <Flag src={homeLogo} /> : <FlagPlaceholder />}
@@ -74,8 +80,12 @@ export default function ProjectedCard({
         <span className="text-gray-200 text-sm font-light">vs</span>
         {fixtureDate ? (
           <>
-            <span className="text-gray-400 text-[10px] whitespace-nowrap">{formatDate(fixtureDate)}</span>
-            <span className="text-gray-200 text-xs font-medium tabular-nums whitespace-nowrap">{formatTime(fixtureDate)}</span>
+            <span className="text-gray-400 text-[10px] whitespace-nowrap">
+              {formatDate(fixtureDate)}
+            </span>
+            <span className="text-gray-200 text-xs font-medium tabular-nums whitespace-nowrap">
+              {formatTime(fixtureDate)}
+            </span>
           </>
         ) : null}
       </div>

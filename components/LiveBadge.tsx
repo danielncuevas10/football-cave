@@ -84,7 +84,7 @@ export default function LiveBadge() {
   return (
     <Link
       href="/league/1"
-      className="relative w-full overflow-hidden rounded-md block"
+      className="relative w-full overflow-hidden rounded-xl block"
     >
       <img
         src="/images/Banner.svg"

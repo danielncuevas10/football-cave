@@ -100,7 +100,7 @@ export default function TournamentMatchesByDay({ matches }: Props) {
 
   if (!matchDays.length) {
     return (
-      <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rounded-md">
+      <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rounded-xl">
         {tTabs("noMatches")}
         <img
           src="/images/specs/clock.svg"
@@ -116,7 +116,7 @@ export default function TournamentMatchesByDay({ matches }: Props) {
   return (
     <div className="space-y-4">
       {/* Day navigation */}
-      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray-2 p-3 rounded-md">
+      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray-2 p-3 rounded-xl">
         <div className="flex items-center justify-between w-full gap-4">
           <div className="flex flex-col items-center gap-1">
             <button
@@ -128,7 +128,10 @@ export default function TournamentMatchesByDay({ matches }: Props) {
                 src="/images/specs/arrow.svg"
                 alt="Previous day"
                 className="w-4.5 h-4.5 object-contain -rotate-270"
-                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "/images/specs/arrow.jpg";
+                }}
               />
             </button>
             <span className="text-[8px] font-light tracking-wide">
@@ -160,7 +163,10 @@ export default function TournamentMatchesByDay({ matches }: Props) {
                 src="/images/specs/arrow.svg"
                 alt="Next day"
                 className="w-4.5 h-4.5 object-contain rotate-270"
-                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/specs/arrow.jpg"; }}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "/images/specs/arrow.jpg";
+                }}
               />
             </button>
             <span className="text-[9px] font-light tracking-wide">
@@ -171,7 +177,7 @@ export default function TournamentMatchesByDay({ matches }: Props) {
       </div>
 
       {/* Match list for the selected day */}
-      <div className="bg-custom-gray rounded-md overflow-hidden divide-y divide-custom-gray/50">
+      <div className="bg-custom-gray rounded-xl overflow-hidden divide-y divide-custom-gray/50">
         {dayMatches.map((match) => (
           <MatchCard key={match.id} match={match} />
         ))}

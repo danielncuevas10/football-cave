@@ -183,7 +183,7 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
         </div>
 
         {/* Card container — clips the slide */}
-        <div className="flex-1 overflow-hidden rounded-md relative bg-custom-gray-2 min-h-0">
+        <div className="flex-1 overflow-hidden rounded-xl relative bg-custom-gray-2 min-h-0">
           {isLive && (
             <div className="hidden md:block h-0.5 overflow-hidden relative">
               <div
@@ -314,7 +314,11 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
               </div>
 
               {/* Bottom: venue — always rendered to keep card height stable */}
-              <div className={`shrink-0 flex items-center gap-1.5 border-t border-custom-gray pt-2 mt-2 ${!(venue?.name || venue?.city) ? "invisible" : ""}`}>
+              <div
+                className={`shrink-0 flex items-center gap-1.5 border-t border-custom-gray pt-2 mt-2 ${
+                  !(venue?.name || venue?.city) ? "invisible" : ""
+                }`}
+              >
                 <img
                   src="/images/stadium.svg"
                   alt=""

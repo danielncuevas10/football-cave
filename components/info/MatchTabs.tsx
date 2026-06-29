@@ -453,7 +453,7 @@ export default function MatchTabs({
         >
           <div className="w-full space-y-2">
             {liveDetails?.events && liveDetails.events.length > 0 ? (
-              <div className="bg-custom-gray-2 rounded-md overflow-hidden">
+              <div className="bg-custom-gray rounded-t-xl overflow-hidden">
                 <div className=" divide-y divide-custom-gray/30">
                   {liveDetails.events.map((ev: MatchEvent, index: number) => {
                     const isOwnGoal =
@@ -544,7 +544,7 @@ export default function MatchTabs({
                       <Fragment key={index}>
                         {/* Start Section Banner */}
                         {showStart && (
-                          <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray rounded-md">
+                          <div className="bg-custom-gray-2 flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray rounded-xl">
                             <img
                               src="/images/specs/clock.svg"
                               alt=""
@@ -591,7 +591,7 @@ export default function MatchTabs({
 
                         {/* Half Time Break Banner */}
                         {showHalfTimeBreak && (
-                          <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest border-y border-custom-gray">
+                          <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest border-y border-custom-gray">
                             <div className="flex items-center gap-2">
                               <img
                                 src="/images/specs/clock.svg"
@@ -919,7 +919,7 @@ export default function MatchTabs({
                   {liveFirstHalfExtra > 0 &&
                     firstHalfAdded === 0 &&
                     !renderedHalfTimeDivider && (
-                      <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
+                      <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest">
                         <img
                           src="/images/specs/clock.svg"
                           alt=""
@@ -935,7 +935,7 @@ export default function MatchTabs({
                   {liveSecondHalfExtra > 0 &&
                     secondHalfAdded === 0 &&
                     !isConfirmedFinished && (
-                      <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
+                      <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest">
                         <img
                           src="/images/specs/clock.svg"
                           alt=""
@@ -967,7 +967,7 @@ export default function MatchTabs({
                   {/* Second half has started but no 2nd-half events yet — show HT break + 2H banner immediately */}
                   {status === "2H" && !renderedHalfTimeDivider && (
                     <>
-                      <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest border-y border-custom-gray">
+                      <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
                         <div className="flex items-center gap-2">
                           <img
                             src="/images/specs/clock.svg"
@@ -980,7 +980,7 @@ export default function MatchTabs({
                           {getScoreAtMinute(45)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
+                      <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest">
                         <img
                           src="/images/specs/clock.svg"
                           alt=""
@@ -993,7 +993,7 @@ export default function MatchTabs({
 
                   {/* End Match Banner with Final Full Time Score */}
                   {isConfirmedFinished && (
-                    <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
+                    <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
                       <div className="flex items-center gap-2">
                         <img
                           src="/images/specs/final.svg"
@@ -1015,7 +1015,7 @@ export default function MatchTabs({
                       shootoutKicks.length > 0) && (
                       <>
                         {/* Shootout header banner */}
-                        <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
+                        <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
                           <div className="flex items-center gap-2">
                             <img
                               src="/images/specs/final.svg"
@@ -1087,7 +1087,7 @@ export default function MatchTabs({
                 </div>
               </div>
             ) : status === "HT" ? (
-              <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
+              <div className="bg-custom-gray-2 rounded-xl border border-custom-gray overflow-hidden">
                 <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
                   <img
                     src="/images/specs/clock.svg"
@@ -1114,7 +1114,7 @@ export default function MatchTabs({
                 </div>
               </div>
             ) : isLive ? (
-              <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
+              <div className="bg-custom-gray-2 rounded-xl border border-custom-gray overflow-hidden">
                 <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
                   <img
                     src="/images/specs/clock.svg"
@@ -1152,7 +1152,7 @@ export default function MatchTabs({
                 )}
               </div>
             ) : (
-              <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
+              <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
                 {tTabs("upcomingMatch")}
                 <img
                   src="/images/specs/clock.svg"
@@ -1163,7 +1163,7 @@ export default function MatchTabs({
             )}
 
             {(venueName || venueCity || referee) && (
-              <div className="px-4 py-6 text-xs text-gray-200 bg-custom-gray-2 rounded-md">
+              <div className="px-4 py-6 text-xs text-gray-200 bg-custom-gray rounded-xl">
                 <div className="flex flex-col gap-2">
                   {(venueName || venueCity) && (
                     <div className="flex items-center gap-2">
@@ -1218,12 +1218,12 @@ export default function MatchTabs({
             activeTab === "table" ? "" : "h-0 overflow-hidden"
           }`}
         >
-          <div className="w-full bg-custom-gray-2 rounded-md overflow-hidden">
+          <div className="w-full bg-custom-gray-2 rounded-xl overflow-hidden">
             <Link href={`/league/${leagueId}`} className="block">
               {isWorldCup ? (
                 <div className="relative">
                   <img
-                    src="/images/WC262nd.svg"
+                    src="/images/WCstandings.svg"
                     alt="FIFA World Cup 2026"
                     className="w-full h-auto object-cover"
                   />

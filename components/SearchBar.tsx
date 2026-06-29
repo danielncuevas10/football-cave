@@ -124,7 +124,7 @@ export default function SearchBar() {
   };
 
   const SkeletonDropdown = () => (
-    <div className="absolute right-0 top-full mt-2 w-64 bg-[#1e1e1e] border border-white/10 rounded-md shadow-2xl z-60 overflow-hidden">
+    <div className="absolute right-0 top-full mt-2 w-64 bg-[#1e1e1e] border border-white/10 rounded-xl shadow-2xl z-60 overflow-hidden">
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="flex items-center gap-3 px-4 py-2.5">
           <div className="w-6 h-6 rounded-full bg-white/10 animate-pulse shrink-0" />
@@ -157,7 +157,7 @@ export default function SearchBar() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Search…"
-            className="bg-[#1a1a1a] border border-white/20 text-white text-sm rounded-md px-3 py-1.5 w-44 outline-none focus:border-white/50 placeholder:text-gray-500 transition-all"
+            className="bg-[#1a1a1a] border border-white/20 text-white text-sm rounded-xl px-3 py-1.5 w-44 outline-none focus:border-white/50 placeholder:text-gray-500 transition-all"
           />
           <button
             onClick={close}
@@ -171,7 +171,7 @@ export default function SearchBar() {
       {open && loading && query.length >= 1 && <SkeletonDropdown />}
 
       {!loading && results.length > 0 && (
-        <div className="absolute right-0 top-full mt-2 w-64 bg-[#1e1e1e] border border-white/10 rounded-md shadow-2xl z-60 overflow-hidden">
+        <div className="absolute right-0 top-full mt-2 w-64 bg-[#1e1e1e] border border-white/10 rounded-xl shadow-2xl z-60 overflow-hidden">
           {results.map((team, i) => (
             <button
               key={team.team_id}
@@ -196,7 +196,7 @@ export default function SearchBar() {
       )}
 
       {open && !loading && query.length >= 1 && results.length === 0 && (
-        <div className="absolute right-0 top-full mt-2 w-64 bg-[#1e1e1e] border border-white/10 rounded-md shadow-2xl z-60 px-4 py-3 text-xs text-gray-200">
+        <div className="absolute right-0 top-full mt-2 w-64 bg-[#1e1e1e] border border-white/10 rounded-xl shadow-2xl z-60 px-4 py-3 text-xs text-gray-200">
           No teams found
         </div>
       )}

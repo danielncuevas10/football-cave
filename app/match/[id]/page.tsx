@@ -31,7 +31,7 @@ function MatchTabsSkeleton() {
       {/* Content rows */}
       <div className="space-y-3">
         {[0, 1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-14 bg-custom-gray rounded-md" />
+          <div key={i} className="h-14 bg-custom-gray rounded-xl" />
         ))}
       </div>
     </div>
@@ -126,7 +126,7 @@ export default async function MatchDetailsPage({
   }
 
   return (
-    <main className="max-w-3xl bg-[#101010] mx-auto py-4 text-white space-y-6">
+    <main className="max-w-3xl bg-background mx-auto py-4 text-white space-y-6">
       <div className="flex justify-start px-4">
         <BackButton />
       </div>

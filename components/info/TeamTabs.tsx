@@ -79,12 +79,7 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
       href={`/match/${match.id}`}
       className="block hover:opacity-90 transition-opacity"
     >
-      <div className="relative bg-[#1a1a1a] border border-[#00A800]/30 rounded-md overflow-hidden">
-        {/* Live indicator dot */}
-        <div className="flex items-center px-4 pt-3 pb-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#00A800] animate-pulse" />
-        </div>
-
+      <div className="relative bg-[#1a1a1a] border rounded-xl overflow-hidden">
         {/* Teams + score */}
         <div className="grid grid-cols-3 items-center gap-2 px-4 pb-4">
           <div className="flex flex-col items-center gap-2">
@@ -346,7 +341,7 @@ export default function TeamTabs({
 
               if (groups.length === 0) {
                 return (
-                  <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rounded-md">
+                  <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rounded-xl">
                     {tTabs("noMatches")}
                   </div>
                 );
@@ -388,7 +383,7 @@ export default function TeamTabs({
                       href={`/match/${nextWcMatch.id}`}
                       className="block hover:opacity-90 transition-opacity"
                     >
-                      <div className="bg-[#303030] rounded-md overflow-hidden px-6 py-6">
+                      <div className="bg-[#303030] rounded-xl overflow-hidden px-6 py-6">
                         <div className="flex flex-col items-center gap-1 mb-4">
                           <p className="text-[10px] text-gray-200 tracking-widest text-center">
                             {t("nextMatch")}
@@ -457,7 +452,7 @@ export default function TeamTabs({
 
                   {/* ── WC badge + all WC matches (upcoming then played) ── */}
                   {wcGroup && (
-                    <div className="bg-custom-gray rounded-md overflow-hidden">
+                    <div className="bg-custom-gray rounded-xl overflow-hidden">
                       <div className="relative">
                         <img
                           src="/images/WC26200nd.svg"
@@ -510,7 +505,7 @@ export default function TeamTabs({
                       return (
                         <div key={group.leagueId} className="space-y-4">
                           {(upcoming.length > 0 || finished.length === 0) && (
-                            <div className="bg-custom-gray rounded-md overflow-hidden">
+                            <div className="bg-custom-gray rounded-xl overflow-hidden">
                               <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
                                 {group.leagueLogo && (
                                   <img
@@ -543,7 +538,7 @@ export default function TeamTabs({
                               <p className="text-[11px] font-light tracking-widest text-gray-300 uppercase px-1">
                                 {t("pastMatches")}
                               </p>
-                              <div className="bg-custom-gray rounded-md overflow-hidden">
+                              <div className="bg-custom-gray rounded-xl overflow-hidden">
                                 <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
                                   {group.leagueLogo && (
                                     <img
@@ -601,7 +596,7 @@ export default function TeamTabs({
                       return (
                         <div
                           key={group.leagueId}
-                          className="bg-custom-gray rounded-md overflow-hidden"
+                          className="bg-custom-gray rounded-xl overflow-hidden"
                         >
                           <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
                             {group.leagueLogo && (

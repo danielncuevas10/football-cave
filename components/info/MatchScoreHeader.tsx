@@ -63,8 +63,8 @@ function StatusLabel({
 
   if (status === "HT")
     return (
-      <span className="text-[#00A800] text-xs uppercase tracking-wider">
-        {tEv("halfTime")}
+      <span className="text-white text-xs font-mono px-1.5 py-0.5 bg-gray-600 rounded-xl">
+        {tEv("halfTimeBadge")}
       </span>
     );
 
@@ -119,6 +119,23 @@ export default function MatchScoreHeader({
     (match.status === "NS" || match.status === "TBD") && !kickoffPassed;
   const isLive = match.is_live || LIVE_STATUSES.includes(match.status);
 
+  const isWcKnockout =
+    (match.league_id === 1 || match.league_id === 10) &&
+    match.stage !== null &&
+    match.stage !== "GROUP" &&
+    match.stage !== "UNKNOWN";
+
+  const canDetermineWinner =
+    isWcKnockout &&
+    !match.is_live &&
+    FINISHED_STATUSES.includes(match.status) &&
+    match.home_score !== null &&
+    match.away_score !== null &&
+    match.home_score !== match.away_score;
+
+  const homeIsLoser = canDetermineWinner && match.home_score! < match.away_score!;
+  const awayIsLoser = canDetermineWinner && match.away_score! < match.home_score!;
+
   // Prefer DB score; fall back to counting goal events (handles sync lag).
   // statistics[0] is always the home team and is more reliably populated than lineups.
   const homeTeamId =
@@ -135,8 +152,8 @@ export default function MatchScoreHeader({
   const hasScore = displayHome !== null && displayAway !== null;
 
   return (
-    <div className="bg-custom-gray-2">
-      <div className="px-6 py-8">
+    <div className="bg-custom-gray">
+      <div className="px-6 py-5">
         <div className="flex flex-col items-center gap-6 w-full">
           <div className="flex flex-col items-center gap-2 w-full">
             {match.league_id === 1 &&
@@ -183,7 +200,7 @@ export default function MatchScoreHeader({
                         />
                       </div>
 
-                      <span className="text-center text-sm leading-tight line-clamp-2">
+                      <span className={`text-center text-sm leading-tight line-clamp-2${homeIsLoser ? " line-through opacity-50" : ""}`}>
                         {getLocalizedTeamName(match.home_team, locale)}
                       </span>
                     </Link>
@@ -196,7 +213,7 @@ export default function MatchScoreHeader({
                         height={40}
                         className="w-15 h-15 object-contain"
                       />
-                      <span className="text-center text-sm leading-tight line-clamp-2">
+                      <span className={`text-center text-sm leading-tight line-clamp-2${homeIsLoser ? " line-through opacity-50" : ""}`}>
                         {getLocalizedTeamName(match.home_team, locale)}
                       </span>
                     </div>
@@ -247,7 +264,7 @@ export default function MatchScoreHeader({
                           className="w-full h-full object-cover  will-change-transform scale-[1.20]"
                         />
                       </div>
-                      <span className="text-center text-sm leading-tight line-clamp-2">
+                      <span className={`text-center text-sm leading-tight line-clamp-2${awayIsLoser ? " line-through opacity-50" : ""}`}>
                         {getLocalizedTeamName(match.away_team, locale)}
                       </span>
                     </Link>
@@ -260,7 +277,7 @@ export default function MatchScoreHeader({
                         height={40}
                         className="w-15 h-15 object-contain"
                       />
-                      <span className="text-center text-sm leading-tight line-clamp-2">
+                      <span className={`text-center text-sm leading-tight line-clamp-2${awayIsLoser ? " line-through opacity-50" : ""}`}>
                         {getLocalizedTeamName(match.away_team, locale)}
                       </span>
                     </div>

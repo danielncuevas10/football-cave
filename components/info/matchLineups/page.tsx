@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl";
 import type { DbMatchDetails, FixtureStatus, TeamLineup } from "@/types/sports";
 
-
 const NOT_STARTED: FixtureStatus[] = ["NS", "TBD"];
 
 interface DetailsProps {
@@ -18,7 +17,7 @@ export default function MatchCenterLinenups({ details, status }: DetailsProps) {
 
   if (!details) {
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
+      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
         {t("notAvailableYet")}
         <img
           src="/images/specs/clock.svg"
@@ -31,7 +30,7 @@ export default function MatchCenterLinenups({ details, status }: DetailsProps) {
 
   if (!details.lineups || details.lineups.length === 0) {
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-md">
+      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
         {t("notAvailableYet")}
         <img
           src="/images/specs/clock.svg"
@@ -55,9 +54,9 @@ export default function MatchCenterLinenups({ details, status }: DetailsProps) {
 
   return (
     <div className="space-y-6 w-full text-white">
-      <div className="bg-custom-gray-2 rounded-md border border-custom-gray overflow-hidden">
+      <div className="bg-custom-gray rounded-xl border border-custom-gray overflow-hidden">
         {/* Main Layout Header */}
-        <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
+        <div className="bg-custom-gray-2 flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
           {matchStarted ? (
             <span>{tTabs("lineups")}</span>
           ) : (

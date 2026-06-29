@@ -9,7 +9,7 @@ export default function About() {
   const tTabs = useTranslations("matchTabs");
 
   return (
-    <section className="px-4 lg:px-6 py-10 border-t border-custom-gray bg-[#303030]">
+    <section className="px-4 lg:px-6 py-10 border-t border-custom-gray bg-custom-gray-2">
       <div className="max-w-7xl lg:max-w-360 mx-auto lg:flex lg:gap-12 lg:items-center">
         <div className="space-y-3 lg:w-1/2">
           <h2 className="text-base font-bold text-white tracking-tight">

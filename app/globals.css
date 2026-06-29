@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #101010;
+  --background: #000000;
   --foreground: #ededed;
-  --custom-gray: #3C3C3C;
+  --custom-gray: #1C1C1E;
   --custom-gray-2: #232323;
   color-scheme: dark;
   --bracket-col-w: 120px;

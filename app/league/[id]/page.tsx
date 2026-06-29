@@ -195,7 +195,7 @@ export default async function LeaguePage({ params }: PageProps) {
     const tBadge = await getTranslations("liveBadge");
 
     return (
-      <div className="bg-[#101010] text-white px-6 min-h-screen">
+      <div className="bg-background text-white px-6 min-h-screen">
         {/* ── Mobile layout ── */}
         <main className="lg:hidden pt-6 pb-6">
           <LeagueTabs
@@ -219,7 +219,7 @@ export default async function LeaguePage({ params }: PageProps) {
           {/* Header row: SVG (left) and carousel (right) share the same CSS grid row
               so they automatically have the same height at every viewport width. */}
           <div className="grid grid-cols-[1fr_42%]">
-            <div className="overflow-hidden rounded-md relative lg:h-full">
+            <div className="overflow-hidden rounded-xl relative lg:h-full">
               <img
                 src="/images/WC26.svg"
                 alt="FIFA World Cup 2026"
@@ -272,7 +272,7 @@ export default async function LeaguePage({ params }: PageProps) {
   }
 
   return (
-    <main className="max-w-3xl bg-[#101010] mx-auto p-6 text-white min-h-screen">
+    <main className="max-w-3xl bg-background mx-auto p-6 text-white min-h-screen">
       <LeagueTabs
         standings={standings}
         scorers={scorers}
@@ -289,7 +289,7 @@ export default async function LeaguePage({ params }: PageProps) {
 function CarouselSkeleton() {
   return (
     <div className="flex flex-col gap-3 animate-pulse flex-1">
-      <div className="flex-1 rounded-md bg-custom-gray" />
+      <div className="flex-1 rounded-xl bg-custom-gray" />
     </div>
   );
 }

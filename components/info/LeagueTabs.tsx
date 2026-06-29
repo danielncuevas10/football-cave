@@ -55,41 +55,44 @@ export default function LeagueTabs({
       : []),
   ];
 
-  const defaultHeader = leagueId === League.WorldCup ? (
-    <>
-      <div className="lg:hidden"><BackButton /></div>
-      <div className="-mx-6 mt-.5 overflow-hidden relative lg:mx-0 lg:rounded-md lg:mt-0!">
-        <img
-          src="/images/WC26.svg"
-          alt="FIFA World Cup 2026"
-          className="w-full h-auto object-cover"
-        />
-        <span className="absolute inset-0 flex items-center justify-center text-black text-[11px] lg:text-[18px] font-sans font-medium tracking-[0.5em] uppercase pointer-events-none">
-          {tBadge("worldCup")}
-        </span>
-      </div>
-    </>
-  ) : (
-    <>
-      <BackButton />
-      <div className="flex items-center gap-4 p-4 bg-custom-gray rounded-md border border-custom-gray-2">
-        {leagueLogo && (
-          <Image
-            src={leagueLogo}
-            alt={leagueName}
-            width={50}
-            height={50}
-            className="object-contain w-15 h-12"
-          />
-        )}
-        <div>
-          <h1 className="text-xl font-extrabold tracking-tight">
-            {leagueName}
-          </h1>
+  const defaultHeader =
+    leagueId === League.WorldCup ? (
+      <>
+        <div className="lg:hidden">
+          <BackButton />
         </div>
-      </div>
-    </>
-  );
+        <div className="-mx-6 mt-.5 overflow-hidden relative lg:mx-0 lg:rounded-xl lg:mt-0!">
+          <img
+            src="/images/WC26.svg"
+            alt="FIFA World Cup 2026"
+            className="w-full h-auto object-cover"
+          />
+          <span className="absolute inset-0 flex items-center justify-center text-black text-[11px] lg:text-[18px] font-sans font-medium tracking-[0.5em] uppercase pointer-events-none">
+            {tBadge("worldCup")}
+          </span>
+        </div>
+      </>
+    ) : (
+      <>
+        <BackButton />
+        <div className="flex items-center gap-4 p-4 bg-custom-gray rounded-xl border border-custom-gray-2">
+          {leagueLogo && (
+            <Image
+              src={leagueLogo}
+              alt={leagueName}
+              width={50}
+              height={50}
+              className="object-contain w-15 h-12"
+            />
+          )}
+          <div>
+            <h1 className="text-xl font-extrabold tracking-tight">
+              {leagueName}
+            </h1>
+          </div>
+        </div>
+      </>
+    );
 
   return (
     <div className="space-y-6 w-full text-white">

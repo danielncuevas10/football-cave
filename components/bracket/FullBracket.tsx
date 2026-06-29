@@ -109,7 +109,7 @@ export default function FullBracket({
         <div className="flex justify-end">
           <Link
             href="/bracket"
-            className="inline-flex items-center text-xs text-gray-200 hover:text-white transition-colors  lg:bg-custom-gray lg:p-3 lg:rounded-md lg:text-white lg:hover:bg-white lg:hover:text-black"
+            className="inline-flex items-center text-xs text-gray-200 hover:text-white transition-colors  lg:bg-custom-gray lg:p-3 lg:rounded-xl lg:text-white lg:hover:bg-white lg:hover:text-black"
           >
             <span>{t("viewBracket")}</span>
             <img
