@@ -102,6 +102,8 @@ export async function POST(req: NextRequest) {
       away_logo: m.teams.away.logo ?? null,
       home_score: m.goals.home,
       away_score: m.goals.away,
+      penalty_home: m.score.penalty.home ?? null,
+      penalty_away: m.score.penalty.away ?? null,
       status: m.fixture.status.short as DbMatch["status"],
       fixture_date: m.fixture.date,
       league_id: m.league.id,
@@ -182,6 +184,8 @@ export async function POST(req: NextRequest) {
           .update({
             home_score: finalData.goals.home,
             away_score: finalData.goals.away,
+            penalty_home: finalData.score.penalty.home ?? null,
+            penalty_away: finalData.score.penalty.away ?? null,
             status: finalData.fixture.status.short,
             elapsed: finalData.fixture.status.elapsed,
             is_live: false,

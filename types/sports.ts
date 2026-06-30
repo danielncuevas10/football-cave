@@ -129,6 +129,8 @@ export interface DbMatch {
     away_logo: string | null
     home_score: number | null
     away_score: number | null
+    penalty_home?: number | null
+    penalty_away?: number | null
     status: FixtureStatus
     fixture_date: string
     league_id: number

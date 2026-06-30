@@ -104,25 +104,40 @@ export default function BracketMatchCard({ match }: { match: DbMatch }) {
   const isConfirmedFinished =
     !match.is_live && FINISHED_STATUSES.includes(match.status);
 
+  const hasPenWinner =
+    match.status === "PEN" &&
+    match.penalty_home != null &&
+    match.penalty_away != null &&
+    match.penalty_home !== match.penalty_away;
+
+  const showPenScore =
+    match.status === "PEN" &&
+    match.penalty_home != null &&
+    match.penalty_away != null;
+
   const canDetermineWinner =
     isConfirmedFinished &&
     match.home_score !== null &&
     match.away_score !== null &&
-    match.home_score !== match.away_score;
+    (match.home_score !== match.away_score || hasPenWinner);
 
   const homeIsLoser =
-    canDetermineWinner && match.home_score! < match.away_score!;
+    canDetermineWinner &&
+    (match.home_score! < match.away_score! ||
+      (hasPenWinner && match.penalty_home! < match.penalty_away!));
   const awayIsLoser =
-    canDetermineWinner && match.away_score! < match.home_score!;
+    canDetermineWinner &&
+    (match.away_score! < match.home_score! ||
+      (hasPenWinner && match.penalty_away! < match.penalty_home!));
 
   return (
     <Link
       href={`/match/${match.id}`}
       className="block hover:opacity-90 transition-opacity will-change-transform"
     >
-      <div className="bg-custom-gray-2 py-2 lg:py-3 px-1 lg:px-3 grid grid-cols-[1fr_auto_1fr] gap-1 lg:gap-2 items-center border border-custom-gray/5 rounded-xl">
+      <div className="bg-custom-gray-2 h-14 lg:h-20 px-1 lg:px-3 grid grid-cols-[1fr_auto_1fr] gap-1 lg:gap-2 items-center border border-custom-gray/5 rounded-xl">
         {/* Home: flag + name below */}
-        <div className="flex flex-col items-center gap-1.5 min-w-0">
+        <div className={`flex flex-col items-center gap-1.5 min-w-0 transition-opacity${homeIsLoser ? " opacity-50" : ""}`}>
           {match.home_logo ? (
             <Flag src={match.home_logo} isWc={isWc} />
           ) : (
@@ -130,7 +145,7 @@ export default function BracketMatchCard({ match }: { match: DbMatch }) {
           )}
           <span
             className={`hidden md:block w-full text-center text-[8px] font-light text-gray-200 truncate${
-              homeIsLoser ? " line-through opacity-50" : ""
+              homeIsLoser ? " line-through" : ""
             }`}
           >
             {getLocalizedTeamName(match.home_team, locale)}
@@ -169,8 +184,13 @@ export default function BracketMatchCard({ match }: { match: DbMatch }) {
                 </span>
               </div>
               {isConfirmedFinished && (
-                <span className="text-gray-200 text-[8px] lg:text-[10px] uppercase tracking-wider">
+                <span className="text-gray-200 text-[6px] lg:text-[8px] uppercase tracking-wider">
                   {tEv("ftLabel")}
+                </span>
+              )}
+              {showPenScore && (
+                <span className="text-gray-300 text-[6px] lg:text-[8px] font-mono tabular-nums">
+                  {tEv("penLabel")} {match.penalty_home}–{match.penalty_away}
                 </span>
               )}
             </>
@@ -180,7 +200,7 @@ export default function BracketMatchCard({ match }: { match: DbMatch }) {
         </div>
 
         {/* Away: flag + name below */}
-        <div className="flex flex-col items-center gap-1.5 min-w-0">
+        <div className={`flex flex-col items-center gap-1.5 min-w-0 transition-opacity${awayIsLoser ? " opacity-50" : ""}`}>
           {match.away_logo ? (
             <Flag src={match.away_logo} isWc={isWc} />
           ) : (
@@ -188,7 +208,7 @@ export default function BracketMatchCard({ match }: { match: DbMatch }) {
           )}
           <span
             className={`hidden md:block w-full text-center text-[8px] font-light text-gray-200 truncate${
-              awayIsLoser ? " line-through opacity-50" : ""
+              awayIsLoser ? " line-through" : ""
             }`}
           >
             {getLocalizedTeamName(match.away_team, locale)}

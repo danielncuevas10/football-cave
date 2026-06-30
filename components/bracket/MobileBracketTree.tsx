@@ -83,8 +83,15 @@ function CompactSlot({ slot }: { slot: ResolvedSlot }) {
   const homeScore = match?.home_score ?? null;
   const awayScore = match?.away_score ?? null;
   const hasScore = homeScore !== null && awayScore !== null;
-  const homeWon = hasScore && homeScore! > awayScore!;
-  const awayWon = hasScore && awayScore! > homeScore!;
+  const hasPenWinner =
+    match?.status === "PEN" &&
+    match.penalty_home != null &&
+    match.penalty_away != null &&
+    match.penalty_home !== match.penalty_away;
+  const homeWon = hasScore &&
+    (homeScore! > awayScore! || (hasPenWinner && match!.penalty_home! > match!.penalty_away!));
+  const awayWon = hasScore &&
+    (awayScore! > homeScore! || (hasPenWinner && match!.penalty_away! > match!.penalty_home!));
 
   return (
     <div className="bg-custom-gray-2 border border-gray-700/40 rounded overflow-hidden w-full my-1">
@@ -140,7 +147,7 @@ function CompactSlot({ slot }: { slot: ResolvedSlot }) {
 // ─── Column of evenly-spaced slots ───────────────────────────────────────────
 // justify-content: space-around places each card center exactly at cy(i, n)
 // regardless of card height — the math holds for any uniform card height.
-function SlotCol({ slots, n }: { slots: ResolvedSlot[]; n: number }) {
+function SlotCol({ slots }: { slots: ResolvedSlot[]; n: number }) {
   return (
     <div
       style={{

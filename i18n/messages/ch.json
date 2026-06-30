@@ -89,7 +89,9 @@
     "varYellowCardUpgrade": "黄牌 – VAR",
     "inPlayer": "上场",
     "outPlayer": "下场",
-    "unknownPlayer": "未知"
+    "unknownPlayer": "未知",
+    "penLabel": "点球",
+    "penaltyShootoutFinished": "点球大战结束"
   },
   "matchDetails": {
     "matchOverview": "比赛概览",

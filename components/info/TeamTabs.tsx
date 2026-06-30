@@ -287,9 +287,9 @@ export default function TeamTabs({
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 text-center py-3 text-xs font-light tracking-wider border-b transition-all duration-200 ${
+                  className={`flex-1 text-center py-4 text-xs font-light tracking-wider border-b transition-all duration-200 ${
                     isActive
-                      ? "border-white text-white"
+                      ? "text-white"
                       : "border-transparent text-gray-200 hover:text-white hover:bg-custom-gray/50"
                   }`}
                 >

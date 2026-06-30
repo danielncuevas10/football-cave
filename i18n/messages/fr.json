@@ -89,7 +89,9 @@
     "varYellowCardUpgrade": "Carton jaune – VAR",
     "inPlayer": "Entrant",
     "outPlayer": "Sortant",
-    "unknownPlayer": "Inconnu"
+    "unknownPlayer": "Inconnu",
+    "penLabel": "Tab",
+    "penaltyShootoutFinished": "Tirs au but terminés"
   },
   "matchDetails": {
     "matchOverview": "Résumé du match",

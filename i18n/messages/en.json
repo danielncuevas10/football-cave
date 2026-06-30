@@ -78,6 +78,7 @@
     "penaltyGoal": "Penalty goal",
     "missedPenalty": "Missed penalty",
     "ftLabel": "FT",
+    "penLabel": "Pen",
     "ownGoal": "Own Goal",
     "penaltyCancelled": "Penalty cancelled",
     "varGoalDisallowedHandball": "Goal Disallowed – Handball",
@@ -89,7 +90,8 @@
     "varYellowCardUpgrade": "Yellow Card – VAR",
     "inPlayer": "In",
     "outPlayer": "Out",
-    "unknownPlayer": "Unknown"
+    "unknownPlayer": "Unknown",
+    "penaltyShootoutFinished": "Penalty Shootout Finished"
   },
   "matchDetails": {
     "matchOverview": "Match Overview",

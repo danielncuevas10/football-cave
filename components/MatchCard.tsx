@@ -82,8 +82,28 @@ export default function MatchCard({ match }: { match: DbMatch }) {
     match.stage !== "GROUP" &&
     match.stage !== "UNKNOWN";
 
-  const homeIsLoser = isWcKnockout && hasScore && match.home_score! < match.away_score!;
-  const awayIsLoser = isWcKnockout && hasScore && match.away_score! < match.home_score!;
+  // Use != null (loose) to handle undefined when DB columns don't exist yet
+  const hasPenWinner =
+    match.status === "PEN" &&
+    match.penalty_home != null &&
+    match.penalty_away != null &&
+    match.penalty_home !== match.penalty_away;
+
+  const homeIsLoser =
+    isWcKnockout &&
+    hasScore &&
+    (match.home_score! < match.away_score! ||
+      (hasPenWinner && match.penalty_home! < match.penalty_away!));
+  const awayIsLoser =
+    isWcKnockout &&
+    hasScore &&
+    (match.away_score! < match.home_score! ||
+      (hasPenWinner && match.penalty_away! < match.penalty_home!));
+
+  const showPenScore =
+    (match.status === "PEN" || match.status === "P") &&
+    match.penalty_home != null &&
+    match.penalty_away != null;
 
   return (
     <Link
@@ -164,6 +184,11 @@ export default function MatchCard({ match }: { match: DbMatch }) {
           {isConfirmedFinished && (
             <span className="text-gray-200 text-[8px] lg:text-[10px] uppercase tracking-wider">
               {tEv("ftLabel")}
+            </span>
+          )}
+          {showPenScore && (
+            <span className="text-gray-300 text-[9px] font-mono tabular-nums">
+              {tEv("penLabel")} {match.penalty_home}–{match.penalty_away}
             </span>
           )}
         </div>

@@ -299,6 +299,27 @@ export default function MatchTabs({
     ? localStandings.filter((s) => s.group_name === matchGroupName)
     : localStandings;
 
+  const homeGroupName = isWorldCup
+    ? localStandings.find((s) => s.team_id === homeTeamId)?.group_name ??
+      localStandings.find((s) => s.team_name === homeTeamName)?.group_name ??
+      null
+    : null;
+  const awayGroupName = isWorldCup
+    ? localStandings.find((s) => s.team_name === awayTeamName)?.group_name ??
+      null
+    : null;
+  const isDualGroup = !!(
+    homeGroupName &&
+    awayGroupName &&
+    homeGroupName !== awayGroupName
+  );
+  const homeGroupStandings = homeGroupName
+    ? localStandings.filter((s) => s.group_name === homeGroupName)
+    : [];
+  const awayGroupStandings = awayGroupName
+    ? localStandings.filter((s) => s.group_name === awayGroupName)
+    : [];
+
   const isPenStatus = status === "P" || status === "PEN";
 
   const getScoreAtMinute = (minute: number): string => {
@@ -423,6 +444,12 @@ export default function MatchTabs({
       )
     : [];
 
+  const penFinalScore = penaltyResultEvent
+    ? penaltyResultEvent.detail
+    : shootoutKicks.length > 0 && homeTeamId
+    ? `${shootoutKicks.filter((k) => k.detail === "Penalty" && k.team.id === homeTeamId).length}–${shootoutKicks.filter((k) => k.detail === "Penalty" && k.team.id !== homeTeamId).length}`
+    : null;
+
   return (
     <div className="space-y-6 w-full px-4">
       {/* Tabs Navigation Links Row */}
@@ -453,7 +480,7 @@ export default function MatchTabs({
         >
           <div className="w-full space-y-2">
             {liveDetails?.events && liveDetails.events.length > 0 ? (
-              <div className="bg-custom-gray rounded-t-xl overflow-hidden">
+              <div className="bg-custom-gray rounded-xl overflow-hidden">
                 <div className=" divide-y divide-custom-gray/30">
                   {liveDetails.events.map((ev: MatchEvent, index: number) => {
                     const isOwnGoal =
@@ -1015,7 +1042,7 @@ export default function MatchTabs({
                       shootoutKicks.length > 0) && (
                       <>
                         {/* Shootout header banner */}
-                        <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
+                        <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
                           <div className="flex items-center gap-2">
                             <img
                               src="/images/specs/final.svg"
@@ -1082,6 +1109,23 @@ export default function MatchTabs({
                             </div>
                           );
                         })}
+
+                        {/* Penalty Shootout Finished Banner */}
+                        {penFinalScore && (
+                          <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
+                            <div className="flex items-center gap-2">
+                              <img
+                                src="/images/specs/final.svg"
+                                alt=""
+                                className="w-3.5 h-3.5 object-contain"
+                              />
+                              <span>{tEv("penaltyShootoutFinished")}</span>
+                            </div>
+                            <span className="font-mono text-sm font-bold text-gray-200 mt-0.5">
+                              {penFinalScore}
+                            </span>
+                          </div>
+                        )}
                       </>
                     )}
                 </div>
@@ -1249,11 +1293,26 @@ export default function MatchTabs({
               )}
             </Link>
             {isWorldCup ? (
-              <WorldCupGroups
-                standings={groupStandings}
-                allStandings={localStandings}
-                hideLegends
-              />
+              isDualGroup ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-.5">
+                  <WorldCupGroups
+                    standings={homeGroupStandings}
+                    allStandings={localStandings}
+                    hideLegends
+                  />
+                  <WorldCupGroups
+                    standings={awayGroupStandings}
+                    allStandings={localStandings}
+                    hideLegends
+                  />
+                </div>
+              ) : (
+                <WorldCupGroups
+                  standings={groupStandings}
+                  allStandings={localStandings}
+                  hideLegends
+                />
+              )
             ) : (
               <StandingsTable standings={localStandings} />
             )}

@@ -66,7 +66,7 @@ export default function ProjectedCard({
   const displayAway = awayLabel === "TBD" ? t("teamTBC") : awayLabel;
 
   return (
-    <div className="bg-custom-gray-2 py-2 px-1 my-2 grid grid-cols-[1fr_auto_1fr] gap-1 items-center border border-custom-gray-2/20 opacity-90 select-none rounded-xl">
+    <div className="bg-custom-gray-2 h-14 lg:h-20 px-1 grid grid-cols-[1fr_auto_1fr] gap-1 items-center border border-custom-gray-2/20 opacity-90 select-none rounded-xl">
       {/* home — confirmed group winner */}
       <div className="flex flex-col items-center justify-center gap-1.5 min-w-0 w-full">
         {homeLogo ? <Flag src={homeLogo} /> : <FlagPlaceholder />}

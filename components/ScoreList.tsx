@@ -114,8 +114,19 @@ export default function ScoreList({ initialMatches }: Props) {
     return d !== 0 ? d : a.id - b.id;
   });
 
-  // Filter ALL matches down to the selected calendar day first
+  // A match is live if the DB says so OR if its status is an active live status.
+  // This catches matches where is_live was not written correctly by the cron.
+  const isMatchLive = (m: DbMatch) =>
+    m.is_live || LIVE_STATUSES.includes(m.status);
+
+  // Filter ALL matches down to the selected calendar day.
+  // Exception: live matches that kicked off before midnight always surface on
+  // today's view so users don't have to navigate to "yesterday" to find them.
+  const isViewingToday =
+    currentDate.toDateString() === new Date().toDateString();
+
   const matchesForDate = merged.filter((m) => {
+    if (isViewingToday && isMatchLive(m)) return true;
     const matchDate = new Date(m.fixture_date);
     return (
       matchDate.getDate() === currentDate.getDate() &&
@@ -123,11 +134,6 @@ export default function ScoreList({ initialMatches }: Props) {
       matchDate.getFullYear() === currentDate.getFullYear()
     );
   });
-
-  // A match is live if the DB says so OR if its status is an active live status.
-  // This catches matches where is_live was not written correctly by the cron.
-  const isMatchLive = (m: DbMatch) =>
-    m.is_live || LIVE_STATUSES.includes(m.status);
 
   const live = matchesForDate.filter(isMatchLive);
   const scheduledOrFinished = matchesForDate.filter((m) => !isMatchLive(m));

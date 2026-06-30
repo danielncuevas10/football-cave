@@ -89,7 +89,9 @@
     "varYellowCardUpgrade": "Κίτρινη κάρτα – VAR",
     "inPlayer": "Εισερχόμενος",
     "outPlayer": "Εξερχόμενος",
-    "unknownPlayer": "Άγνωστος"
+    "unknownPlayer": "Άγνωστος",
+    "penLabel": "Pen",
+    "penaltyShootoutFinished": "Λήξη διαδικασίας πέναλτι"
   },
   "matchDetails": {
     "matchOverview": "Επισκόπηση αγώνα",

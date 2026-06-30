@@ -89,7 +89,9 @@
     "varYellowCardUpgrade": "옐로카드 – VAR",
     "inPlayer": "교체 인",
     "outPlayer": "교체 아웃",
-    "unknownPlayer": "알 수 없음"
+    "unknownPlayer": "알 수 없음",
+    "penLabel": "PK",
+    "penaltyShootoutFinished": "승부차기 종료"
   },
   "matchDetails": {
     "matchOverview": "경기 개요",

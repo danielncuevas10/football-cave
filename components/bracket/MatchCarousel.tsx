@@ -120,6 +120,28 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
   const isLive = LIVE_STATUSES.includes(match.status);
   const hasScore = match.home_score !== null && match.away_score !== null;
 
+  const isPen = match.status === "PEN";
+  const hasPenWinner =
+    isPen &&
+    match.penalty_home != null &&
+    match.penalty_away != null &&
+    match.penalty_home !== match.penalty_away;
+  const showPenScore =
+    isPen && match.penalty_home != null && match.penalty_away != null;
+  const canDetermineWinner =
+    isFinished &&
+    match.home_score !== null &&
+    match.away_score !== null &&
+    (match.home_score !== match.away_score || hasPenWinner);
+  const homeIsLoser =
+    canDetermineWinner &&
+    (match.home_score! < match.away_score! ||
+      (hasPenWinner && match.penalty_home! < match.penalty_away!));
+  const awayIsLoser =
+    canDetermineWinner &&
+    (match.away_score! < match.home_score! ||
+      (hasPenWinner && match.penalty_away! < match.penalty_home!));
+
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString([], {
       weekday: "short",
@@ -216,7 +238,7 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
               <div className="flex-1 flex items-center">
                 <div className="grid grid-cols-3 items-start gap-2 w-full">
                   {/* Home */}
-                  <div className="flex flex-col items-center gap-1.5">
+                  <div className={`flex flex-col items-center gap-1.5 transition-opacity${homeIsLoser ? " opacity-50" : ""}`}>
                     <div className="w-15 h-10 overflow-hidden relative border border-gray-300 rounded-tr-md rounded-bl-md shrink-0">
                       <Image
                         src={match.home_logo || "/images/specs/placeholder.svg"}
@@ -226,15 +248,18 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                         sizes="60px"
                       />
                     </div>
-                    <span className="text-[11px] text-center leading-tight line-clamp-2 text-white font-medium">
+                    <span className={`text-[11px] text-center leading-tight line-clamp-2 text-white font-medium${homeIsLoser ? " line-through" : ""}`}>
                       {getLocalizedTeamName(match.home_team, locale)}
                     </span>
                     <div className="min-h-10.5">
                       {isFinished &&
-                        matchGoals?.home.slice(0, 3).map((g, i) => (
+                        matchGoals?.home
+                          .filter((g) => !isPen || g.minute < 120)
+                          .slice(0, 3)
+                          .map((g, i) => (
                           <div
                             key={i}
-                            className="flex items-center justify-center gap-0.5 w-full px-1 leading-tight"
+                            className="flex items-center justify-start gap-0.5 w-full px-1 leading-tight"
                           >
                             <img
                               src={
@@ -271,10 +296,20 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                           : "LIVE"}
                       </span>
                     )}
+                    {isFinished && (
+                      <span className="text-gray-200 text-[10px] uppercase tracking-wider leading-none">
+                        {tEv("ftLabel")}
+                      </span>
+                    )}
+                    {showPenScore && (
+                      <span className="text-gray-300 text-[10px] font-mono tabular-nums leading-none">
+                        {tEv("penLabel")} {match.penalty_home}–{match.penalty_away}
+                      </span>
+                    )}
                   </div>
 
                   {/* Away */}
-                  <div className="flex flex-col items-center gap-1.5">
+                  <div className={`flex flex-col items-center gap-1.5 transition-opacity${awayIsLoser ? " opacity-50" : ""}`}>
                     <div className="w-15 h-10 overflow-hidden relative border border-gray-300 rounded-tr-md rounded-bl-md shrink-0">
                       <Image
                         src={match.away_logo || "/images/specs/placeholder.svg"}
@@ -284,15 +319,18 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                         sizes="60px"
                       />
                     </div>
-                    <span className="text-[11px] text-center leading-tight line-clamp-2 text-white font-medium">
+                    <span className={`text-[11px] text-center leading-tight line-clamp-2 text-white font-medium${awayIsLoser ? " line-through" : ""}`}>
                       {getLocalizedTeamName(match.away_team, locale)}
                     </span>
                     <div className="min-h-10.5">
                       {isFinished &&
-                        matchGoals?.away.slice(0, 3).map((g, i) => (
+                        matchGoals?.away
+                          .filter((g) => !isPen || g.minute < 120)
+                          .slice(0, 3)
+                          .map((g, i) => (
                           <div
                             key={i}
-                            className="flex items-center justify-center gap-0.5 w-full px-1 leading-tight"
+                            className="flex items-center justify-start gap-0.5 w-full px-1 leading-tight"
                           >
                             <img
                               src={

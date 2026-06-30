@@ -89,7 +89,9 @@
     "varYellowCardUpgrade": "イエローカード – VAR",
     "inPlayer": "交代出場",
     "outPlayer": "交代退場",
-    "unknownPlayer": "不明"
+    "unknownPlayer": "不明",
+    "penLabel": "PK",
+    "penaltyShootoutFinished": "PK戦終了"
   },
   "matchDetails": {
     "matchOverview": "試合概要",

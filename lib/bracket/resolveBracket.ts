@@ -192,14 +192,23 @@ export function resolveBracket(
   // ── Pre-pass: derive winners/losers from finished matches ─────────────────
   // Populates slotWinners/slotLosers so resolveRef can propagate them to
   // later rounds (e.g. R32 winner shows in the R16 card before fixture exists).
-  // PEN excluded — home_score/away_score reflect AET draw, winner is unknowable.
-  const FINISHED_STATUSES = new Set(["FT", "AET"]);
+  const FINISHED_STATUSES = new Set(["FT", "AET", "PEN"]);
 
   function setWinnerLoser(defId: string, m: DbMatch) {
     if (!FINISHED_STATUSES.has(m.status)) return;
     if (m.home_score === null || m.away_score === null) return;
-    if (m.home_score === m.away_score) return; // draw / PEN placeholder
-    const homeWon = m.home_score > m.away_score;
+
+    let homeWon: boolean;
+    if (m.status === "PEN") {
+      // Regular scores tied after extra time — decide by penalty shootout score
+      if (m.penalty_home == null || m.penalty_away == null) return;
+      if (m.penalty_home === m.penalty_away) return;
+      homeWon = m.penalty_home > m.penalty_away;
+    } else {
+      if (m.home_score === m.away_score) return;
+      homeWon = m.home_score > m.away_score;
+    }
+
     slotWinners.set(defId, homeWon
       ? { label: m.home_team, logo: m.home_logo ?? null }
       : { label: m.away_team, logo: m.away_logo ?? null });

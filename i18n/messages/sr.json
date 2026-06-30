@@ -89,7 +89,9 @@
     "varYellowCardUpgrade": "Žuti karton – VAR",
     "inPlayer": "Ulazi",
     "outPlayer": "Izlazi",
-    "unknownPlayer": "Nepoznat"
+    "unknownPlayer": "Nepoznat",
+    "penLabel": "Pen",
+    "penaltyShootoutFinished": "Izvođenje penala završeno"
   },
   "matchDetails": {
     "matchOverview": "Pregled utakmice",

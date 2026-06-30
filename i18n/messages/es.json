@@ -89,7 +89,9 @@
     "varYellowCardUpgrade": "Tarjeta amarilla – VAR",
     "inPlayer": "Entra",
     "outPlayer": "Sale",
-    "unknownPlayer": "Desconocido"
+    "unknownPlayer": "Desconocido",
+    "penLabel": "Pen",
+    "penaltyShootoutFinished": "Tanda de penaltis finalizada"
   },
   "matchDetails": {
     "matchOverview": "Resumen del partido",

@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import type { DbMatch, FixtureStatus } from "@/types/sports";
 
 interface TournamentBracketProps {
@@ -54,6 +54,8 @@ function formatKickoff(dateStr: string): string {
 }
 
 export default function TournamentBracket({ matches }: TournamentBracketProps) {
+  const tEv = useTranslations("matchEvents");
+
   return (
     <div className="w-full min-w-0">
       <div className="space-y-12">
@@ -147,7 +149,7 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
 
                       {/* Leg Rows rendered side-by-side using the 12-Column Grid system */}
                       <div className="space-y-1">
-                        {sortedLegs.map((leg, index) => {
+                        {sortedLegs.map((leg) => {
                           const isScheduled =
                             leg.status === "NS" || leg.status === "TBD";
 
@@ -187,17 +189,26 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
                                       {formatKickoff(leg.fixture_date)}
                                     </span>
                                   ) : (
-                                    <div className="flex items-center gap-1.5 justify-center">
-                                      <span className="text-xl font-extrabold tabular-nums text-white">
-                                        {leg.home_score ?? 0}
-                                      </span>
-                                      <span className="text-gray-600 text-md font-bold">
-                                        –
-                                      </span>
-                                      <span className="text-xl font-extrabold tabular-nums text-white">
-                                        {leg.away_score ?? 0}
-                                      </span>
-                                    </div>
+                                    <>
+                                      <div className="flex items-center gap-1.5 justify-center">
+                                        <span className="text-xl font-extrabold tabular-nums text-white">
+                                          {leg.home_score ?? 0}
+                                        </span>
+                                        <span className="text-gray-600 text-md font-bold">
+                                          –
+                                        </span>
+                                        <span className="text-xl font-extrabold tabular-nums text-white">
+                                          {leg.away_score ?? 0}
+                                        </span>
+                                      </div>
+                                      {leg.status === "PEN" &&
+                                        leg.penalty_home != null &&
+                                        leg.penalty_away != null && (
+                                          <span className="text-gray-400 text-xs font-mono tabular-nums">
+                                            {tEv("penLabel")} {leg.penalty_home}–{leg.penalty_away}
+                                          </span>
+                                        )}
+                                    </>
                                   )}
                                 </div>
 

@@ -26,12 +26,46 @@ function scoreFromEvents(
   let away = 0;
   events.forEach((ev) => {
     if (ev.type !== "Goal" || ev.detail === "Missed Penalty") return;
-    // The API places every goal event (including own goals) under the
-    // benefiting team's ID, so count directly by team without flipping.
     const isHome = homeTeamId ? ev.team.id === homeTeamId : false;
     if (isHome) home++;
     else away++;
   });
+  return { home, away };
+}
+
+// Derive penalty shootout score from match_details events.
+// Tries the synthetic "penaltyResult" event first (added when the API doesn't
+// provide individual kicks), then counts individual kicks as fallback.
+function penaltyScoreFromEvents(
+  events: MatchEvent[],
+  homeTeamId: number | undefined
+): { home: number; away: number } | null {
+  // synthetic penaltyResult event: detail is "4–3" (en-dash)
+  const resultEv = events.find((e) => e.type === "penaltyResult");
+  if (resultEv) {
+    const parts = resultEv.detail.split(/[–\-]/);
+    if (parts.length === 2) {
+      const h = parseInt(parts[0].trim(), 10);
+      const a = parseInt(parts[1].trim(), 10);
+      if (!isNaN(h) && !isNaN(a)) return { home: h, away: a };
+    }
+  }
+
+  // Individual kicks (elapsed >= 120)
+  const kicks = events.filter(
+    (e) =>
+      e.type === "Goal" &&
+      (e.detail === "Penalty" || e.detail === "Missed Penalty") &&
+      e.time.elapsed >= 120
+  );
+  if (kicks.length === 0 || !homeTeamId) return null;
+
+  const home = kicks.filter(
+    (k) => k.team.id === homeTeamId && k.detail === "Penalty"
+  ).length;
+  const away = kicks.filter(
+    (k) => k.team.id !== homeTeamId && k.detail === "Penalty"
+  ).length;
   return { home, away };
 }
 
@@ -93,6 +127,8 @@ export default function MatchScoreHeader({
   const tTabs = useTranslations("matchTabs");
   const locale = useLocale();
   const [match, setMatch] = useState(initialMatch);
+  // Penalty score derived from match_details events (reliable for all past + live PEN matches)
+  const [penScore, setPenScore] = useState<{ home: number; away: number } | null>(null);
 
   useEffect(() => {
     const channel = supabase
@@ -114,6 +150,61 @@ export default function MatchScoreHeader({
     };
   }, [match.id]);
 
+  // Fetch penalty score via the events API (same route MatchTabs already uses).
+  // This is the most reliable source: covers finished matches (PEN) and live
+  // shootouts (P) regardless of whether the DB penalty_home/penalty_away columns exist.
+  // Direct client-side Supabase reads for match_details are blocked by RLS,
+  // so we always go through the API route here.
+  useEffect(() => {
+    const isPen = match.status === "PEN" || match.status === "P";
+    if (!isPen) return;
+
+    // DB columns take priority when populated (after migration + cron backfill).
+    if (match.penalty_home != null && match.penalty_away != null) {
+      setPenScore({ home: match.penalty_home, away: match.penalty_away });
+      return;
+    }
+
+    // Fall back to deriving from events.
+    const logoHomeId = teamIdFromLogo(match.home_logo) ?? undefined;
+
+    fetch(`/api/match/${match.id}/events`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: DbMatchDetails | null) => {
+        if (!data?.events) return;
+        // Prefer team ID from lineups/statistics; fall back to logo URL.
+        const detailsHomeId =
+          data.lineups?.[0]?.team?.id ?? data.statistics?.[0]?.team?.id;
+        const homeTeamId = detailsHomeId ?? logoHomeId;
+        const score = penaltyScoreFromEvents(data.events, homeTeamId);
+        if (score) setPenScore(score);
+      })
+      .catch(() => {});
+  }, [match.id, match.status, match.home_logo, match.penalty_home, match.penalty_away]);
+
+  // Re-poll every 60 s during a live shootout (status "P") so the count
+  // updates as the cron writes fresh kick events to match_details.
+  useEffect(() => {
+    if (match.status !== "P") return;
+
+    const logoHomeId = teamIdFromLogo(match.home_logo) ?? undefined;
+
+    const poll = async () => {
+      const res = await fetch(`/api/match/${match.id}/events`).catch(() => null);
+      if (!res?.ok) return;
+      const data: DbMatchDetails | null = await res.json().catch(() => null);
+      if (!data?.events) return;
+      const detailsHomeId =
+        data.lineups?.[0]?.team?.id ?? data.statistics?.[0]?.team?.id;
+      const homeTeamId = detailsHomeId ?? logoHomeId;
+      const score = penaltyScoreFromEvents(data.events, homeTeamId);
+      if (score) setPenScore(score);
+    };
+
+    const id = setInterval(poll, 60_000);
+    return () => clearInterval(id);
+  }, [match.id, match.status, match.home_logo]);
+
   const kickoffPassed = new Date(match.fixture_date) < new Date();
   const isScheduled =
     (match.status === "NS" || match.status === "TBD") && !kickoffPassed;
@@ -125,19 +216,33 @@ export default function MatchScoreHeader({
     match.stage !== "GROUP" &&
     match.stage !== "UNKNOWN";
 
+  const isPenFinished = match.status === "PEN" && !match.is_live;
+  const hasPenaltyWinner =
+    isPenFinished &&
+    penScore !== null &&
+    penScore.home !== penScore.away;
+
   const canDetermineWinner =
     isWcKnockout &&
     !match.is_live &&
     FINISHED_STATUSES.includes(match.status) &&
     match.home_score !== null &&
     match.away_score !== null &&
-    match.home_score !== match.away_score;
+    (match.home_score !== match.away_score || hasPenaltyWinner);
 
-  const homeIsLoser = canDetermineWinner && match.home_score! < match.away_score!;
-  const awayIsLoser = canDetermineWinner && match.away_score! < match.home_score!;
+  const homeIsLoser =
+    canDetermineWinner &&
+    (match.home_score! < match.away_score! ||
+      (hasPenaltyWinner && penScore!.home < penScore!.away));
+  const awayIsLoser =
+    canDetermineWinner &&
+    (match.away_score! < match.home_score! ||
+      (hasPenaltyWinner && penScore!.away < penScore!.home));
+
+  const showPenScore =
+    (match.status === "PEN" || match.status === "P") && penScore !== null;
 
   // Prefer DB score; fall back to counting goal events (handles sync lag).
-  // statistics[0] is always the home team and is more reliably populated than lineups.
   const homeTeamId =
     details?.lineups?.[0]?.team?.id ?? details?.statistics?.[0]?.team?.id;
   const derived =
@@ -145,7 +250,6 @@ export default function MatchScoreHeader({
       ? scoreFromEvents(details.events, homeTeamId)
       : null;
 
-  // For officially-finished matches with no score data at all, default to 0-0.
   const finishedFallback = FINISHED_STATUSES.includes(match.status) ? 0 : null;
   const displayHome = match.home_score ?? derived?.home ?? finishedFallback;
   const displayAway = match.away_score ?? derived?.away ?? finishedFallback;
@@ -194,8 +298,8 @@ export default function MatchScoreHeader({
                         <Image
                           src={match.home_logo || "/placeholder.png"}
                           alt=""
-                          width={72} // Matches w-18 (72px) for Next.js optimization
-                          height={48} // Matches h-12 (48px) for Next.js optimization
+                          width={72}
+                          height={48}
                           className="w-full h-full object-cover  will-change-transform scale-[1.20]"
                         />
                       </div>
@@ -233,6 +337,11 @@ export default function MatchScoreHeader({
                         <span className="text-gray-300 text-sm">–</span>
                       )}
                     </div>
+                    {showPenScore && (
+                      <span className="text-gray-300 text-xs font-mono tabular-nums">
+                        {tEv("penLabel")} {penScore!.home}–{penScore!.away}
+                      </span>
+                    )}
                     {!match.is_live &&
                     FINISHED_STATUSES.includes(match.status) ? (
                       <span className="text-gray-200 text-xs tracking-wider">
@@ -259,8 +368,8 @@ export default function MatchScoreHeader({
                         <Image
                           src={match.away_logo || "/placeholder.png"}
                           alt=""
-                          width={72} // Matches w-18 (72px) for Next.js optimization
-                          height={48} // Matches h-12 (48px) for Next.js optimization
+                          width={72}
+                          height={48}
                           className="w-full h-full object-cover  will-change-transform scale-[1.20]"
                         />
                       </div>

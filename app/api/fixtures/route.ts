@@ -57,21 +57,23 @@ export async function GET(req: NextRequest) {
   }
 
   const rows: Omit<DbMatch, "updated_at">[] = fresh.response.map(m => ({
-    id: m.fixture.id,
-    home_team: m.teams.home.name,
-    away_team: m.teams.away.name,
-    home_logo: m.teams.home.logo,
-    away_logo: m.teams.away.logo,
-    home_score: m.goals.home,
-    away_score: m.goals.away,
-    status: m.fixture.status.short as DbMatch["status"],
+    id:           m.fixture.id,
+    home_team:    m.teams.home.name,
+    away_team:    m.teams.away.name,
+    home_logo:    m.teams.home.logo,
+    away_logo:    m.teams.away.logo,
+    home_score:   m.goals.home,
+    away_score:   m.goals.away,
+    penalty_home: m.score.penalty.home ?? null,
+    penalty_away: m.score.penalty.away ?? null,
+    status:       m.fixture.status.short as DbMatch["status"],
     fixture_date: m.fixture.date,
-    league_id: m.league.id,
-    league_name: m.league.name,
-    league_logo: m.league.logo ?? null,
-    round: m.league.round,
-    elapsed: m.fixture.status.elapsed,
-    is_live: LIVE_STATUSES.includes(m.fixture.status.short as any),
+    league_id:    m.league.id,
+    league_name:  m.league.name,
+    league_logo:  m.league.logo ?? null,
+    round:        m.league.round,
+    elapsed:      m.fixture.status.elapsed,
+    is_live:      LIVE_STATUSES.includes(m.fixture.status.short as any),
   }))
 
   await supabaseAdmin

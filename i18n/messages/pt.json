@@ -89,7 +89,9 @@
     "varYellowCardUpgrade": "Cartão amarelo – VAR",
     "inPlayer": "Entra",
     "outPlayer": "Sai",
-    "unknownPlayer": "Desconhecido"
+    "unknownPlayer": "Desconhecido",
+    "penLabel": "Pen",
+    "penaltyShootoutFinished": "Disputa de pênaltis encerrada"
   },
   "matchDetails": {
     "matchOverview": "Resumo do jogo",

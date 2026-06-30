@@ -89,7 +89,9 @@
     "varYellowCardUpgrade": "Sarı kart – VAR",
     "inPlayer": "Giren",
     "outPlayer": "Çıkan",
-    "unknownPlayer": "Bilinmiyor"
+    "unknownPlayer": "Bilinmiyor",
+    "penLabel": "Pen",
+    "penaltyShootoutFinished": "Penaltı atışları bitti"
   },
   "matchDetails": {
     "matchOverview": "Maç Özeti",
