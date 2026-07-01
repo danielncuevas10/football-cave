@@ -9,7 +9,7 @@ import BracketBottomSheet from "@/components/bracket/BracketBottomSheet";
 import ConsentBanner from "@/components/ConsentBanner";
 import { Analytics } from "@vercel/analytics/next";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,38 +21,43 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://footballcave.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://football-cave.com";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: "Football Cave",
-  description: "Check the latest matches",
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  const description = t("siteDescription");
+
+  return {
+    metadataBase: new URL(siteUrl),
     title: "Football Cave",
-    description: "Check the latest matches",
-    url: siteUrl,
-    siteName: "Football Cave",
-    images: [
-      {
-        url: "/icon.jpg",
-        width: 138,
-        height: 138,
-        alt: "Football Cave – Live Scores",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary",
-    title: "Football Cave",
-    description: "Check the latest matches",
-    images: ["/icon.jpg"],
-  },
-  icons: {
-    icon: "/icon.svg",
-    shortcut: "/icon.svg",
-  },
-};
+    description,
+    openGraph: {
+      title: "Football Cave",
+      description,
+      url: siteUrl,
+      siteName: "Football Cave",
+      images: [
+        {
+          url: "/icon.jpg",
+          width: 138,
+          height: 138,
+          alt: "Football Cave – Live Scores",
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title: "Football Cave",
+      description,
+      images: ["/icon.jpg"],
+    },
+    icons: {
+      icon: "/icon.svg",
+      shortcut: "/icon.svg",
+    },
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -88,9 +93,7 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <TopNav />
-          <div className="flex-1 min-h-screen pb-16 lg:pb-0">
-            {children}
-          </div>
+          <div className="flex-1 min-h-screen pb-16 lg:pb-0">{children}</div>
           <BracketBottomSheet />
           <div className="mt-auto">
             <About />
