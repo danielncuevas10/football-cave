@@ -32,6 +32,27 @@ function findMatchByTeams(
   );
 }
 
+// For R16+ slots: find the fixture whose teams match the resolved labels.
+// Exact both-team match first; single-team fallback when one side is still TBD.
+function findFixtureForLabels(
+  pool: DbMatch[],
+  homeLabel: string,
+  awayLabel: string
+): DbMatch | null {
+  if (homeLabel === "TBD" && awayLabel === "TBD") return null;
+  if (homeLabel !== "TBD" && awayLabel !== "TBD") {
+    return (
+      pool.find(
+        (m) =>
+          (m.home_team === homeLabel && m.away_team === awayLabel) ||
+          (m.home_team === awayLabel && m.away_team === homeLabel)
+      ) ?? null
+    );
+  }
+  const known = homeLabel !== "TBD" ? homeLabel : awayLabel;
+  return pool.find((m) => m.home_team === known || m.away_team === known) ?? null;
+}
+
 function isR32(m: DbMatch): boolean {
   const r = (m.round ?? "").toLowerCase();
   return r.includes("32");
@@ -171,21 +192,14 @@ export function resolveBracket(
     return { label: "TBD", logo: null, standing: null };
   }
 
-  // ── Pre-built match queues for each post-R32 stage ────────────────────────
-  const queues = {
+  // ── Fixture pools for each post-R32 stage ────────────────────────────────
+  const pools = {
     R16: matchesByStage(matches, "R16"),
     QF: matchesByStage(matches, "QF"),
     SF: matchesByStage(matches, "SF"),
     FINAL: matchesByStage(matches, "FINAL"),
     THIRD: matchesByStage(matches, "THIRD"),
   } as const;
-  const qIdx: Record<string, number> = {
-    R16: 0,
-    QF: 0,
-    SF: 0,
-    FINAL: 0,
-    THIRD: 0,
-  };
 
   const r32Pool = matches.filter(isR32);
 
@@ -231,15 +245,17 @@ export function resolveBracket(
     if (m) setWinnerLoser(def.id, m);
   }
 
-  // R16+ — assign sequentially by queue (separate index counters from main pass)
-  const preIdx: Record<string, number> = { R16: 0, QF: 0, SF: 0, FINAL: 0, THIRD: 0 };
+  // R16+ — match each slot to its fixture by expected team names.
+  // Processing in definition order ensures winner propagation cascades correctly:
+  // R16 slot winners are in slotWinners before QF slots need them, etc.
   for (const def of ALL_BRACKET_DEFS) {
     if (def.round === "R32") continue;
-    const key = def.round as keyof typeof queues;
-    const q = queues[key];
-    if (!q) continue;
-    const idx = preIdx[key]++;
-    if (idx < q.length) setWinnerLoser(def.id, q[idx]);
+    const pool = pools[def.round as keyof typeof pools];
+    if (!pool) continue;
+    const homeInfo = resolveRef(def.home, def.id);
+    const awayInfo = resolveRef(def.away, def.id);
+    const m = findFixtureForLabels(pool, homeInfo.label, awayInfo.label);
+    if (m) setWinnerLoser(def.id, m);
   }
 
   // ── Map each definition to a ResolvedSlot ─────────────────────────────────
@@ -275,14 +291,11 @@ export function resolveBracket(
         }
       }
     } else {
-      const stageKey = def.round as keyof typeof queues;
-      const queue = queues[stageKey];
-      const idx = qIdx[stageKey];
-      if (queue && idx < queue.length) {
-        match = queue[idx];
-        qIdx[stageKey]++;
+      const pool = pools[def.round as keyof typeof pools];
+      if (pool) {
+        match = findFixtureForLabels(pool, homeInfo.label, awayInfo.label);
       }
-      fixtureDate = match?.fixture_date ?? null;
+      fixtureDate = match?.fixture_date ?? def.scheduledDate ?? null;
     }
 
     const homeLabel = match ? match.home_team : homeInfo.label;

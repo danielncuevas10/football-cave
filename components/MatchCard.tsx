@@ -41,7 +41,7 @@ function StatusBadge({
     case "2H":
     case "ET":
       return (
-        <span className="text-white text-xs font-mono px-1.5 py-1.5 bg-[#00A800] rounded-xl">
+        <span className="text-white text-[6px] lg:text-xs font-mono px-1.5 py-1.5 bg-[#00A800] rounded-2xl">
           {minute}′
         </span>
       );
@@ -130,7 +130,11 @@ export default function MatchCard({ match }: { match: DbMatch }) {
             !isWcKnockout && homeDim ? "opacity-70" : ""
           }`}
         >
-          <span className={`text-xs lg:text-md font-medium text-right leading-tight line-clamp-2${homeIsLoser ? " line-through opacity-50" : ""}`}>
+          <span
+            className={`text-xs lg:text-md font-medium text-right leading-tight line-clamp-2${
+              homeIsLoser ? " line-through opacity-50" : ""
+            }`}
+          >
             {getLocalizedTeamName(match.home_team, locale)}
           </span>
           {match.home_logo &&
@@ -226,7 +230,11 @@ export default function MatchCard({ match }: { match: DbMatch }) {
                 />
               </div>
             ))}
-          <span className={`text-xs lg:text-md font-medium text-left leading-tight line-clamp-2${awayIsLoser ? " line-through opacity-50" : ""}`}>
+          <span
+            className={`text-xs lg:text-md font-medium text-left leading-tight line-clamp-2${
+              awayIsLoser ? " line-through opacity-50" : ""
+            }`}
+          >
             {getLocalizedTeamName(match.away_team, locale)}
           </span>
         </div>

@@ -126,35 +126,49 @@ const R32_THIRDS: BracketMatchDef[] = [
 // Pairings follow the official FIFA WC 2026 bracket draw.
 // Left half: T4/T6 → R16_1, F1/F2 → R16_2, F5/F6 → R16_3, T3/T5 → R16_4
 // Right half: F3/F4 → R16_5, T1/T8 → R16_6, F7/F8 → R16_7, T2/T7 → R16_8
+//
+// scheduledDate: official FIFA kickoff in UTC ISO format, published before
+// teams are known. Overridden automatically once the real API fixture arrives.
 
 const R16_SLOTS: BracketMatchDef[] = [
-  { id: "R16_1", round: "R16", label: "W(R32_T4) v W(R32_T6)", home: { type: "winner", slotId: "R32_T4" }, away: { type: "winner", slotId: "R32_T6" } },
-  { id: "R16_2", round: "R16", label: "W(R32_F1) v W(R32_F2)", home: { type: "winner", slotId: "R32_F1" }, away: { type: "winner", slotId: "R32_F2" } },
-  { id: "R16_3", round: "R16", label: "W(R32_F5) v W(R32_F6)", home: { type: "winner", slotId: "R32_F5" }, away: { type: "winner", slotId: "R32_F6" } },
-  { id: "R16_4", round: "R16", label: "W(R32_T3) v W(R32_T5)", home: { type: "winner", slotId: "R32_T3" }, away: { type: "winner", slotId: "R32_T5" } },
-  { id: "R16_5", round: "R16", label: "W(R32_F3) v W(R32_F4)", home: { type: "winner", slotId: "R32_F3" }, away: { type: "winner", slotId: "R32_F4" } },
-  { id: "R16_6", round: "R16", label: "W(R32_T1) v W(R32_T8)", home: { type: "winner", slotId: "R32_T1" }, away: { type: "winner", slotId: "R32_T8" } },
-  { id: "R16_7", round: "R16", label: "W(R32_F7) v W(R32_F8)", home: { type: "winner", slotId: "R32_F7" }, away: { type: "winner", slotId: "R32_F8" } },
-  { id: "R16_8", round: "R16", label: "W(R32_T2) v W(R32_T7)", home: { type: "winner", slotId: "R32_T2" }, away: { type: "winner", slotId: "R32_T7" } },
+  { id: "R16_1", round: "R16", label: "W(R32_T4) v W(R32_T6)", scheduledDate: "2026-07-04T17:00:00+00:00", home: { type: "winner", slotId: "R32_T4" }, away: { type: "winner", slotId: "R32_T6" } },
+  { id: "R16_2", round: "R16", label: "W(R32_F1) v W(R32_F2)", scheduledDate: "2026-07-04T21:00:00+00:00", home: { type: "winner", slotId: "R32_F1" }, away: { type: "winner", slotId: "R32_F2" } },
+  { id: "R16_3", round: "R16", label: "W(R32_F5) v W(R32_F6)", scheduledDate: "2026-07-05T20:00:00+00:00", home: { type: "winner", slotId: "R32_F5" }, away: { type: "winner", slotId: "R32_F6" } },
+  { id: "R16_4", round: "R16", label: "W(R32_T3) v W(R32_T5)", scheduledDate: "2026-07-06T00:00:00+00:00", home: { type: "winner", slotId: "R32_T3" }, away: { type: "winner", slotId: "R32_T5" } },
+  { id: "R16_5", round: "R16", label: "W(R32_F3) v W(R32_F4)", scheduledDate: "2026-07-06T19:00:00+00:00", home: { type: "winner", slotId: "R32_F3" }, away: { type: "winner", slotId: "R32_F4" } },
+  { id: "R16_6", round: "R16", label: "W(R32_T1) v W(R32_T8)", scheduledDate: "2026-07-07T00:00:00+00:00", home: { type: "winner", slotId: "R32_T1" }, away: { type: "winner", slotId: "R32_T8" } },
+  { id: "R16_7", round: "R16", label: "W(R32_F7) v W(R32_F8)", scheduledDate: "2026-07-07T16:00:00+00:00", home: { type: "winner", slotId: "R32_F7" }, away: { type: "winner", slotId: "R32_F8" } },
+  { id: "R16_8", round: "R16", label: "W(R32_T2) v W(R32_T7)", scheduledDate: "2026-07-07T20:00:00+00:00", home: { type: "winner", slotId: "R32_T2" }, away: { type: "winner", slotId: "R32_T7" } },
 ];
 
 // ─── Quarter-Finals ───────────────────────────────────────────────────────────
+// July 9–11 per official schedule (4 PM ET / 3 PM ET / 5 PM ET / 9 PM ET → UTC)
+
+const QF_SCHEDULED: string[] = [
+  "2026-07-09T20:00:00+00:00",
+  "2026-07-10T19:00:00+00:00",
+  "2026-07-11T21:00:00+00:00",
+  "2026-07-12T01:00:00+00:00",
+];
 
 const QF_SLOTS: BracketMatchDef[] = Array.from({ length: 4 }, (_, i) => ({
   id: `QF_${i + 1}`,
   round: "QF" as const,
   label: `W(R16_${i * 2 + 1}) v W(R16_${i * 2 + 2})`,
+  scheduledDate: QF_SCHEDULED[i],
   home: { type: "winner" as const, slotId: `R16_${i * 2 + 1}` },
   away: { type: "winner" as const, slotId: `R16_${i * 2 + 2}` },
 }));
 
 // ─── Semi-Finals ─────────────────────────────────────────────────────────────
+// July 14 & 15 at 3 PM ET (19:00 UTC)
 
 const SF_SLOTS: BracketMatchDef[] = [
   {
     id: "SF_1",
     round: "SF",
     label: "W(QF_1) v W(QF_2)",
+    scheduledDate: "2026-07-14T19:00:00+00:00",
     home: { type: "winner", slotId: "QF_1" },
     away: { type: "winner", slotId: "QF_2" },
   },
@@ -162,18 +176,21 @@ const SF_SLOTS: BracketMatchDef[] = [
     id: "SF_2",
     round: "SF",
     label: "W(QF_3) v W(QF_4)",
+    scheduledDate: "2026-07-15T19:00:00+00:00",
     home: { type: "winner", slotId: "QF_3" },
     away: { type: "winner", slotId: "QF_4" },
   },
 ];
 
 // ─── Final + 3rd-Place Playoff ────────────────────────────────────────────────
+// July 18 5 PM ET (21:00 UTC) and July 19 3 PM ET (19:00 UTC) at MetLife Stadium
 
 const FINAL_SLOTS: BracketMatchDef[] = [
   {
     id: "FINAL",
     round: "FINAL",
     label: "W(SF_1) v W(SF_2)",
+    scheduledDate: "2026-07-19T19:00:00+00:00",
     home: { type: "winner", slotId: "SF_1" },
     away: { type: "winner", slotId: "SF_2" },
   },
@@ -181,6 +198,7 @@ const FINAL_SLOTS: BracketMatchDef[] = [
     id: "THIRD",
     round: "THIRD",
     label: "L(SF_1) v L(SF_2)",
+    scheduledDate: "2026-07-18T21:00:00+00:00",
     home: { type: "loser", slotId: "SF_1" },
     away: { type: "loser", slotId: "SF_2" },
   },

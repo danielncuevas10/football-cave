@@ -20,6 +20,10 @@ export interface BracketMatchDef {
   label: string;
   home: SlotRef;
   away: SlotRef;
+  // Official FIFA scheduled kickoff (ISO 8601 UTC). Used as a fallback
+  // fixtureDate when the real DB fixture does not exist yet. Overridden
+  // automatically once the API creates the real fixture.
+  scheduledDate?: string;
 }
 
 export type ThirdsSlotStatus = "locked" | "projected" | "tbd";

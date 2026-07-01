@@ -19,6 +19,7 @@ const springTransition = {
 export default function BracketSlot({ slot }: BracketSlotProps) {
   const { match, homeLabel, awayLabel, homeLogo, awayLogo, fixtureDate, thirdsResolution } = slot;
   const isProjected = !match && thirdsResolution?.slotStatus === "projected";
+  const isFinal = slot.def.round === "FINAL";
 
   return (
     <div className="will-change-transform">
@@ -32,7 +33,7 @@ export default function BracketSlot({ slot }: BracketSlotProps) {
             transition={springTransition}
             className="will-change-transform"
           >
-            <BracketMatchCard match={match} />
+            <BracketMatchCard match={match} isFinal={isFinal} />
           </motion.div>
         ) : isProjected ? (
           <motion.div
@@ -48,6 +49,7 @@ export default function BracketSlot({ slot }: BracketSlotProps) {
               homeLogo={homeLogo}
               awayLogo={awayLogo}
               fixtureDate={fixtureDate}
+              isFinal={isFinal}
             />
           </motion.div>
         ) : (
@@ -64,6 +66,7 @@ export default function BracketSlot({ slot }: BracketSlotProps) {
               homeLogo={homeLogo}
               awayLogo={awayLogo}
               fixtureDate={fixtureDate}
+              isFinal={isFinal}
             />
           </motion.div>
         )}

@@ -78,7 +78,7 @@ function LiveBadge({
     case "2H":
     case "ET":
       return (
-        <span className="text-white text-xs font-mono px-1.5 py-1.5 bg-[#00A800] rounded-xl">
+        <span className="text-white text-[6px] font-mono px-1.5 py-1.5 bg-[#00A800] rounded-2xl">
           {minute}′
         </span>
       );
@@ -93,7 +93,13 @@ function LiveBadge({
   }
 }
 
-export default function BracketMatchCard({ match }: { match: DbMatch }) {
+export default function BracketMatchCard({
+  match,
+  isFinal = false,
+}: {
+  match: DbMatch;
+  isFinal?: boolean;
+}) {
   const tEv = useTranslations("matchEvents");
   const locale = useLocale();
   const isWc = match.league_id === 1 || match.league_id === 10;
@@ -135,18 +141,26 @@ export default function BracketMatchCard({ match }: { match: DbMatch }) {
       href={`/match/${match.id}`}
       className="block hover:opacity-90 transition-opacity will-change-transform"
     >
-      <div className="bg-custom-gray-2 h-14 lg:h-20 px-1 lg:px-3 grid grid-cols-[1fr_auto_1fr] gap-1 lg:gap-2 items-center border border-custom-gray/5 rounded-xl">
+      <div
+        className={`${
+          isFinal ? "bg-[#C5A059]/50" : "bg-custom-gray-2"
+        } h-14 lg:h-20 px-1 lg:px-3 grid grid-cols-[1fr_auto_1fr] gap-1 lg:gap-2 items-center border border-custom-gray/5 rounded-xl`}
+      >
         {/* Home: flag + name below */}
-        <div className={`flex flex-col items-center gap-1.5 min-w-0 transition-opacity${homeIsLoser ? " opacity-50" : ""}`}>
+        <div
+          className={`flex flex-col items-center gap-1.5 min-w-0 transition-opacity${
+            homeIsLoser ? " opacity-50" : ""
+          }`}
+        >
           {match.home_logo ? (
             <Flag src={match.home_logo} isWc={isWc} />
           ) : (
             <FlagPlaceholder />
           )}
           <span
-            className={`hidden md:block w-full text-center text-[8px] font-light text-gray-200 truncate${
-              homeIsLoser ? " line-through" : ""
-            }`}
+            className={`hidden md:block w-full text-center text-[8px] truncate${
+              isFinal ? " font-bold text-white" : " font-light text-gray-200"
+            }${homeIsLoser ? " line-through" : ""}`}
           >
             {getLocalizedTeamName(match.home_team, locale)}
           </span>
@@ -165,51 +179,55 @@ export default function BracketMatchCard({ match }: { match: DbMatch }) {
           )}
           {isScheduled ? (
             <>
-              <span className="text-gray-400 text-[8px] lg:text-[10px] whitespace-nowrap">
+              <span className={`text-[8px] lg:text-[10px] whitespace-nowrap${isFinal ? " text-white font-bold" : " text-gray-400"}`}>
                 {formatDate(match.fixture_date)}
               </span>
-              <span className="text-gray-200 text-[8px] lg:text-[10px] font-medium tabular-nums whitespace-nowrap">
+              <span className={`text-[8px] lg:text-[10px] tabular-nums whitespace-nowrap${isFinal ? " text-white font-bold" : " text-gray-200 font-medium"}`}>
                 {formatTime(match.fixture_date)}
               </span>
             </>
           ) : match.home_score !== null && match.away_score !== null ? (
             <>
               <div className="flex items-center gap-1 justify-center">
-                <span className="text-xs font-bold tabular-nums">
+                <span className={`text-xs font-bold tabular-nums${isFinal ? " text-white" : ""}`}>
                   {match.home_score}
                 </span>
                 <span className="text-gray-600 font-bold text-sm">–</span>
-                <span className="text-xs font-bold tabular-nums">
+                <span className={`text-xs font-bold tabular-nums${isFinal ? " text-white" : ""}`}>
                   {match.away_score}
                 </span>
               </div>
               {isConfirmedFinished && (
-                <span className="text-gray-200 text-[6px] lg:text-[8px] uppercase tracking-wider">
+                <span className={`text-[6px] lg:text-[8px] uppercase tracking-wider${isFinal ? " text-white font-bold" : " text-gray-200"}`}>
                   {tEv("ftLabel")}
                 </span>
               )}
               {showPenScore && (
-                <span className="text-gray-300 text-[6px] lg:text-[8px] font-mono tabular-nums">
+                <span className={`text-[6px] lg:text-[8px] font-mono tabular-nums${isFinal ? " text-white" : " text-gray-300"}`}>
                   {tEv("penLabel")} {match.penalty_home}–{match.penalty_away}
                 </span>
               )}
             </>
           ) : (
-            <span className="text-gray-300 text-sm font-medium">–</span>
+            <span className={`text-sm font-medium${isFinal ? " text-white" : " text-gray-300"}`}>–</span>
           )}
         </div>
 
         {/* Away: flag + name below */}
-        <div className={`flex flex-col items-center gap-1.5 min-w-0 transition-opacity${awayIsLoser ? " opacity-50" : ""}`}>
+        <div
+          className={`flex flex-col items-center gap-1.5 min-w-0 transition-opacity${
+            awayIsLoser ? " opacity-50" : ""
+          }`}
+        >
           {match.away_logo ? (
             <Flag src={match.away_logo} isWc={isWc} />
           ) : (
             <FlagPlaceholder />
           )}
           <span
-            className={`hidden md:block w-full text-center text-[8px] font-light text-gray-200 truncate${
-              awayIsLoser ? " line-through" : ""
-            }`}
+            className={`hidden md:block w-full text-center text-[8px] truncate${
+              isFinal ? " font-bold text-white" : " font-light text-gray-200"
+            }${awayIsLoser ? " line-through" : ""}`}
           >
             {getLocalizedTeamName(match.away_team, locale)}
           </span>

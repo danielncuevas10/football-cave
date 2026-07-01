@@ -10,6 +10,7 @@ interface Props {
   isWorldCup?: boolean;
   defaultView?: "current" | "allTime";
   channelId?: string;
+  leagueId?: number;
 }
 
 // ─── All-time WC data ────────────────────────────────────────────────────────
@@ -157,6 +158,7 @@ export default function TopScorers({
   isWorldCup = false,
   defaultView = "current",
   channelId = "top-scorers-live",
+  leagueId: leagueIdProp,
 }: Props) {
   const t = useTranslations("matchTabs");
   const tDetails = useTranslations("matchDetails");
@@ -164,11 +166,30 @@ export default function TopScorers({
   const [view, setView] = useState<"current" | "allTime">(defaultView);
   const [liveScorers, setLiveScorers] = useState<DbTopScorer[]>(scorers);
 
+  // Resolve league ID from prop or from the scorers data itself
+  const effectiveLeagueId = leagueIdProp ?? scorers[0]?.league_id ?? null;
+
   useEffect(() => {
     setLiveScorers(scorers);
   }, [scorers]);
 
+  // Fetch fresh scorers on mount so ISR-cached server data doesn't cause stale display
   useEffect(() => {
+    if (!effectiveLeagueId) return;
+    supabase
+      .from("top_scorers")
+      .select("*")
+      .eq("league_id", effectiveLeagueId)
+      .gt("goals", 0)
+      .order("goals", { ascending: false })
+      .limit(20)
+      .then(({ data }) => {
+        if (data && data.length > 0) setLiveScorers(data as DbTopScorer[]);
+      });
+  }, [effectiveLeagueId]);
+
+  useEffect(() => {
+    if (!effectiveLeagueId) return;
     // Each mount gets a UUID-suffixed channel name so simultaneous instances
     // (mobile + desktop LeagueTabs both in the DOM) and Strict Mode double-mounts
     // never share a Supabase channel — Date.now() isn't enough since both effects
@@ -181,7 +202,7 @@ export default function TopScorers({
           event: "*",
           schema: "public",
           table: "top_scorers",
-          filter: "league_id=eq.1",
+          filter: `league_id=eq.${effectiveLeagueId}`,
         },
         (payload) => {
           const updated = payload.new as DbTopScorer;
@@ -208,7 +229,7 @@ export default function TopScorers({
       channel.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, [channelId]);
+  }, [channelId, effectiveLeagueId]);
 
   if (!liveScorers || liveScorers.length === 0) {
     return (

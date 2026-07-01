@@ -854,7 +854,7 @@ export default function MatchTabs({
                                       <img
                                         src={getEventIcon(ev.type, ev.detail)}
                                         alt=""
-                                        className="w-5.5 h-5.5 object-contain"
+                                        className={`w-5.5 h-5.5 object-contain${isSubstitution ? " rotate-180" : ""}`}
                                       />
                                     </span>
                                   </div>

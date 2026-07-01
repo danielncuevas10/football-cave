@@ -51,12 +51,12 @@ function TeamLogo({
   const cls = size === "md" ? "w-12 h-8" : "w-9 h-6";
   const inner = isFlag(logo) ? (
     <div
-      className={`${cls} shrink-0 bg-cover bg-center border border-gray-300 rounded-tr-md rounded-bl-md`}
+      className={`${cls} shrink-0 bg-cover bg-center rounded-tr-md rounded-bl-md`}
       style={{ backgroundImage: `url(${resolveFlag(logo)})` }}
     />
   ) : (
     <div
-      className={`${cls} overflow-hidden shrink-0 border border-gray-300 rounded-tr-md rounded-bl-md`}
+      className={`${cls} overflow-hidden shrink-0 rounded-tr-md rounded-bl-md`}
     >
       <img
         src={logo}
@@ -79,7 +79,7 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
       href={`/match/${match.id}`}
       className="block hover:opacity-90 transition-opacity"
     >
-      <div className="relative bg-[#1a1a1a] border rounded-xl overflow-hidden">
+      <div className="relative bg-[#1a1a1a] rounded-xl overflow-hidden">
         {/* Teams + score */}
         <div className="grid grid-cols-3 items-center gap-2 px-4 pb-4">
           <div className="flex flex-col items-center gap-2">
@@ -99,7 +99,7 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
               </span>
             </div>
             {showMinute && (
-              <span className="text-[#00A800] text-xs font-mono tabular-nums">
+              <span className="text-[#00A800] text-[10px] font-mono tabular-nums">
                 {minute}′
               </span>
             )}
@@ -383,7 +383,7 @@ export default function TeamTabs({
                       href={`/match/${nextWcMatch.id}`}
                       className="block hover:opacity-90 transition-opacity"
                     >
-                      <div className="bg-[#303030] rounded-xl overflow-hidden px-6 py-6">
+                      <div className="bg-custom-gray-2 rounded-xl overflow-hidden px-6 py-6">
                         <div className="flex flex-col items-center gap-1 mb-4">
                           <p className="text-[10px] text-gray-200 tracking-widest text-center">
                             {t("nextMatch")}

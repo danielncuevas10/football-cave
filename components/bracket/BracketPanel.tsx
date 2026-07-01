@@ -67,7 +67,7 @@ export default function BracketPanel({
         )}
         {activeTab === "scorers" && (
           <div className="flex-1 overflow-y-auto">
-            <TopScorers scorers={wcScorers} isWorldCup defaultView="allTime" />
+            <TopScorers scorers={wcScorers} isWorldCup defaultView="allTime" leagueId={1} />
           </div>
         )}
         {activeTab === "best3rd" && (

@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   for (const leagueId of TRACKED_LEAGUE_IDS) {
     const [upcoming, recent] = await Promise.all([
-      footballApi.fixturesByLeague({ league: leagueId, season, next: 10 }),
+      footballApi.fixturesByLeague({ league: leagueId, season, next: 20 }),
       footballApi.fixturesByLeague({ league: leagueId, season, last: 5 }),
     ])
 

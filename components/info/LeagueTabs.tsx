@@ -150,6 +150,7 @@ export default function LeagueTabs({
           <TopScorers
             scorers={scorers ?? []}
             isWorldCup={leagueId === League.WorldCup}
+            leagueId={leagueId}
           />
         </div>
 
