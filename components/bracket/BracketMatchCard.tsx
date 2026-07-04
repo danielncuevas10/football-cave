@@ -34,7 +34,7 @@ function Flag({ src, isWc }: { src: string; isWc?: boolean }) {
     return (
       <div
         className={`w-6 h-4 lg:w-10 lg:h-6 shrink-0 bg-cover bg-center bg-no-repeat bg-origin-border${
-          isWc ? " border border-gray-300 rounded-tr-md rounded-bl-md" : ""
+          isWc ? " border border-gray-300 rounded-tr-lg rounded-bl-lg" : ""
         }`}
         style={{ backgroundImage: `url(${resolveFlag(src)})` }}
       />
@@ -43,7 +43,7 @@ function Flag({ src, isWc }: { src: string; isWc?: boolean }) {
   return (
     <div
       className={`w-6 h-4 lg:w-10 lg:h-6 overflow-hidden shrink-0${
-        isWc ? " border border-gray-300 rounded-tr-md rounded-bl-md" : ""
+        isWc ? " border border-gray-300 rounded-tr-lg rounded-bl-lg" : ""
       }`}
     >
       <img
@@ -57,7 +57,7 @@ function Flag({ src, isWc }: { src: string; isWc?: boolean }) {
 
 function FlagPlaceholder() {
   return (
-    <div className="w-6 h-4 lg:w-10 lg:h-6 shrink-0 border border-gray-300/30 rounded-tr-md rounded-bl-md bg-custom-gray" />
+    <div className="w-6 h-4 lg:w-10 lg:h-6 shrink-0 border border-gray-300/30 rounded-tr-lg rounded-bl-lg bg-custom-gray" />
   );
 }
 
@@ -78,7 +78,7 @@ function LiveBadge({
     case "2H":
     case "ET":
       return (
-        <span className="text-white text-[6px] font-mono px-1.5 py-1.5 bg-[#00A800] rounded-2xl">
+        <span className="text-white text-[6px] font-mono px-1.5 py-1.5 bg-accent rounded-2xl">
           {minute}′
         </span>
       );
@@ -179,37 +179,69 @@ export default function BracketMatchCard({
           )}
           {isScheduled ? (
             <>
-              <span className={`text-[8px] lg:text-[10px] whitespace-nowrap${isFinal ? " text-white font-bold" : " text-gray-400"}`}>
+              <span
+                className={`text-[8px] lg:text-[10px] whitespace-nowrap${
+                  isFinal ? " text-white font-bold" : " text-gray-400"
+                }`}
+              >
                 {formatDate(match.fixture_date)}
               </span>
-              <span className={`text-[8px] lg:text-[10px] tabular-nums whitespace-nowrap${isFinal ? " text-white font-bold" : " text-gray-200 font-medium"}`}>
+              <span
+                className={`text-[8px] lg:text-[10px] tabular-nums whitespace-nowrap${
+                  isFinal
+                    ? " text-white font-bold"
+                    : " text-gray-200 font-medium"
+                }`}
+              >
                 {formatTime(match.fixture_date)}
               </span>
             </>
           ) : match.home_score !== null && match.away_score !== null ? (
             <>
               <div className="flex items-center gap-1 justify-center">
-                <span className={`text-xs font-bold tabular-nums${isFinal ? " text-white" : ""}`}>
+                <span
+                  className={`text-xs font-bold tabular-nums${
+                    isFinal ? " text-white" : ""
+                  }`}
+                >
                   {match.home_score}
                 </span>
                 <span className="text-gray-600 font-bold text-sm">–</span>
-                <span className={`text-xs font-bold tabular-nums${isFinal ? " text-white" : ""}`}>
+                <span
+                  className={`text-xs font-bold tabular-nums${
+                    isFinal ? " text-white" : ""
+                  }`}
+                >
                   {match.away_score}
                 </span>
               </div>
               {isConfirmedFinished && (
-                <span className={`text-[6px] lg:text-[8px] uppercase tracking-wider${isFinal ? " text-white font-bold" : " text-gray-200"}`}>
+                <span
+                  className={`text-[6px] lg:text-[8px] uppercase tracking-wider${
+                    isFinal ? " text-white font-bold" : " text-gray-200"
+                  }`}
+                >
                   {tEv("ftLabel")}
                 </span>
               )}
               {showPenScore && (
-                <span className={`text-[6px] lg:text-[8px] font-mono tabular-nums${isFinal ? " text-white" : " text-gray-300"}`}>
-                  {tEv("penLabel")} {match.penalty_home}–{match.penalty_away}
+                <span
+                  className={`text-[6px] lg:text-[8px] font-mono tabular-nums${
+                    isFinal ? " text-white" : " text-gray-300"
+                  }`}
+                >
+                  {tEv("penLabel")}: {match.penalty_home}–{match.penalty_away}
                 </span>
               )}
             </>
           ) : (
-            <span className={`text-sm font-medium${isFinal ? " text-white" : " text-gray-300"}`}>–</span>
+            <span
+              className={`text-sm font-medium${
+                isFinal ? " text-white" : " text-gray-300"
+              }`}
+            >
+              –
+            </span>
           )}
         </div>
 

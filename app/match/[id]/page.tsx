@@ -2,6 +2,7 @@ export const revalidate = 300;
 
 import { Suspense } from "react";
 import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/server/supabase-admin";
 import { notFound } from "next/navigation";
 import MatchTabs from "@/components/info/MatchTabs";
 import MatchScoreHeader from "@/components/info/MatchScoreHeader";
@@ -97,12 +98,16 @@ async function MatchContent({
       matchId={matchId}
       homeTeamName={initialMatch.home_team}
       awayTeamName={initialMatch.away_team}
+      homeLogo={initialMatch.home_logo}
+      awayLogo={initialMatch.away_logo}
       initialIsLive={(match ?? initialMatch).is_live}
       initialStatus={(match ?? initialMatch).status}
       initialElapsed={(match ?? initialMatch).elapsed}
       venueName={venueName}
       venueCity={venueCity}
       referee={referee}
+      penaltyHome={(match ?? initialMatch).penalty_home}
+      penaltyAway={(match ?? initialMatch).penalty_away}
     />
   );
 }
@@ -115,11 +120,14 @@ export default async function MatchDetailsPage({
   const { id } = await params;
   const matchId = parseInt(id);
 
-  const { data: initialMatch } = await supabase
-    .from("matches")
-    .select("*")
-    .eq("id", matchId)
-    .single();
+  const [{ data: initialMatch }, { data: venueRow }] = await Promise.all([
+    supabase.from("matches").select("*").eq("id", matchId).single(),
+    supabaseAdmin
+      .from("match_details")
+      .select("venue_name, venue_city")
+      .eq("match_id", matchId)
+      .single(),
+  ]);
 
   if (!initialMatch) {
     notFound();
@@ -132,7 +140,12 @@ export default async function MatchDetailsPage({
       </div>
 
       {/* Renders immediately — only needs initialMatch from the DB */}
-      <MatchScoreHeader initialMatch={initialMatch} details={null} />
+      <MatchScoreHeader
+        initialMatch={initialMatch}
+        details={null}
+        venueName={venueRow?.venue_name ?? null}
+        venueCity={venueRow?.venue_city ?? null}
+      />
 
       {/* Streams in once standings + scorers + match details are ready */}
       <Suspense fallback={<MatchTabsSkeleton />}>

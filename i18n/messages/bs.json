@@ -56,7 +56,8 @@
     "wcroundQF": "Četvrtfinale",
     "wcroundSF": "Polufinale",
     "wcroundThird": "Treće mjesto",
-    "wcroundFinal": "Finale"
+    "wcroundFinal": "Finale",
+    "matchday": "{n}. kolo"
   },
   "matchEvents": {
     "matchStarted": "Utakmica počela",
@@ -143,6 +144,13 @@
     "lastMatches": "Posljednje utakmice",
     "nextMatch": "Sljedeća utakmica",
     "manager": "Trener"
+  },
+  "prediction": {
+    "whoWillWin": "Ko će pobijediti?",
+    "draw": "Remi",
+    "predictions": "predviđanja",
+    "firstToPredict": "Budite prvi koji će predvidjeti!",
+    "error": "Nešto je pošlo po zlu. Pokušajte ponovo."
   },
   "consent": {
     "message": "Koristimo kolačiće kako bismo poboljšali vaše iskustvo i analizirali promet stranice.",

@@ -51,12 +51,12 @@ function TeamLogo({
   const cls = size === "md" ? "w-12 h-8" : "w-9 h-6";
   const inner = isFlag(logo) ? (
     <div
-      className={`${cls} shrink-0 bg-cover bg-center rounded-tr-md rounded-bl-md`}
+      className={`${cls} shrink-0 bg-cover bg-center rounded-tr-lg rounded-bl-lg`}
       style={{ backgroundImage: `url(${resolveFlag(logo)})` }}
     />
   ) : (
     <div
-      className={`${cls} overflow-hidden shrink-0 rounded-tr-md rounded-bl-md`}
+      className={`${cls} overflow-hidden shrink-0 rounded-tr-lg rounded-bl-lg`}
     >
       <img
         src={logo}
@@ -99,7 +99,7 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
               </span>
             </div>
             {showMinute && (
-              <span className="text-[#00A800] text-[10px] font-mono tabular-nums">
+              <span className="text-accent text-[10px] font-mono tabular-nums">
                 {minute}′
               </span>
             )}
@@ -118,7 +118,7 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
         {/* Sweeping green live line */}
         <div className="h-0.5 w-full bg-gray-800 relative overflow-hidden">
           <div
-            className="h-full w-1/2 bg-[#00A800] absolute"
+            className="h-full w-1/2 bg-accent absolute"
             style={{ animation: "live-scan 6s ease-in-out infinite" }}
           />
         </div>
@@ -221,7 +221,7 @@ export default function TeamTabs({
     <div className="w-full text-white">
       {/* Banner — full width, no rounding, no side margins */}
       <div className="flex items-center gap-4 px-6 py-15 bg-custom-gray-2 w-full">
-        <div className="w-20 h-12 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-md rounded-bl-md">
+        <div className="w-20 h-12 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
           <img
             src={teamLogoUrl}
             alt=""
@@ -246,7 +246,7 @@ export default function TeamTabs({
                   key={i}
                   className={`w-5 h-5 rounded-full flex items-center justify-center ${
                     result === "W"
-                      ? "bg-[#00A800]"
+                      ? "bg-accent"
                       : result === "L"
                       ? "bg-[#ef4444]"
                       : "bg-[#6b7280]"
@@ -400,7 +400,7 @@ export default function TeamTabs({
                         <div className="grid grid-cols-3 items-center gap-2">
                           <div className="flex flex-col items-center gap-2">
                             {nextWcMatch.home_logo && (
-                              <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-md rounded-bl-md">
+                              <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
                                 <img
                                   src={nextWcMatch.home_logo}
                                   alt=""
@@ -430,7 +430,7 @@ export default function TeamTabs({
                           </div>
                           <div className="flex flex-col items-center gap-2">
                             {nextWcMatch.away_logo && (
-                              <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-md rounded-bl-md">
+                              <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
                                 <img
                                   src={nextWcMatch.away_logo}
                                   alt=""

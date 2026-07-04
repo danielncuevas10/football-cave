@@ -167,7 +167,7 @@ export default function ScoreList({ initialMatches }: Props) {
   return (
     <div className="space-y-6">
       {/* Date Navigation Bar */}
-      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray-2 p-3 rounded-xl">
+      <div className="flex flex-col gap-0 items-center justify-between bg-custom-gray p-3 rounded-xl border-b border-white/7 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
         <div className="flex items-center justify-between w-full gap-4">
           <div className="flex flex-col items-center gap-1">
             <button
@@ -255,7 +255,7 @@ export default function ScoreList({ initialMatches }: Props) {
                 return (
                   <div
                     key={`live-${leagueName}`}
-                    className="bg-custom-gray rounded-xl overflow-hidden"
+                    className="bg-custom-gray rounded-xl overflow-hidden border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
                   >
                     {leagueId ? (
                       <Link
@@ -293,7 +293,7 @@ export default function ScoreList({ initialMatches }: Props) {
                     )}
                     <div className="h-0.5 overflow-hidden relative">
                       <div
-                        className="absolute h-full w-50 bg-[#00A800]/50"
+                        className="absolute h-full w-50 bg-accent/50"
                         style={{
                           animation: "live-scan 5s ease-in-out infinite",
                           boxShadow: "0 0 10px rgba(255,255,255,0.5)",
@@ -301,12 +301,14 @@ export default function ScoreList({ initialMatches }: Props) {
                       />
                     </div>
 
-                    <div className="divide-y divide-custom-gray">
+                    <div>
                       {matches.map((m: DbMatch, index: number) => (
                         <div
                           key={m.id}
                           className={`${
-                            index === matches.length - 1 ? "rounded-b-lg" : ""
+                            index === matches.length - 1
+                              ? "rounded-b-lg"
+                              : "border-b border-white/4"
                           }`}
                         >
                           <MatchCard match={m} />
@@ -336,7 +338,7 @@ export default function ScoreList({ initialMatches }: Props) {
               return (
                 <div
                   key={leagueName}
-                  className="bg-custom-gray rounded-xl overflow-hidden"
+                  className="bg-custom-gray rounded-xl overflow-hidden border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
                 >
                   {leagueId ? (
                     <Link
@@ -371,12 +373,14 @@ export default function ScoreList({ initialMatches }: Props) {
                     </div>
                   )}
 
-                  <div className="divide-y divide-custom-gray">
+                  <div>
                     {matches.map((m: DbMatch, index: number) => (
                       <div
                         key={m.id}
                         className={`${
-                          index === matches.length - 1 ? "rounded-b-lg" : ""
+                          index === matches.length - 1
+                            ? "rounded-b-lg"
+                            : "border-b border-white/4"
                         }`}
                       >
                         <MatchCard match={m} />

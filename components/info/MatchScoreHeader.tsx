@@ -18,6 +18,34 @@ import { LIVE_STATUSES } from "@/types/sports";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
+// Hardcoded venue data for WC 2026 knockout matches.
+// The API often omits venue for future/unplayed matches; this fills the gap.
+// When the API eventually provides venue, it takes priority (see usage below).
+const VENUE_OVERRIDES: Record<number, { venueName: string; venueCity: string }> = {
+  // Round of 16
+  1569870: { venueName: "Lincoln Financial Field", venueCity: "Philadelphia" },
+  1567824: { venueName: "NRG Stadium", venueCity: "Houston" },
+  1576756: { venueName: "AT&T Stadium", venueCity: "Dallas" },
+  1570715: { venueName: "Lumen Field", venueCity: "Seattle" },
+  1568100: { venueName: "MetLife Stadium", venueCity: "East Rutherford" },
+  1570714: { venueName: "Estadio Azteca", venueCity: "Mexico City" },
+  1576804: { venueName: "Mercedes-Benz Stadium", venueCity: "Atlanta" },
+  1576805: { venueName: "BC Place", venueCity: "Vancouver" },
+  // Quarterfinals
+  // Match 97: Boston area (Gillette Stadium, Foxborough)
+  // Match 98: Los Angeles (SoFi Stadium)
+  // Match 99: Miami (Hard Rock Stadium)
+  // Match 100: Kansas City (Arrowhead Stadium / GEHA Field)
+  // (IDs not yet in DB — add when available)
+  // Semifinals
+  // Match 101: Dallas (AT&T Stadium)
+  // Match 102: Atlanta (Mercedes-Benz Stadium)
+  // Third Place
+  // Match 103: Miami (Hard Rock Stadium)
+  // Final
+  // Match 104: New York/NJ (MetLife Stadium)
+};
+
 function scoreFromEvents(
   events: MatchEvent[],
   homeTeamId: number | undefined
@@ -103,7 +131,7 @@ function StatusLabel({
     );
 
   if (status === "1H" || status === "2H" || status === "ET")
-    return <span className="text-[#00A800] text-xs font-mono">{minute}′</span>;
+    return <span className="text-accent text-xs font-mono">{minute}′</span>;
 
   if (status === "NS" || status === "TBD") return null;
 
@@ -119,16 +147,35 @@ function teamIdFromLogo(logo: string | null | undefined): number | null {
 export default function MatchScoreHeader({
   initialMatch,
   details,
+  venueName,
+  venueCity,
 }: {
   initialMatch: DbMatch;
   details: DbMatchDetails | null;
+  venueName?: string | null;
+  venueCity?: string | null;
 }) {
   const tEv = useTranslations("matchEvents");
   const tTabs = useTranslations("matchTabs");
+  const tBadge = useTranslations("liveBadge");
   const locale = useLocale();
   const [match, setMatch] = useState(initialMatch);
   // Penalty score derived from match_details events (reliable for all past + live PEN matches)
-  const [penScore, setPenScore] = useState<{ home: number; away: number } | null>(null);
+  const [penScore, setPenScore] = useState<{
+    home: number;
+    away: number;
+  } | null>(() => {
+    if (
+      initialMatch.penalty_home != null &&
+      initialMatch.penalty_away != null
+    ) {
+      return {
+        home: initialMatch.penalty_home,
+        away: initialMatch.penalty_away,
+      };
+    }
+    return null;
+  });
 
   useEffect(() => {
     const channel = supabase
@@ -156,12 +203,13 @@ export default function MatchScoreHeader({
   // Direct client-side Supabase reads for match_details are blocked by RLS,
   // so we always go through the API route here.
   useEffect(() => {
-    const isPen = match.status === "PEN" || match.status === "P";
+    const hasPenData = match.penalty_home != null && match.penalty_away != null;
+    const isPen = match.status === "PEN" || match.status === "P" || hasPenData;
     if (!isPen) return;
 
-    // DB columns take priority when populated (after migration + cron backfill).
-    if (match.penalty_home != null && match.penalty_away != null) {
-      setPenScore({ home: match.penalty_home, away: match.penalty_away });
+    // DB columns take priority when populated.
+    if (hasPenData) {
+      setPenScore({ home: match.penalty_home!, away: match.penalty_away! });
       return;
     }
 
@@ -180,7 +228,13 @@ export default function MatchScoreHeader({
         if (score) setPenScore(score);
       })
       .catch(() => {});
-  }, [match.id, match.status, match.home_logo, match.penalty_home, match.penalty_away]);
+  }, [
+    match.id,
+    match.status,
+    match.home_logo,
+    match.penalty_home,
+    match.penalty_away,
+  ]);
 
   // Re-poll every 60 s during a live shootout (status "P") so the count
   // updates as the cron writes fresh kick events to match_details.
@@ -190,7 +244,9 @@ export default function MatchScoreHeader({
     const logoHomeId = teamIdFromLogo(match.home_logo) ?? undefined;
 
     const poll = async () => {
-      const res = await fetch(`/api/match/${match.id}/events`).catch(() => null);
+      const res = await fetch(`/api/match/${match.id}/events`).catch(
+        () => null
+      );
       if (!res?.ok) return;
       const data: DbMatchDetails | null = await res.json().catch(() => null);
       if (!data?.events) return;
@@ -216,11 +272,12 @@ export default function MatchScoreHeader({
     match.stage !== "GROUP" &&
     match.stage !== "UNKNOWN";
 
-  const isPenFinished = match.status === "PEN" && !match.is_live;
+  const isPenFinished =
+    (match.status === "PEN" ||
+      (match.penalty_home != null && match.penalty_away != null)) &&
+    !match.is_live;
   const hasPenaltyWinner =
-    isPenFinished &&
-    penScore !== null &&
-    penScore.home !== penScore.away;
+    isPenFinished && penScore !== null && penScore.home !== penScore.away;
 
   const canDetermineWinner =
     isWcKnockout &&
@@ -239,8 +296,7 @@ export default function MatchScoreHeader({
     (match.away_score! < match.home_score! ||
       (hasPenaltyWinner && penScore!.away < penScore!.home));
 
-  const showPenScore =
-    (match.status === "PEN" || match.status === "P") && penScore !== null;
+  const showPenScore = penScore !== null;
 
   // Prefer DB score; fall back to counting goal events (handles sync lag).
   const homeTeamId =
@@ -257,44 +313,68 @@ export default function MatchScoreHeader({
 
   return (
     <div className="bg-custom-gray">
-      <div className="px-6 py-5">
+      <div className="px-6 py-8">
         <div className="flex flex-col items-center gap-6 w-full">
           <div className="flex flex-col items-center gap-2 w-full">
-            {match.league_id === 1 &&
-              (() => {
-                const key = getWcRoundKey(match.round);
-                return key ? (
-                  <span className="text-[12px] text-gray-200 font-bold tracking-wide">
-                    {tTabs(key)}
-                  </span>
-                ) : null;
-              })()}
-            <p className="font-light text-sm text-gray-200">
-              {new Date(match.fixture_date).toLocaleDateString("en-US", {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-              })}
-            </p>
+            {(() => {
+              const competition =
+                match.league_id === 1
+                  ? tBadge("worldCup")
+                  : match.league_name ?? null;
+
+              let roundLabel: string | null = null;
+              const round = match.round;
+              if (round) {
+                const rl = round.toLowerCase();
+                if (match.league_id === 1) {
+                  if (rl.includes("group")) roundLabel = tTabs("groupStage");
+                  else {
+                    const key = getWcRoundKey(round);
+                    if (key) roundLabel = tTabs(key);
+                  }
+                }
+                if (!roundLabel) {
+                  const m = round.match(/[-–]\s*(\d+)\s*$/);
+                  if (m) roundLabel = tTabs("matchday", { n: parseInt(m[1]) });
+                }
+                if (!roundLabel) {
+                  const key = getWcRoundKey(round);
+                  if (key) roundLabel = tTabs(key);
+                }
+              }
+
+              const parts = [competition, roundLabel].filter(Boolean);
+              if (!parts.length) return null;
+              return (
+                <span className="text-[12px] text-gray-200 font-medium tracking-wide text-center">
+                  {parts.join(" – ")}
+                </span>
+              );
+            })()}
           </div>
 
           <div className="grid grid-cols-3 gap-4 w-full">
             {(() => {
               const homeId = teamIdFromLogo(match.home_logo);
               const awayId = teamIdFromLogo(match.away_logo);
-              const teamClass =
-                "flex items-center gap-3 flex-col hover:opacity-80 transition-opacity";
+              const baseTeamClass =
+                "flex items-center gap-3 flex-col transition-opacity";
+              const homeClass = `${baseTeamClass}${
+                homeIsLoser ? " opacity-50" : " hover:opacity-80"
+              }`;
+              const awayClass = `${baseTeamClass}${
+                awayIsLoser ? " opacity-50" : " hover:opacity-80"
+              }`;
+              const flagClass = `w-18 h-12 overflow-hidden scale[1.15] shrink-0 block relative ${
+                match.league_id === 1 || match.league_id === 10
+                  ? "border border-gray-300 rounded-tr-lg rounded-bl-lg"
+                  : ""
+              }`;
               return (
                 <>
                   {homeId ? (
-                    <Link href={`/team/${homeId}`} className={teamClass}>
-                      <div
-                        className={`w-18 h-12 overflow-hidden scale[1.15] shrink-0 block relative ${
-                          match.league_id === 1 || match.league_id === 10
-                            ? "border border-gray-300 rounded-tr-md rounded-bl-md"
-                            : ""
-                        }`}
-                      >
+                    <Link href={`/team/${homeId}`} className={homeClass}>
+                      <div className={flagClass}>
                         <Image
                           src={match.home_logo || "/placeholder.png"}
                           alt=""
@@ -304,12 +384,16 @@ export default function MatchScoreHeader({
                         />
                       </div>
 
-                      <span className={`text-center text-sm leading-tight line-clamp-2${homeIsLoser ? " line-through opacity-50" : ""}`}>
+                      <span
+                        className={`text-center text-sm leading-tight line-clamp-2${
+                          homeIsLoser ? " line-through" : ""
+                        }`}
+                      >
                         {getLocalizedTeamName(match.home_team, locale)}
                       </span>
                     </Link>
                   ) : (
-                    <div className={teamClass}>
+                    <div className={homeClass}>
                       <Image
                         src={match.home_logo || "/placeholder.png"}
                         alt=""
@@ -317,7 +401,11 @@ export default function MatchScoreHeader({
                         height={40}
                         className="w-15 h-15 object-contain"
                       />
-                      <span className={`text-center text-sm leading-tight line-clamp-2${homeIsLoser ? " line-through opacity-50" : ""}`}>
+                      <span
+                        className={`text-center text-sm leading-tight line-clamp-2${
+                          homeIsLoser ? " line-through" : ""
+                        }`}
+                      >
                         {getLocalizedTeamName(match.home_team, locale)}
                       </span>
                     </div>
@@ -337,11 +425,6 @@ export default function MatchScoreHeader({
                         <span className="text-gray-300 text-sm">–</span>
                       )}
                     </div>
-                    {showPenScore && (
-                      <span className="text-gray-300 text-xs font-mono tabular-nums">
-                        {tEv("penLabel")} {penScore!.home}–{penScore!.away}
-                      </span>
-                    )}
                     {!match.is_live &&
                     FINISHED_STATUSES.includes(match.status) ? (
                       <span className="text-gray-200 text-xs tracking-wider">
@@ -354,17 +437,16 @@ export default function MatchScoreHeader({
                         fixtureDate={match.fixture_date}
                       />
                     )}
+                    {showPenScore && (
+                      <span className="text-gray-300/70 text-[10px] font-mono tabular-nums">
+                        {tEv("penLabel")}: {penScore!.home}–{penScore!.away}
+                      </span>
+                    )}
                   </div>
 
                   {awayId ? (
-                    <Link href={`/team/${awayId}`} className={teamClass}>
-                      <div
-                        className={`w-18 h-12 overflow-hidden scale[1.15] shrink-0 block relative ${
-                          match.league_id === 1 || match.league_id === 10
-                            ? "border border-gray-300 rounded-tr-md rounded-bl-md"
-                            : ""
-                        }`}
-                      >
+                    <Link href={`/team/${awayId}`} className={awayClass}>
+                      <div className={flagClass}>
                         <Image
                           src={match.away_logo || "/placeholder.png"}
                           alt=""
@@ -373,12 +455,16 @@ export default function MatchScoreHeader({
                           className="w-full h-full object-cover  will-change-transform scale-[1.20]"
                         />
                       </div>
-                      <span className={`text-center text-sm leading-tight line-clamp-2${awayIsLoser ? " line-through opacity-50" : ""}`}>
+                      <span
+                        className={`text-center text-sm leading-tight line-clamp-2${
+                          awayIsLoser ? " line-through" : ""
+                        }`}
+                      >
                         {getLocalizedTeamName(match.away_team, locale)}
                       </span>
                     </Link>
                   ) : (
-                    <div className={teamClass}>
+                    <div className={awayClass}>
                       <Image
                         src={match.away_logo || "/placeholder.png"}
                         alt=""
@@ -386,7 +472,11 @@ export default function MatchScoreHeader({
                         height={40}
                         className="w-15 h-15 object-contain"
                       />
-                      <span className={`text-center text-sm leading-tight line-clamp-2${awayIsLoser ? " line-through opacity-50" : ""}`}>
+                      <span
+                        className={`text-center text-sm leading-tight line-clamp-2${
+                          awayIsLoser ? " line-through" : ""
+                        }`}
+                      >
                         {getLocalizedTeamName(match.away_team, locale)}
                       </span>
                     </div>
@@ -397,10 +487,53 @@ export default function MatchScoreHeader({
           </div>
         </div>
       </div>
+
+      {/* Date · time | venue bar */}
+      {(() => {
+        const d = new Date(match.fixture_date);
+        const datePart = d.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+        const timePart = d.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+        });
+        const override = VENUE_OVERRIDES[match.id];
+        const resolvedVenueName = venueName ?? override?.venueName ?? null;
+        const resolvedVenueCity = venueCity ?? override?.venueCity ?? null;
+        const venue = [resolvedVenueName, resolvedVenueCity].filter(Boolean).join(", ");
+        return (
+          <div className="px-5 py-4.5 flex items-center justify-center gap-4 text-[11px] text-gray-300 flex-wrap">
+            <img
+              src="/images/specs/clock.svg"
+              alt=""
+              className="w-3 h-3 shrink-0 opacity-60"
+            />
+            <span>
+              {datePart} · {timePart}
+            </span>
+            {venue && (
+              <>
+                <span className="text-white/80 font-light px-0.5">|</span>
+                <img
+                  src="/images/stadium.svg"
+                  alt=""
+                  className="w-3 h-3 shrink-0 opacity-60"
+                />
+                <span>{venue}</span>
+              </>
+            )}
+          </div>
+        );
+      })()}
+
       {isLive && (
         <div className="h-0.5 overflow-hidden relative">
           <div
-            className="absolute h-full w-50 bg-[#00A800]/50"
+            className="absolute h-full w-50 bg-accent/50"
             style={{
               animation: "live-scan 5s ease-in-out infinite",
               boxShadow: "0 0 10px rgba(255,255,255,0.5)",

@@ -56,7 +56,8 @@
     "wcroundQF": "八强",
     "wcroundSF": "四强",
     "wcroundThird": "季军赛",
-    "wcroundFinal": "决赛"
+    "wcroundFinal": "决赛",
+    "matchday": "第{n}轮"
   },
   "matchEvents": {
     "matchStarted": "比赛开始",
@@ -143,6 +144,13 @@
     "lastMatches": "近期比赛",
     "nextMatch": "下一场比赛",
     "manager": "主教练"
+  },
+  "prediction": {
+    "whoWillWin": "谁会赢？",
+    "draw": "平局",
+    "predictions": "预测",
+    "firstToPredict": "成为第一个预测的人！",
+    "error": "出现错误，请重试。"
   },
   "consent": {
     "message": "我们使用 Cookie 来改善您的体验并分析网站流量。",

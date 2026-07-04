@@ -17,7 +17,7 @@ interface ProjectedCardProps {
 function Flag({ src, muted }: { src: string; muted?: boolean }) {
   return (
     <div
-      className={`w-6 h-4 lg:w-10 lg:h-6 overflow-hidden shrink-0 relative border-2 rounded-tr-md rounded-bl-md ${
+      className={`w-6 h-4 lg:w-10 lg:h-6 overflow-hidden shrink-0 relative border-2 rounded-tr-lg rounded-bl-lg ${
         muted ? "opacity-70 border-[#FFC000]" : "border-gray-200"
       }`}
     >
@@ -33,7 +33,7 @@ function Flag({ src, muted }: { src: string; muted?: boolean }) {
 function FlagPlaceholder({ muted }: { muted?: boolean }) {
   return (
     <div
-      className={`w-6 h-4 lg:w-10 lg:h-6 shrink-0 border border-gray-300/30 rounded-tr-md rounded-bl-md bg-custom-gray ${
+      className={`w-6 h-4 lg:w-10 lg:h-6 shrink-0 border border-gray-300/30 rounded-tr-lg rounded-bl-lg bg-custom-gray ${
         muted ? "opacity-50" : ""
       }`}
     />
@@ -76,20 +76,38 @@ export default function ProjectedCard({
       {/* home — confirmed group winner */}
       <div className="flex flex-col items-center justify-center gap-1.5 min-w-0 w-full">
         {homeLogo ? <Flag src={homeLogo} /> : <FlagPlaceholder />}
-        <span className={`hidden md:block w-full text-center text-sm truncate${isFinal ? " font-bold text-white" : " font-medium text-gray-200"}`}>
+        <span
+          className={`hidden md:block w-full text-center text-sm truncate${
+            isFinal ? " font-bold text-white" : " font-medium text-gray-200"
+          }`}
+        >
           {displayHome}
         </span>
       </div>
 
       {/* center — date/time or "not confirmed" */}
       <div className="flex flex-col items-center justify-center gap-0.5 px-1 min-w-10">
-        <span className={`text-sm${isFinal ? " text-white font-bold" : " text-gray-200 font-light"}`}>vs</span>
+        <span
+          className={`text-sm${
+            isFinal ? " text-white font-bold" : " text-gray-200 font-light"
+          }`}
+        >
+          vs
+        </span>
         {fixtureDate ? (
           <>
-            <span className={`text-[10px] whitespace-nowrap${isFinal ? " text-white font-bold" : " text-gray-400"}`}>
+            <span
+              className={`text-[10px] whitespace-nowrap${
+                isFinal ? " text-white font-bold" : " text-gray-400"
+              }`}
+            >
               {formatDate(fixtureDate)}
             </span>
-            <span className={`text-[8px] lg:text-[10px] tabular-nums whitespace-nowrap${isFinal ? " text-white font-bold" : " text-gray-200 font-medium"}`}>
+            <span
+              className={`text-[8px] lg:text-[10px] tabular-nums whitespace-nowrap${
+                isFinal ? " text-white font-bold" : " text-gray-200 font-medium"
+              }`}
+            >
               {formatTime(fixtureDate)}
             </span>
           </>
@@ -100,7 +118,11 @@ export default function ProjectedCard({
       <div className="flex flex-col items-center justify-center gap-1.5 min-w-0 w-full">
         {awayLogo ? <Flag src={awayLogo} muted /> : <FlagPlaceholder muted />}
         <div className="flex flex-row items-center gap-0.5 min-w-0 w-full">
-          <span className={`hidden md:block w-full text-center text-sm truncate${isFinal ? " font-bold text-white" : " font-medium text-gray-200"}`}>
+          <span
+            className={`hidden md:block w-full text-center text-sm truncate${
+              isFinal ? " font-bold text-white" : " font-medium text-gray-200"
+            }`}
+          >
             {displayAway}
           </span>
         </div>

@@ -56,7 +56,8 @@
     "wcroundQF": "8강",
     "wcroundSF": "4강",
     "wcroundThird": "3위전",
-    "wcroundFinal": "결승"
+    "wcroundFinal": "결승",
+    "matchday": "{n}라운드"
   },
   "matchEvents": {
     "matchStarted": "경기 시작",
@@ -143,6 +144,13 @@
     "lastMatches": "최근 경기",
     "nextMatch": "다음 경기",
     "manager": "감독"
+  },
+  "prediction": {
+    "whoWillWin": "누가 이길까요?",
+    "draw": "무승부",
+    "predictions": "예측",
+    "firstToPredict": "첫 번째 예측자가 되어보세요!",
+    "error": "오류가 발생했습니다. 다시 시도하세요."
   },
   "consent": {
     "message": "경험 개선 및 트래픽 분석을 위해 쿠키를 사용합니다.",

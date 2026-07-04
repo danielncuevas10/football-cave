@@ -56,7 +56,8 @@
     "wcroundQF": "Çeyrek final",
     "wcroundSF": "Yarı final",
     "wcroundThird": "3. yer maçı",
-    "wcroundFinal": "Final"
+    "wcroundFinal": "Final",
+    "matchday": "{n}. Hafta"
   },
   "matchEvents": {
     "matchStarted": "Maç başladı",
@@ -143,6 +144,13 @@
     "lastMatches": "Son maçlar",
     "nextMatch": "Sonraki maç",
     "manager": "Teknik Direktör"
+  },
+  "prediction": {
+    "whoWillWin": "Kim kazanacak?",
+    "draw": "Beraberlik",
+    "predictions": "tahmin",
+    "firstToPredict": "İlk tahmin eden sen ol!",
+    "error": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
   },
   "consent": {
     "message": "Deneyiminizi geliştirmek ve site trafiğini analiz etmek için çerez kullanıyoruz.",

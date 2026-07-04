@@ -21,6 +21,16 @@ function countGoals(events: { type: string; detail: string }[] | null | undefine
   ).length;
 }
 
+function hasShootoutData(events: { type: string; detail?: string; time?: { elapsed: number } }[] | null | undefined): boolean {
+  return (events ?? []).some(
+    (e) =>
+      e.type === "penaltyResult" ||
+      (e.type === "Goal" &&
+        (e.detail === "Penalty" || e.detail === "Missed Penalty") &&
+        (e.time?.elapsed ?? 0) >= 90)
+  );
+}
+
 export async function getMatchDetails(
   matchId: number,
   knownStatus?: string,
@@ -51,8 +61,10 @@ export async function getMatchDetails(
       const expectedGoals = (knownHomeScore ?? 0) + (knownAwayScore ?? 0);
       const cachedGoals = countGoals(cached.events);
       const goalsMatch = expectedGoals === 0 || cachedGoals >= expectedGoals;
+      // For PEN matches, also require shootout event data before treating cache as complete.
+      const shootoutComplete = knownStatus !== "PEN" || hasShootoutData(cached.events);
 
-      if (goalsMatch) {
+      if (goalsMatch && shootoutComplete) {
         // (a) Cache is complete — zero API calls needed.
         return {
           details: cached,

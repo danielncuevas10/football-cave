@@ -71,7 +71,7 @@ export default function TopNav() {
   const opacity = barState === "done" ? 0 : barState === "loading" ? 1 : 0;
 
   return (
-    <header className="sticky top-0 z-50 bg-custom-gray px-6 py-5">
+    <header className="sticky top-0 z-50 bg-custom-gray px-6 py-5 border-b border-white/8">
       <div className="max-w-7xl lg:max-w-360 mx-auto flex items-center justify-between w-full">
         <Link href="/">
           <img
@@ -105,7 +105,7 @@ export default function TopNav() {
         </div>
       </div>
       <div
-        className="absolute bottom-0 left-0 h-0.5 bg-[#00A800]"
+        className="absolute bottom-0 left-0 h-0.5 bg-accent"
         style={{ width, opacity, transition }}
       />
     </header>

@@ -17,6 +17,7 @@ import type {
 import { League } from "@/types/sports";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import PredictionWidget from "@/components/PredictionWidget";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
@@ -88,9 +89,13 @@ interface MatchTabsProps {
   initialIsLive: boolean;
   initialStatus: FixtureStatus;
   initialElapsed: number | null;
+  homeLogo?: string | null;
+  awayLogo?: string | null;
   venueName?: string | null;
   venueCity?: string | null;
   referee?: string | null;
+  penaltyHome?: number | null;
+  penaltyAway?: number | null;
 }
 
 export default function MatchTabs({
@@ -102,15 +107,24 @@ export default function MatchTabs({
   matchId,
   homeTeamName,
   awayTeamName,
+  homeLogo,
+  awayLogo,
   initialIsLive,
   initialStatus,
   initialElapsed,
   venueName,
   venueCity,
   referee,
+  penaltyHome,
+  penaltyAway,
 }: MatchTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("events");
   const [isLive, setIsLive] = useState(initialIsLive);
+
+  // When a not-yet-started match kicks off, snap back to events tab
+  useEffect(() => {
+    if (isLive) setActiveTab("events");
+  }, [isLive]);
   const [status, setStatus] = useState<FixtureStatus>(initialStatus);
   const [elapsed, setElapsed] = useState<number | null>(initialElapsed);
   const [liveMinute, setLiveMinute] = useState<number>(initialElapsed ?? 0);
@@ -320,7 +334,31 @@ export default function MatchTabs({
     ? localStandings.filter((s) => s.group_name === awayGroupName)
     : [];
 
-  const isPenStatus = status === "P" || status === "PEN";
+  const isPenStatus =
+    status === "P" ||
+    status === "PEN" ||
+    (penaltyHome != null && penaltyAway != null);
+
+  // If non-penalty events exist in the 91-119 min window, the match had extra
+  // time before the shootout → threshold is 120. If that window is empty
+  // (direct penalties from 90 min), use 91 so shootout kicks reported by some
+  // APIs with elapsed < 120 are still correctly classified.
+  const hasNonPenaltyETEvents =
+    isPenStatus &&
+    (liveDetails?.events ?? []).some(
+      (e) =>
+        e.time.elapsed > 90 &&
+        e.time.elapsed < 120 &&
+        !(
+          e.type === "Goal" &&
+          (e.detail === "Penalty" || e.detail === "Missed Penalty")
+        )
+    );
+  const penaltyShootoutThreshold = isPenStatus
+    ? hasNonPenaltyETEvents
+      ? 120
+      : 90
+    : Infinity;
 
   const getScoreAtMinute = (minute: number): string => {
     let home = 0;
@@ -331,7 +369,13 @@ export default function MatchTabs({
         ev.type === "Goal" &&
         ev.detail !== "Missed Penalty" &&
         ev.time.elapsed <= minute &&
-        !(isPenStatus && ev.time.elapsed >= 120)
+        !(
+          isPenStatus &&
+          ev.time.elapsed >= penaltyShootoutThreshold &&
+          (hasNonPenaltyETEvents ||
+            ev.time.elapsed > penaltyShootoutThreshold ||
+            !ev.time.extra)
+        )
       ) {
         // The API places every goal event (including own goals) under the team
         // that BENEFITED from the goal, so no own-goal flip is needed here.
@@ -440,14 +484,27 @@ export default function MatchTabs({
         (e) =>
           e.type === "Goal" &&
           (e.detail === "Penalty" || e.detail === "Missed Penalty") &&
-          e.time.elapsed >= 120
+          e.time.elapsed >= penaltyShootoutThreshold &&
+          (hasNonPenaltyETEvents ||
+            e.time.elapsed > penaltyShootoutThreshold ||
+            !e.time.extra)
       )
     : [];
 
   const penFinalScore = penaltyResultEvent
     ? penaltyResultEvent.detail
     : shootoutKicks.length > 0 && homeTeamId
-    ? `${shootoutKicks.filter((k) => k.detail === "Penalty" && k.team.id === homeTeamId).length}–${shootoutKicks.filter((k) => k.detail === "Penalty" && k.team.id !== homeTeamId).length}`
+    ? `${
+        shootoutKicks.filter(
+          (k) => k.detail === "Penalty" && k.team.id === homeTeamId
+        ).length
+      }–${
+        shootoutKicks.filter(
+          (k) => k.detail === "Penalty" && k.team.id !== homeTeamId
+        ).length
+      }`
+    : penaltyHome != null && penaltyAway != null
+    ? `${penaltyHome}–${penaltyAway}`
     : null;
 
   return (
@@ -480,7 +537,7 @@ export default function MatchTabs({
         >
           <div className="w-full space-y-2">
             {liveDetails?.events && liveDetails.events.length > 0 ? (
-              <div className="bg-custom-gray rounded-xl overflow-hidden">
+              <div className="bg-custom-gray rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
                 <div className=" divide-y divide-custom-gray/30">
                   {liveDetails.events.map((ev: MatchEvent, index: number) => {
                     const isOwnGoal =
@@ -498,9 +555,12 @@ export default function MatchTabs({
                     const isMissedPenalty =
                       ev.type === "Goal" && ev.detail === "Missed Penalty";
                     const isShootoutEvent =
-                      (status === "P" || status === "PEN") &&
+                      isPenStatus &&
                       (isPenaltyGoal || isMissedPenalty) &&
-                      ev.time.elapsed >= 120;
+                      ev.time.elapsed >= penaltyShootoutThreshold &&
+                      (hasNonPenaltyETEvents ||
+                        ev.time.elapsed > penaltyShootoutThreshold ||
+                        !ev.time.extra);
                     const isPenaltyResult = ev.type === "penaltyResult";
                     const isVar = ev.type === "Var";
                     const isRegularGoal =
@@ -508,6 +568,22 @@ export default function MatchTabs({
                       ev.detail !== "Penalty" &&
                       ev.detail !== "Own Goal" &&
                       ev.detail !== "Missed Penalty";
+
+                    // Any penalty-call event (awarded/confirmed/cancelled) that
+                    // belongs to the shootout phase should be hidden from the
+                    // regular timeline — regardless of event type, because some
+                    // API responses emit these as non-Var events during shootouts.
+                    const isShootoutCallEvent =
+                      isPenStatus &&
+                      ev.time.elapsed >= penaltyShootoutThreshold &&
+                      (hasNonPenaltyETEvents ||
+                        ev.time.elapsed > penaltyShootoutThreshold ||
+                        !ev.time.extra) &&
+                      (ev.detail === "Penalty awarded" ||
+                        ev.detail === "Penalty confirmed" ||
+                        ev.detail === "Penalty cancelled");
+                    if (isShootoutCallEvent) return null;
+
                     const showStart = !renderedStartDivider;
                     if (showStart) renderedStartDivider = true;
 
@@ -571,7 +647,7 @@ export default function MatchTabs({
                       <Fragment key={index}>
                         {/* Start Section Banner */}
                         {showStart && (
-                          <div className="bg-custom-gray-2 flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray rounded-xl">
+                          <div className="bg-custom-gray-2 flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray rounded-t-xl">
                             <img
                               src="/images/specs/clock.svg"
                               alt=""
@@ -634,7 +710,7 @@ export default function MatchTabs({
                         )}
 
                         {/* Second Half Starts Banner */}
-                        {showHalfTimeBreak && (
+                        {showHalfTimeBreak && !isConfirmedFinished && (
                           <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
                             <img
                               src="/images/specs/final.svg"
@@ -647,7 +723,7 @@ export default function MatchTabs({
 
                         {/* Regular Time Finished Banner */}
                         {showRegularTimeEnd && (
-                          <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
+                          <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
                             <div className="flex items-center gap-2">
                               <img
                                 src="/images/specs/final.svg"
@@ -663,7 +739,7 @@ export default function MatchTabs({
                         )}
 
                         {/* Extra Time 1st Half Banner */}
-                        {showEtStart && (
+                        {showEtStart && !isConfirmedFinished && (
                           <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
                             <img
                               src="/images/specs/final.svg"
@@ -676,7 +752,7 @@ export default function MatchTabs({
 
                         {/* Extra Time Intermission Break Banner */}
                         {showEtHalfTime && (
-                          <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest border-y border-custom-gray">
+                          <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
                             <div className="flex items-center gap-2">
                               <img
                                 src="/images/specs/clock.svg"
@@ -692,7 +768,7 @@ export default function MatchTabs({
                         )}
 
                         {/* Extra Time 2nd Half Banner */}
-                        {showEt2ndHalf && (
+                        {showEt2ndHalf && !isConfirmedFinished && (
                           <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
                             <img
                               src="/images/specs/final.svg"
@@ -802,7 +878,7 @@ export default function MatchTabs({
                                   <div className="flex items-center gap-2 min-w-0 text-left">
                                     {isSubstitution ? (
                                       <div className="flex flex-col text-xs min-w-0">
-                                        <span className="text-[#20C547] font-medium truncate">
+                                        <span className="text-accent font-medium truncate">
                                           {ev.assist?.name || tEv("inPlayer")}
                                         </span>
                                         <span className="text-[#C93434] font-medium truncate">
@@ -854,7 +930,9 @@ export default function MatchTabs({
                                       <img
                                         src={getEventIcon(ev.type, ev.detail)}
                                         alt=""
-                                        className={`w-5.5 h-5.5 object-contain${isSubstitution ? " rotate-180" : ""}`}
+                                        className={`w-5.5 h-5.5 object-contain${
+                                          isSubstitution ? " rotate-180" : ""
+                                        }`}
                                       />
                                     </span>
                                   </div>
@@ -887,7 +965,7 @@ export default function MatchTabs({
                                   <div className="flex items-center gap-2 min-w-0 text-right justify-end w-full">
                                     {isSubstitution ? (
                                       <div className="flex flex-col text-xs text-right items-end min-w-0">
-                                        <span className="text-[#20C547] font-medium truncate">
+                                        <span className="text-accent font-medium truncate">
                                           {ev.assist?.name || tEv("inPlayer")}
                                         </span>
                                         <span className="text-[#C93434] font-medium truncate">
@@ -976,7 +1054,7 @@ export default function MatchTabs({
 
                   {/* Half Time row — shown when match is currently at HT and no 2nd-half events exist yet */}
                   {status === "HT" && !renderedHalfTimeDivider && (
-                    <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest border-y border-custom-gray">
+                    <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
                       <div className="flex items-center gap-2">
                         <img
                           src="/images/specs/clock.svg"
@@ -994,7 +1072,7 @@ export default function MatchTabs({
                   {/* Second half has started but no 2nd-half events yet — show HT break + 2H banner immediately */}
                   {status === "2H" && !renderedHalfTimeDivider && (
                     <>
-                      <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
+                      <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
                         <div className="flex items-center gap-2">
                           <img
                             src="/images/specs/clock.svg"
@@ -1037,9 +1115,10 @@ export default function MatchTabs({
 
                   {/* Penalty Shootout Section — rendered after "Match Finished" for completed PEN matches */}
                   {isConfirmedFinished &&
-                    status === "PEN" &&
+                    isPenStatus &&
                     (penaltyResultEvent !== null ||
-                      shootoutKicks.length > 0) && (
+                      shootoutKicks.length > 0 ||
+                      (penaltyHome != null && penaltyAway != null)) && (
                       <>
                         {/* Shootout header banner */}
                         <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
@@ -1110,16 +1189,13 @@ export default function MatchTabs({
                           );
                         })}
 
-                        {/* Penalty Shootout Finished Banner */}
+                        {/* Penalty Shootout Final Score Banner */}
                         {penFinalScore && (
-                          <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
+                          <div className="bg-custom-gray-2 flex flex-row items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
                             <div className="flex items-center gap-2">
-                              <img
-                                src="/images/specs/final.svg"
-                                alt=""
-                                className="w-3.5 h-3.5 object-contain"
-                              />
-                              <span>{tEv("penaltyShootoutFinished")}</span>
+                              <span className="font-mono text-sm font-bold text-gray-200 mt-0.5">
+                                {tEv("penLabel")}:
+                              </span>
                             </div>
                             <span className="font-mono text-sm font-bold text-gray-200 mt-0.5">
                               {penFinalScore}
@@ -1131,8 +1207,8 @@ export default function MatchTabs({
                 </div>
               </div>
             ) : status === "HT" ? (
-              <div className="bg-custom-gray-2 rounded-xl border border-custom-gray overflow-hidden">
-                <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
+              <div className="bg-custom-gray rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
+                <div className="bg-custom-gray-2 flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest">
                   <img
                     src="/images/specs/clock.svg"
                     alt=""
@@ -1143,7 +1219,7 @@ export default function MatchTabs({
                 <div className="py-5 text-center text-[11px] text-gray-600 tracking-wider">
                   {tEv("noNotableActions")}
                 </div>
-                <div className="bg-custom-gray flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest border-y border-custom-gray">
+                <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
                   <div className="flex items-center gap-2">
                     <img
                       src="/images/specs/clock.svg"
@@ -1158,8 +1234,8 @@ export default function MatchTabs({
                 </div>
               </div>
             ) : isLive ? (
-              <div className="bg-custom-gray-2 rounded-xl border border-custom-gray overflow-hidden">
-                <div className="bg-custom-gray flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray">
+              <div className="bg-custom-gray rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
+                <div className="bg-custom-gray-2 flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest">
                   <img
                     src="/images/specs/clock.svg"
                     alt=""
@@ -1195,6 +1271,14 @@ export default function MatchTabs({
                   </div>
                 )}
               </div>
+            ) : status === "NS" || status === "TBD" ? (
+              <PredictionWidget
+                matchId={matchId}
+                homeTeam={homeTeamName ?? ""}
+                awayTeam={awayTeamName ?? ""}
+                homeLogo={homeLogo ?? null}
+                awayLogo={awayLogo ?? null}
+              />
             ) : (
               <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
                 {tTabs("upcomingMatch")}
@@ -1205,35 +1289,6 @@ export default function MatchTabs({
                 />
               </div>
             )}
-
-            {(venueName || venueCity || referee) && (
-              <div className="px-4 py-6 text-xs text-gray-200 bg-custom-gray rounded-xl">
-                <div className="flex flex-col gap-2">
-                  {(venueName || venueCity) && (
-                    <div className="flex items-center gap-2">
-                      <img
-                        src="/images/stadium.svg"
-                        alt=""
-                        className="w-4 h-4 object-contain shrink-0"
-                      />
-                      <span>
-                        {[venueName, venueCity].filter(Boolean).join(", ")}
-                      </span>
-                    </div>
-                  )}
-                  {referee && (
-                    <div className="flex items-center gap-2">
-                      <img
-                        src="/images/specs/final.svg"
-                        alt=""
-                        className="w-4 h-4 object-contain shrink-0"
-                      />
-                      <span>{referee}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -1242,7 +1297,7 @@ export default function MatchTabs({
             activeTab === "details" ? "" : "h-0 overflow-hidden"
           }`}
         >
-          <div className="w-full">
+          <div className="bg-custom-gray rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
             <MatchCenterDetails details={liveDetails} />
           </div>
         </div>
@@ -1252,7 +1307,7 @@ export default function MatchTabs({
             activeTab === "lineups" ? "" : "h-0 overflow-hidden"
           }`}
         >
-          <div className="w-full">
+          <div className="bg-custom-gray rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
             <MatchCenterLinenups details={liveDetails} status={status} />
           </div>
         </div>
@@ -1320,6 +1375,32 @@ export default function MatchTabs({
           {isWorldCup && <WorldCupLegend />}
         </div>
       </div>
+
+      {/* Venue & referee — always visible below all tabs */}
+      {(venueName || venueCity || referee) && (
+        <div className="bg-[#1C1C1E] rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-4 text-[11px] text-[#8E8E93] space-y-1.5">
+          {(venueName || venueCity) && (
+            <div className="flex items-center gap-2">
+              <img
+                src="/images/stadium.svg"
+                alt=""
+                className="w-3.5 h-3.5 opacity-60 shrink-0"
+              />
+              <span>{[venueName, venueCity].filter(Boolean).join(", ")}</span>
+            </div>
+          )}
+          {referee && (
+            <div className="flex items-center gap-2">
+              <img
+                src="/images/specs/final.svg"
+                alt=""
+                className="w-3.5 h-3.5 opacity-60 shrink-0"
+              />
+              <span>{referee}</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

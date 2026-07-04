@@ -56,7 +56,8 @@
     "wcroundQF": "準々決勝",
     "wcroundSF": "準決勝",
     "wcroundThird": "3位決定戦",
-    "wcroundFinal": "決勝"
+    "wcroundFinal": "決勝",
+    "matchday": "第{n}節"
   },
   "matchEvents": {
     "matchStarted": "試合開始",
@@ -143,6 +144,13 @@
     "lastMatches": "最近の試合",
     "nextMatch": "次の試合",
     "manager": "監督"
+  },
+  "prediction": {
+    "whoWillWin": "どちらが勝つ？",
+    "draw": "引き分け",
+    "predictions": "予測",
+    "firstToPredict": "最初に予測してみよう！",
+    "error": "エラーが発生しました。もう一度お試しください。"
   },
   "consent": {
     "message": "サイト体験の向上とアクセス解析のためにCookieを使用しています。",

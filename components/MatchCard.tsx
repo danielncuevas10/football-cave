@@ -1,6 +1,5 @@
 "use client";
 import type { DbMatch, FixtureStatus } from "@/types/sports";
-import { LIVE_STATUSES } from "@/types/sports";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { getLocalizedTeamName } from "@/lib/teamName";
@@ -15,9 +14,9 @@ const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
 function formatKickoff(dateStr: string): string {
   return new Date(dateStr).toLocaleTimeString([], {
-    hour: "numeric",
+    hour: "2-digit",
     minute: "2-digit",
-    hour12: true,
+    hour12: false,
   });
 }
 
@@ -34,14 +33,27 @@ function StatusBadge({
   const minute = useLiveMinute(status, elapsed, fixtureDate);
 
   if (status === "NS" || status === "TBD") return null;
-  if (FINISHED_STATUSES.includes(status)) return null;
+
+  if (FINISHED_STATUSES.includes(status)) {
+    const label =
+      status === "FT"
+        ? tEv("ftLabel")
+        : status === "PEN"
+        ? tEv("penLabel")
+        : status;
+    return (
+      <span className="text-white text-[9px] lg:text-[10px] font-mono px-1.5 py-0.5 bg-gray-600 rounded-xl whitespace-nowrap">
+        {label}
+      </span>
+    );
+  }
 
   switch (status) {
     case "1H":
     case "2H":
     case "ET":
       return (
-        <span className="text-white text-[6px] lg:text-xs font-mono px-1.5 py-1.5 bg-[#00A800] rounded-2xl">
+        <span className="text-white font-bold text-[7px] lg:text-xs font-mono px-1.5 py-1.5 bg-accent rounded-2xl">
           {minute}′
         </span>
       );
@@ -62,7 +74,6 @@ export default function MatchCard({ match }: { match: DbMatch }) {
   const kickoffPassed = new Date(match.fixture_date) < new Date();
   const isScheduled =
     (match.status === "NS" || match.status === "TBD") && !kickoffPassed;
-  const isLive = LIVE_STATUSES.includes(match.status);
   const isConfirmedFinished =
     !match.is_live && FINISHED_STATUSES.includes(match.status);
 
@@ -84,7 +95,6 @@ export default function MatchCard({ match }: { match: DbMatch }) {
 
   // Use != null (loose) to handle undefined when DB columns don't exist yet
   const hasPenWinner =
-    match.status === "PEN" &&
     match.penalty_home != null &&
     match.penalty_away != null &&
     match.penalty_home !== match.penalty_away;
@@ -100,10 +110,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
     (match.away_score! < match.home_score! ||
       (hasPenWinner && match.penalty_away! < match.penalty_home!));
 
-  const showPenScore =
-    (match.status === "PEN" || match.status === "P") &&
-    match.penalty_home != null &&
-    match.penalty_away != null;
+  const showPenScore = match.penalty_home != null && match.penalty_away != null;
 
   return (
     <Link
@@ -112,16 +119,14 @@ export default function MatchCard({ match }: { match: DbMatch }) {
     >
       {/* Fixed 4-column layout: [badge][home][score][away]
           The badge column is always reserved so nothing shifts when live */}
-      <div className="bg-custom-gray-2 py-3 px-3 grid grid-cols-[1rem_1fr_auto_1fr] gap-2 items-center">
+      <div className="bg-custom-gray-2 h-16 px-3 grid grid-cols-[1rem_1fr_auto_1fr] gap-2 items-center">
         {/* Left badge — always occupies 2rem; empty when not live */}
         <div className="flex items-center justify-center">
-          {(isLive || match.status === "HT") && (
-            <StatusBadge
-              status={match.status}
-              elapsed={match.elapsed}
-              fixtureDate={match.fixture_date}
-            />
-          )}
+          <StatusBadge
+            status={match.status}
+            elapsed={match.elapsed}
+            fixtureDate={match.fixture_date}
+          />
         </div>
 
         {/* Home team */}
@@ -140,9 +145,9 @@ export default function MatchCard({ match }: { match: DbMatch }) {
           {match.home_logo &&
             (isFlag(match.home_logo) ? (
               <div
-                className={`w-10 h-6 shrink-0 bg-cover bg-center bg-no-repeat bg-origin-border ${
+                className={`w-9 h-5 shrink-0 bg-cover bg-center bg-no-repeat bg-origin-border ${
                   match.league_id === 1 || match.league_id === 10
-                    ? "border border-gray-300 rounded-tr-md rounded-bl-md"
+                    ? "border border-gray-300 rounded-tr-lg rounded-bl-lg"
                     : ""
                 }`}
                 style={{
@@ -151,9 +156,9 @@ export default function MatchCard({ match }: { match: DbMatch }) {
               />
             ) : (
               <div
-                className={`w-10 h-6 overflow-hidden shrink-0 ${
+                className={`w-9 h-5 overflow-hidden shrink-0 ${
                   match.league_id === 1 || match.league_id === 10
-                    ? "border border-gray-300 rounded-tr-md rounded-bl-md"
+                    ? "border border-gray-300 rounded-tr-lg rounded-bl-lg"
                     : ""
                 }`}
               >
@@ -167,9 +172,9 @@ export default function MatchCard({ match }: { match: DbMatch }) {
         </div>
 
         {/* Center: score / kickoff / dash */}
-        <div className="flex flex-col items-center justify-center gap-0.5 px-2 min-w-14">
+        <div className="relative flex items-center justify-center px-2 min-w-14">
           {isScheduled ? (
-            <span className="text-gray-400 text-xs font-medium tabular-nums whitespace-nowrap py-3">
+            <span className="text-gray-400 text-xs font-medium tabular-nums whitespace-nowrap">
               {formatKickoff(match.fixture_date)}
             </span>
           ) : match.home_score !== null && match.away_score !== null ? (
@@ -185,14 +190,14 @@ export default function MatchCard({ match }: { match: DbMatch }) {
           ) : (
             <span className="text-gray-300 text-sm font-medium">–</span>
           )}
-          {isConfirmedFinished && (
-            <span className="text-gray-200 text-[8px] lg:text-[10px] uppercase tracking-wider">
-              {tEv("ftLabel")}
-            </span>
-          )}
-          {showPenScore && (
-            <span className="text-gray-300 text-[9px] font-mono tabular-nums">
-              {tEv("penLabel")} {match.penalty_home}–{match.penalty_away}
+          {(showPenScore || (isWcKnockout && isConfirmedFinished)) && (
+            <span
+              className={`absolute top-full left-1/2 -translate-x-1/2 mt-0.5 text-[9px] font-mono tabular-nums whitespace-nowrap${
+                showPenScore ? " text-gray-300" : " invisible"
+              }`}
+            >
+              {tEv("penLabel")} {match.penalty_home ?? 0}–
+              {match.penalty_away ?? 0}
             </span>
           )}
         </div>
@@ -206,9 +211,9 @@ export default function MatchCard({ match }: { match: DbMatch }) {
           {match.away_logo &&
             (isFlag(match.away_logo) ? (
               <div
-                className={`w-10 h-6 shrink-0 bg-cover bg-center bg-no-repeat bg-origin-border ${
+                className={`w-9 h-5 shrink-0 bg-cover bg-center bg-no-repeat bg-origin-border ${
                   match.league_id === 1 || match.league_id === 10
-                    ? "border border-gray-300 rounded-tr-md rounded-bl-md"
+                    ? "border border-gray-300 rounded-tr-lg rounded-bl-lg"
                     : ""
                 }`}
                 style={{
@@ -217,9 +222,9 @@ export default function MatchCard({ match }: { match: DbMatch }) {
               />
             ) : (
               <div
-                className={`w-10 h-6 overflow-hidden shrink-0 ${
+                className={`w-9 h-5 overflow-hidden shrink-0 ${
                   match.league_id === 1 || match.league_id === 10
-                    ? "border border-gray-300 rounded-tr-md rounded-bl-md"
+                    ? "border border-gray-300 rounded-tr-lg rounded-bl-lg"
                     : ""
                 }`}
               >

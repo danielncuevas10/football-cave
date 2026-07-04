@@ -13,7 +13,7 @@ interface TBDCardProps {
 
 function Flag({ src }: { src: string }) {
   return (
-    <div className="w-6 h-4 lg:w-10 lg:h-6 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-md rounded-bl-md">
+    <div className="w-6 h-4 lg:w-10 lg:h-6 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
       <img
         src={src}
         alt=""
@@ -25,7 +25,7 @@ function Flag({ src }: { src: string }) {
 
 function FlagPlaceholder() {
   return (
-    <div className="w-6 h-4 lg:w-10 lg:h-6 shrink-0 border border-gray-300/30 rounded-tr-md rounded-bl-md bg-custom-gray" />
+    <div className="w-6 h-4 lg:w-10 lg:h-6 shrink-0 border border-gray-300/30 rounded-tr-lg rounded-bl-lg bg-custom-gray" />
   );
 }
 
@@ -76,7 +76,11 @@ export default function TBDCard({
       {/* home */}
       <div className="flex flex-col items-center justify-center gap-1.5 min-w-0">
         {homeLogo ? <Flag src={homeLogo} /> : <FlagPlaceholder />}
-        <span className={`hidden md:block w-full text-xs text-center truncate${isFinal ? " font-bold text-white" : " font-light text-gray-200"}`}>
+        <span
+          className={`hidden md:block w-full text-xs text-center truncate${
+            isFinal ? " font-bold text-white" : " font-light text-gray-200"
+          }`}
+        >
           {displayHome}
         </span>
       </div>
@@ -85,10 +89,18 @@ export default function TBDCard({
       <div className="flex flex-col items-center justify-center gap-0.5 px-1 min-w-10">
         {fixtureDate ? (
           <>
-            <span className={`text-[10px] whitespace-nowrap${isFinal ? " text-white font-bold" : " text-gray-400"}`}>
+            <span
+              className={`text-[10px] whitespace-nowrap${
+                isFinal ? " text-white font-bold" : " text-gray-400"
+              }`}
+            >
               {formatDate(fixtureDate)}
             </span>
-            <span className={`text-[8px] lg:text-[10px] tabular-nums whitespace-nowrap${isFinal ? " text-white font-bold" : " text-gray-200 font-medium"}`}>
+            <span
+              className={`text-[8px] lg:text-[10px] tabular-nums whitespace-nowrap${
+                isFinal ? " text-white font-bold" : " text-gray-200 font-medium"
+              }`}
+            >
               {formatTime(fixtureDate)}
             </span>
           </>
@@ -98,7 +110,11 @@ export default function TBDCard({
       {/* away */}
       <div className="flex flex-col items-center justify-center gap-1.5 min-w-0">
         {awayLogo ? <Flag src={awayLogo} /> : <FlagPlaceholder />}
-        <span className={`hidden md:block w-full text-xs text-center truncate${isFinal ? " font-bold text-white" : " font-light text-gray-200"}`}>
+        <span
+          className={`hidden md:block w-full text-xs text-center truncate${
+            isFinal ? " font-bold text-white" : " font-light text-gray-200"
+          }`}
+        >
           {displayAway}
         </span>
       </div>

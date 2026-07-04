@@ -38,19 +38,19 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: "Football Cave",
       images: [
         {
-          url: "/icon.jpg",
-          width: 138,
-          height: 138,
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
           alt: "Football Cave – Live Scores",
         },
       ],
       type: "website",
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: "Football Cave",
       description,
-      images: ["/icon.jpg"],
+      images: ["/og-image.png"],
     },
     icons: {
       icon: "/icon.svg",

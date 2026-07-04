@@ -5,6 +5,7 @@
   --foreground: #ededed;
   --custom-gray: #1C1C1E;
   --custom-gray-2: #232323;
+  --accent: #34C759;
   color-scheme: dark;
   --bracket-col-w: 120px;
 }
@@ -19,6 +20,7 @@
   --color-foreground: var(--foreground);
   --color-custom-gray: var(--custom-gray);
   --color-custom-gray-2: var(--custom-gray-2);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

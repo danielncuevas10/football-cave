@@ -170,7 +170,7 @@ export default function WorldCupGroups({
                       className="flex items-center gap-2 hover:opacity-75 transition-opacity"
                     >
                       {team.team_logo && (
-                        <div className="w-8 h-5 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-md rounded-bl-md">
+                        <div className="w-8 h-5 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
                           <img
                             src={team.team_logo}
                             alt=""

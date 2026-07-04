@@ -165,13 +165,13 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
       );
     if (s === "HT")
       return (
-        <span className="text-[#00A800] text-[10px]  tracking-wide">
+        <span className="text-accent text-[10px]  tracking-wide">
           {tEv("halfTime")}
         </span>
       );
     if (s === "1H" || s === "2H" || s === "ET")
       return (
-        <span className="text-[#00A800] text-[10px] font-mono">
+        <span className="text-accent text-[10px] font-mono">
           {match.elapsed}′
         </span>
       );
@@ -209,7 +209,7 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
           {isLive && (
             <div className="hidden md:block h-0.5 overflow-hidden relative">
               <div
-                className="absolute h-full w-50 bg-[#00A800]/50"
+                className="absolute h-full w-50 bg-accent/50"
                 style={{
                   animation: "live-scan 5s ease-in-out infinite",
                   boxShadow: "0 0 10px rgba(255,255,255,0.5)",
@@ -238,8 +238,12 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
               <div className="flex-1 flex items-center">
                 <div className="grid grid-cols-3 items-start gap-2 w-full">
                   {/* Home */}
-                  <div className={`flex flex-col items-center gap-1.5 transition-opacity${homeIsLoser ? " opacity-50" : ""}`}>
-                    <div className="w-15 h-10 overflow-hidden relative border border-gray-300 rounded-tr-md rounded-bl-md shrink-0">
+                  <div
+                    className={`flex flex-col items-center gap-1.5 transition-opacity${
+                      homeIsLoser ? " opacity-50" : ""
+                    }`}
+                  >
+                    <div className="w-15 h-10 overflow-hidden relative border border-gray-300 rounded-tr-lg rounded-bl-lg shrink-0">
                       <Image
                         src={match.home_logo || "/images/specs/placeholder.svg"}
                         alt=""
@@ -248,7 +252,11 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                         sizes="60px"
                       />
                     </div>
-                    <span className={`text-[11px] text-center leading-tight line-clamp-2 text-white font-medium${homeIsLoser ? " line-through" : ""}`}>
+                    <span
+                      className={`text-[11px] text-center leading-tight line-clamp-2 text-white font-medium${
+                        homeIsLoser ? " line-through" : ""
+                      }`}
+                    >
                       {getLocalizedTeamName(match.home_team, locale)}
                     </span>
                     <div className="min-h-10.5">
@@ -257,24 +265,24 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                           .filter((g) => !isPen || g.minute < 120)
                           .slice(0, 3)
                           .map((g, i) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-start gap-0.5 w-full px-1 leading-tight"
-                          >
-                            <img
-                              src={
-                                g.isOwnGoal
-                                  ? "/images/specs/own-goal.svg"
-                                  : "/images/specs/ball.svg"
-                              }
-                              alt=""
-                              className="w-2.5 h-2.5 object-contain shrink-0 opacity-70"
-                            />
-                            <span className="text-[9px] text-gray-400 truncate">
-                              {lastName(g.name)} {g.minute}′
-                            </span>
-                          </div>
-                        ))}
+                            <div
+                              key={i}
+                              className="flex items-center justify-start gap-0.5 w-full px-1 leading-tight"
+                            >
+                              <img
+                                src={
+                                  g.isOwnGoal
+                                    ? "/images/specs/own-goal.svg"
+                                    : "/images/specs/ball.svg"
+                                }
+                                alt=""
+                                className="w-2.5 h-2.5 object-contain shrink-0 opacity-70"
+                              />
+                              <span className="text-[9px] text-gray-400 truncate">
+                                {lastName(g.name)} {g.minute}′
+                              </span>
+                            </div>
+                          ))}
                     </div>
                   </div>
 
@@ -288,7 +296,7 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                         : "–"}
                     </span>
                     {isLive && (
-                      <span className="text-[#00A800] text-[10px] font-mono leading-none">
+                      <span className="text-accent text-[10px] font-mono leading-none">
                         {match.status === "HT"
                           ? "HT"
                           : match.elapsed
@@ -303,14 +311,18 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                     )}
                     {showPenScore && (
                       <span className="text-gray-300 text-[10px] font-mono tabular-nums leading-none">
-                        {tEv("penLabel")} {match.penalty_home}–{match.penalty_away}
+                        {tEv("penLabel")}: {match.penalty_home}–{match.penalty_away}
                       </span>
                     )}
                   </div>
 
                   {/* Away */}
-                  <div className={`flex flex-col items-center gap-1.5 transition-opacity${awayIsLoser ? " opacity-50" : ""}`}>
-                    <div className="w-15 h-10 overflow-hidden relative border border-gray-300 rounded-tr-md rounded-bl-md shrink-0">
+                  <div
+                    className={`flex flex-col items-center gap-1.5 transition-opacity${
+                      awayIsLoser ? " opacity-50" : ""
+                    }`}
+                  >
+                    <div className="w-15 h-10 overflow-hidden relative border border-gray-300 rounded-tr-lg rounded-bl-lg shrink-0">
                       <Image
                         src={match.away_logo || "/images/specs/placeholder.svg"}
                         alt=""
@@ -319,7 +331,11 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                         sizes="60px"
                       />
                     </div>
-                    <span className={`text-[11px] text-center leading-tight line-clamp-2 text-white font-medium${awayIsLoser ? " line-through" : ""}`}>
+                    <span
+                      className={`text-[11px] text-center leading-tight line-clamp-2 text-white font-medium${
+                        awayIsLoser ? " line-through" : ""
+                      }`}
+                    >
                       {getLocalizedTeamName(match.away_team, locale)}
                     </span>
                     <div className="min-h-10.5">
@@ -328,24 +344,24 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                           .filter((g) => !isPen || g.minute < 120)
                           .slice(0, 3)
                           .map((g, i) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-start gap-0.5 w-full px-1 leading-tight"
-                          >
-                            <img
-                              src={
-                                g.isOwnGoal
-                                  ? "/images/specs/own-goal.svg"
-                                  : "/images/specs/ball.svg"
-                              }
-                              alt=""
-                              className="w-2.5 h-2.5 object-contain shrink-0 opacity-70"
-                            />
-                            <span className="text-[9px] text-gray-400 truncate">
-                              {lastName(g.name)} {g.minute}′
-                            </span>
-                          </div>
-                        ))}
+                            <div
+                              key={i}
+                              className="flex items-center justify-start gap-0.5 w-full px-1 leading-tight"
+                            >
+                              <img
+                                src={
+                                  g.isOwnGoal
+                                    ? "/images/specs/own-goal.svg"
+                                    : "/images/specs/ball.svg"
+                                }
+                                alt=""
+                                className="w-2.5 h-2.5 object-contain shrink-0 opacity-70"
+                              />
+                              <span className="text-[9px] text-gray-400 truncate">
+                                {lastName(g.name)} {g.minute}′
+                              </span>
+                            </div>
+                          ))}
                     </div>
                   </div>
                 </div>

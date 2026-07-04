@@ -112,7 +112,7 @@ export default function WorldCupBest3rd({ standings }: WorldCupBest3rdProps) {
                       className="flex items-center gap-2 hover:opacity-75 transition-opacity"
                     >
                       {team.team_logo && (
-                        <div className="w-10 h-6 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-md rounded-bl-md">
+                        <div className="w-9 h-5 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
                           <img
                             src={team.team_logo}
                             alt=""

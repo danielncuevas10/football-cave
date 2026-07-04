@@ -351,8 +351,8 @@ export default function TopScorers({
                     }`}
                   >
                     <div
-                      className={`overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-md rounded-bl-md transition-all ${
-                        isFirst ? "w-10 h-6" : "w-8 h-5"
+                      className={`overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg transition-all ${
+                        isFirst ? "w-9 h-5" : "w-8 h-5"
                       }`}
                     >
                       <img

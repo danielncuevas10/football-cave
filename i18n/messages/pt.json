@@ -56,7 +56,8 @@
     "wcroundQF": "Quartas de final",
     "wcroundSF": "Semifinais",
     "wcroundThird": "3° lugar",
-    "wcroundFinal": "Final"
+    "wcroundFinal": "Final",
+    "matchday": "Rodada {n}"
   },
   "matchEvents": {
     "matchStarted": "Jogo iniciado",
@@ -143,6 +144,13 @@
     "lastMatches": "Últimas partidas",
     "nextMatch": "Próxima partida",
     "manager": "Técnico"
+  },
+  "prediction": {
+    "whoWillWin": "Quem vai ganhar?",
+    "draw": "Empate",
+    "predictions": "previsões",
+    "firstToPredict": "Seja o primeiro a prever!",
+    "error": "Algo correu mal. Tente novamente."
   },
   "consent": {
     "message": "Usamos cookies para melhorar sua experiência e analisar o tráfego do site.",

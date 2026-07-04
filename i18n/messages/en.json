@@ -56,7 +56,8 @@
     "wcroundQF": "Quarter-finals",
     "wcroundSF": "Semi-finals",
     "wcroundThird": "3rd Place",
-    "wcroundFinal": "Final"
+    "wcroundFinal": "Final",
+    "matchday": "Matchday {n}"
   },
   "matchEvents": {
     "matchStarted": "Match Started",
@@ -143,6 +144,13 @@
   "about": {
     "body": "Your dedicated home for football insights. We're here to help you follow your favorite clubs and never miss a defining moment. We're proud to have you as part of our community. Thanks for letting us keep you in the loop.",
     "title": "About Us"
+  },
+  "prediction": {
+    "whoWillWin": "Who will win?",
+    "draw": "Draw",
+    "predictions": "predictions",
+    "firstToPredict": "Be the first to predict!",
+    "error": "Something went wrong. Please try again."
   },
   "consent": {
     "message": "We use cookies to improve your experience and analyse site traffic.",

@@ -87,7 +87,7 @@ export default function BracketBottomSheet() {
   };
 
   return (
-    <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-custom-gray-2 shadow-lg border-t border-custom-gray">
+    <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-custom-gray-2 shadow-lg border-t border-white/8">
       <div className="flex items-stretch">
         {TABS.map(({ href, Icon, ...rest }, i) => {
           const isActive = pathname === href;
@@ -104,7 +104,7 @@ export default function BracketBottomSheet() {
                 ${i < TABS.length - 1 ? "border-r border-custom-gray" : ""}
                 ${
                   isActive
-                    ? "text-[#00A800] bg-custom-gray/30"
+                    ? "text-accent bg-custom-gray/30"
                     : "text-white/70 hover:text-white"
                 }`}
             >
@@ -113,7 +113,7 @@ export default function BracketBottomSheet() {
                 {label}
               </span>
               {isActive && (
-                <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#00A800]" />
+                <span className="absolute bottom-0 inset-x-0 h-0.5 bg-accent" />
               )}
             </Link>
           );

@@ -56,7 +56,8 @@
     "wcroundQF": "Προημιτελικά",
     "wcroundSF": "Ημιτελικά",
     "wcroundThird": "3η θέση",
-    "wcroundFinal": "Τελικός"
+    "wcroundFinal": "Τελικός",
+    "matchday": "Αγωνιστική {n}"
   },
   "matchEvents": {
     "matchStarted": "Έναρξη αγώνα",
@@ -143,6 +144,13 @@
     "lastMatches": "Τελευταίοι αγώνες",
     "nextMatch": "Επόμενος αγώνας",
     "manager": "Προπονητής"
+  },
+  "prediction": {
+    "whoWillWin": "Ποιος θα κερδίσει;",
+    "draw": "Ισοπαλία",
+    "predictions": "προβλέψεις",
+    "firstToPredict": "Γίνε ο πρώτος που θα προβλέψει!",
+    "error": "Κάτι πήγε στραβά. Δοκιμάστε ξανά."
   },
   "consent": {
     "message": "Χρησιμοποιούμε cookies για να βελτιώσουμε την εμπειρία σας και να αναλύσουμε την κίνηση.",

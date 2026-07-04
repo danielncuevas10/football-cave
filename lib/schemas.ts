@@ -222,3 +222,10 @@ export const countriesResponseSchema = apiResponseSchema(apiCountrySchema)
 export const matchesResponseSchema = apiResponseSchema(apiMatchSchema)
 export const scorersResponseSchema = apiResponseSchema(apiScorerSchema)
 export const matchDetailsResponseSchema = apiResponseSchema(apiMatchDetailsItemSchema)
+
+export const predictionSchema = z.object({
+  matchId: z.number().int().positive(),
+  prediction: z.enum(["home", "draw", "away"]),
+})
+
+export type PredictionInput = z.infer<typeof predictionSchema>

@@ -10,6 +10,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { getLocalizedTeamName } from "@/lib/teamName";
+import { resolveFlag } from "@/lib/flagUrl";
 
 type Team = {
   team_id: number;
@@ -181,11 +182,9 @@ export default function SearchBar() {
                 i === activeIdx ? "bg-white/10" : "hover:bg-white/5"
               }`}
             >
-              <img
-                src={team.team_logo}
-                alt=""
-                className="w-6 h-6 object-contain shrink-0"
-                loading="lazy"
+              <div
+                className="w-9 h-5 shrink-0 bg-cover bg-center bg-no-repeat bg-origin-border border border-gray-300 rounded-tr-lg rounded-bl-lg"
+                style={{ backgroundImage: `url(${resolveFlag(team.team_logo) ?? team.team_logo})` }}
               />
               <span className="text-sm text-gray-100 flex-1 min-w-0 truncate">
                 {getLocalizedTeamName(team.team_name, locale)}
