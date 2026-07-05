@@ -6,6 +6,8 @@ import Image from "next/image";
 import StandingsTable from "@/components/info/standings/page";
 import WorldCupGroups, { WorldCupLegend } from "@/components/WorldCupGroups";
 import MatchCenterDetails from "@/components/info/matchDetails/page";
+import TeamLastMatches from "@/components/info/matchDetails/TeamLastMatches";
+import PreMatchStats from "@/components/info/matchDetails/PreMatchStats";
 import MatchCenterLinenups from "./matchLineups/page";
 import type {
   DbMatchDetails,
@@ -96,6 +98,8 @@ interface MatchTabsProps {
   referee?: string | null;
   penaltyHome?: number | null;
   penaltyAway?: number | null;
+  round?: string | null;
+  kickoffDate?: string;
 }
 
 export default function MatchTabs({
@@ -117,7 +121,25 @@ export default function MatchTabs({
   referee,
   penaltyHome,
   penaltyAway,
+  round,
+  kickoffDate,
 }: MatchTabsProps) {
+  const knockoutKeywords = [
+    "round of 16",
+    "round of 32",
+    "round of 64",
+    "quarter",
+    "semi",
+    "final",
+    "3rd place",
+    "third place",
+    "playoff",
+    "knockout",
+  ];
+  const isKnockout = knockoutKeywords.some((k) =>
+    round?.toLowerCase().includes(k)
+  );
+
   const [activeTab, setActiveTab] = useState<TabType>("events");
   const [isLive, setIsLive] = useState(initialIsLive);
 
@@ -584,6 +606,20 @@ export default function MatchTabs({
                         ev.detail === "Penalty cancelled");
                     if (isShootoutCallEvent) return null;
 
+                    // Drop events with unrecognized types that carry no player name —
+                    // nothing meaningful can be shown and they'd fall into the catch-all
+                    // with "unknown" text.
+                    const isKnownType =
+                      isOwnGoal ||
+                      isPenaltyGoal ||
+                      isMissedPenalty ||
+                      isRegularGoal ||
+                      isSubstitution ||
+                      isVar ||
+                      isPenaltyResult ||
+                      isShootoutEvent;
+                    if (!isKnownType && !ev.player.name) return null;
+
                     const showStart = !renderedStartDivider;
                     if (showStart) renderedStartDivider = true;
 
@@ -801,7 +837,7 @@ export default function MatchTabs({
                                   </div>
                                 )}
                               </div>
-                              <div className="px-2.5 py-1 text-gray-200 font-bold text-xs text-center min-w-10.5">
+                              <div className="px-2.5 py-1 text-gray-200 font-bold font-mono text-xs text-center min-w-10.5">
                                 {ev.time.extra
                                   ? `${ev.time.elapsed}+`
                                   : ev.time.elapsed}
@@ -833,9 +869,11 @@ export default function MatchTabs({
                               <div className="w-full min-w-0">
                                 {isHomeEvent && (
                                   <div className="flex items-center justify-end gap-2 w-full">
-                                    <span className="text-[11px] text-gray-200 font-medium truncate">
-                                      {ev.player.name || tEv("unknownPlayer")}
-                                    </span>
+                                    {ev.player.name && (
+                                      <span className="text-[11px] text-gray-200 font-medium truncate">
+                                        {ev.player.name}
+                                      </span>
+                                    )}
                                     <img
                                       src={
                                         isMissedPenalty
@@ -861,9 +899,11 @@ export default function MatchTabs({
                                       alt=""
                                       className="w-6 h-6 object-contain shrink-0"
                                     />
-                                    <span className="text-[11px] text-gray-200 font-medium truncate">
-                                      {ev.player.name || tEv("unknownPlayer")}
-                                    </span>
+                                    {ev.player.name && (
+                                      <span className="text-[11px] text-gray-200 font-medium truncate">
+                                        {ev.player.name}
+                                      </span>
+                                    )}
                                   </div>
                                 )}
                               </div>
@@ -901,10 +941,11 @@ export default function MatchTabs({
                                       isMissedPenalty ||
                                       isRegularGoal ? (
                                       <div className="flex flex-col gap-0.5 min-w-0">
-                                        <span className="text-[11px] text-gray-200 font-medium truncate">
-                                          {ev.player.name ||
-                                            tEv("unknownPlayer")}
-                                        </span>
+                                        {ev.player.name && (
+                                          <span className="text-[11px] text-gray-200 font-medium truncate">
+                                            {ev.player.name}
+                                          </span>
+                                        )}
                                         <span className="text-[9px] text-gray-300 truncate">
                                           {isOwnGoal
                                             ? tEv("ownGoal")
@@ -917,10 +958,11 @@ export default function MatchTabs({
                                       </div>
                                     ) : (
                                       <div className="flex items-center gap-1.5 min-w-0">
-                                        <span className="text-gray-200 font-medium truncate">
-                                          {ev.player.name ||
-                                            tEv("unknownPlayer")}
-                                        </span>
+                                        {ev.player.name && (
+                                          <span className="text-gray-200 font-medium truncate">
+                                            {ev.player.name}
+                                          </span>
+                                        )}
                                       </div>
                                     )}
                                   </div>
@@ -941,7 +983,7 @@ export default function MatchTabs({
                             </div>
 
                             {/* Center Column: Time Indicator */}
-                            <div className="px-2.5 py-1 text-gray-200 font-bold text-xs text-center min-w-10.5">
+                            <div className="px-2.5 py-1 text-gray-200 font-bold font-mono text-xs text-center min-w-10.5">
                               {ev.time.extra
                                 ? `${ev.time.elapsed}+`
                                 : ev.time.elapsed}
@@ -988,10 +1030,11 @@ export default function MatchTabs({
                                       isMissedPenalty ||
                                       isRegularGoal ? (
                                       <div className="flex flex-col gap-0.5 min-w-0 items-end">
-                                        <span className="text-[11px] text-gray-200 font-medium truncate">
-                                          {ev.player.name ||
-                                            tEv("unknownPlayer")}
-                                        </span>
+                                        {ev.player.name && (
+                                          <span className="text-[11px] text-gray-200 font-medium truncate">
+                                            {ev.player.name}
+                                          </span>
+                                        )}
                                         <span className="text-[9px] text-gray-300 truncate">
                                           {isOwnGoal
                                             ? tEv("ownGoal")
@@ -1004,10 +1047,11 @@ export default function MatchTabs({
                                       </div>
                                     ) : (
                                       <div className="flex items-center gap-1.5 min-w-0 justify-end">
-                                        <span className="text-gray-200 font-medium truncate">
-                                          {ev.player.name ||
-                                            tEv("unknownPlayer")}
-                                        </span>
+                                        {ev.player.name && (
+                                          <span className="text-gray-200 font-medium truncate">
+                                            {ev.player.name}
+                                          </span>
+                                        )}
                                       </div>
                                     )}
                                   </div>
@@ -1151,9 +1195,11 @@ export default function MatchTabs({
                               <div className="w-full min-w-0">
                                 {isHomeKick && (
                                   <div className="flex items-center justify-end gap-2 w-full">
-                                    <span className="text-[11px] text-gray-200 font-medium truncate">
-                                      {kick.player.name || tEv("unknownPlayer")}
-                                    </span>
+                                    {kick.player.name && (
+                                      <span className="text-[11px] text-gray-200 font-medium truncate">
+                                        {kick.player.name}
+                                      </span>
+                                    )}
                                     <img
                                       src={
                                         isMiss
@@ -1179,9 +1225,11 @@ export default function MatchTabs({
                                       alt=""
                                       className="w-6 h-6 object-contain shrink-0"
                                     />
-                                    <span className="text-[11px] text-gray-200 font-medium truncate">
-                                      {kick.player.name || tEv("unknownPlayer")}
-                                    </span>
+                                    {kick.player.name && (
+                                      <span className="text-[11px] text-gray-200 font-medium truncate">
+                                        {kick.player.name}
+                                      </span>
+                                    )}
                                   </div>
                                 )}
                               </div>
@@ -1233,7 +1281,24 @@ export default function MatchTabs({
                   </span>
                 </div>
               </div>
-            ) : isLive ? (
+            ) : status === "NS" || status === "TBD" ? (
+              <div className="space-y-2">
+                <PredictionWidget
+                  matchId={matchId}
+                  homeTeam={homeTeamName ?? ""}
+                  awayTeam={awayTeamName ?? ""}
+                  homeLogo={homeLogo ?? null}
+                  awayLogo={awayLogo ?? null}
+                  isKnockout={isKnockout}
+                />
+                <TeamLastMatches
+                  homeLogoUrl={homeLogo ?? null}
+                  awayLogoUrl={awayLogo ?? null}
+                  homeTeamName={homeTeamName ?? ""}
+                  awayTeamName={awayTeamName ?? ""}
+                />
+              </div>
+            ) : (
               <div className="bg-custom-gray rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
                 <div className="bg-custom-gray-2 flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest">
                   <img
@@ -1271,23 +1336,6 @@ export default function MatchTabs({
                   </div>
                 )}
               </div>
-            ) : status === "NS" || status === "TBD" ? (
-              <PredictionWidget
-                matchId={matchId}
-                homeTeam={homeTeamName ?? ""}
-                awayTeam={awayTeamName ?? ""}
-                homeLogo={homeLogo ?? null}
-                awayLogo={awayLogo ?? null}
-              />
-            ) : (
-              <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
-                {tTabs("upcomingMatch")}
-                <img
-                  src="/images/specs/clock.svg"
-                  alt=""
-                  className="w-8 h-8 object-contain mx-auto mt-4"
-                />
-              </div>
             )}
           </div>
         </div>
@@ -1297,8 +1345,32 @@ export default function MatchTabs({
             activeTab === "details" ? "" : "h-0 overflow-hidden"
           }`}
         >
-          <div className="bg-custom-gray rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
-            <MatchCenterDetails details={liveDetails} />
+          <div className="overflow-hidden">
+            {(() => {
+              const isScheduled = status === "NS" || status === "TBD";
+              const hasStats = (liveDetails?.statistics?.length ?? 0) >= 2;
+              if (isScheduled) {
+                return (
+                  <PreMatchStats
+                    homeLogoUrl={homeLogo ?? null}
+                    awayLogoUrl={awayLogo ?? null}
+                    homeTeamName={homeTeamName ?? ""}
+                    awayTeamName={awayTeamName ?? ""}
+                  />
+                );
+              }
+              if (!hasStats) {
+                return (
+                  <TeamLastMatches
+                    homeLogoUrl={homeLogo ?? null}
+                    awayLogoUrl={awayLogo ?? null}
+                    homeTeamName={homeTeamName ?? ""}
+                    awayTeamName={awayTeamName ?? ""}
+                  />
+                );
+              }
+              return <MatchCenterDetails details={liveDetails} />;
+            })()}
           </div>
         </div>
 
@@ -1307,8 +1379,12 @@ export default function MatchTabs({
             activeTab === "lineups" ? "" : "h-0 overflow-hidden"
           }`}
         >
-          <div className="bg-custom-gray rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
-            <MatchCenterLinenups details={liveDetails} status={status} />
+          <div className="overflow-hidden">
+            <MatchCenterLinenups
+              details={liveDetails}
+              status={status}
+              kickoffDate={kickoffDate}
+            />
           </div>
         </div>
 
@@ -1377,30 +1453,6 @@ export default function MatchTabs({
       </div>
 
       {/* Venue & referee — always visible below all tabs */}
-      {(venueName || venueCity || referee) && (
-        <div className="bg-[#1C1C1E] rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-4 text-[11px] text-[#8E8E93] space-y-1.5">
-          {(venueName || venueCity) && (
-            <div className="flex items-center gap-2">
-              <img
-                src="/images/stadium.svg"
-                alt=""
-                className="w-3.5 h-3.5 opacity-60 shrink-0"
-              />
-              <span>{[venueName, venueCity].filter(Boolean).join(", ")}</span>
-            </div>
-          )}
-          {referee && (
-            <div className="flex items-center gap-2">
-              <img
-                src="/images/specs/final.svg"
-                alt=""
-                className="w-3.5 h-3.5 opacity-60 shrink-0"
-              />
-              <span>{referee}</span>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

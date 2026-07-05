@@ -8,35 +8,50 @@ const NOT_STARTED: FixtureStatus[] = ["NS", "TBD"];
 interface DetailsProps {
   details: DbMatchDetails | null;
   status?: FixtureStatus;
+  kickoffDate?: string;
 }
 
-export default function MatchCenterLinenups({ details, status }: DetailsProps) {
+export default function MatchCenterLinenups({ details, status, kickoffDate }: DetailsProps) {
   const t = useTranslations("lineups");
   const tTabs = useTranslations("matchTabs");
   const matchStarted = !!status && !NOT_STARTED.includes(status);
 
-  if (!details) {
-    return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
-        {t("notAvailableYet")}
-        <img
-          src="/images/specs/clock.svg"
-          alt=""
-          className="w-8 h-8 object-contain mx-auto mt-4"
-        />
-      </div>
-    );
-  }
+  const isPreMatch = !!status && NOT_STARTED.includes(status);
 
-  if (!details.lineups || details.lineups.length === 0) {
+  if (!details || !details.lineups || details.lineups.length === 0) {
+    if (isPreMatch) {
+      let dropTime: string | null = null;
+      if (kickoffDate) {
+        const kickoff = new Date(kickoffDate);
+        kickoff.setHours(kickoff.getHours() - 1);
+        dropTime = `${kickoff.getHours().toString().padStart(2, "0")}:${kickoff.getMinutes().toString().padStart(2, "0")}`;
+      }
+      return (
+        <div className="p-8 text-center">
+          <img
+            src="/images/specs/clock.svg"
+            alt=""
+            className="w-8 h-8 object-contain mx-auto mb-4 opacity-40"
+          />
+          {dropTime && (
+            <p className="text-[14px] font-semibold text-white leading-snug mb-1">
+              {t("lineupsDropAt", { time: dropTime })}
+            </p>
+          )}
+          <p className="text-[12px] text-gray-400 leading-snug">
+            {t("lineupsSubtitle")}
+          </p>
+        </div>
+      );
+    }
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
-        {t("notAvailableYet")}
+      <div className="p-8 text-center text-gray-400">
         <img
           src="/images/specs/clock.svg"
           alt=""
-          className="w-8 h-8 object-contain mx-auto mt-4"
+          className="w-8 h-8 object-contain mx-auto mb-4 opacity-40"
         />
+        <p className="text-[13px] leading-snug">{t("notAvailableYet")}</p>
       </div>
     );
   }

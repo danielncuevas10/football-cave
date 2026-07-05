@@ -81,7 +81,7 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
     >
       <div className="relative bg-[#1a1a1a] rounded-xl overflow-hidden">
         {/* Teams + score */}
-        <div className="grid grid-cols-3 items-center gap-2 px-4 pb-4">
+        <div className="grid grid-cols-3 items-center gap-2 px-4 py-4">
           <div className="flex flex-col items-center gap-2">
             <TeamLogo logo={match.home_logo} />
             <span className="text-xs text-center font-medium leading-tight text-gray-200 line-clamp-2">
@@ -98,13 +98,16 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
                 {match.away_score ?? 0}
               </span>
             </div>
-            {showMinute && (
-              <span className="text-accent text-[10px] font-mono tabular-nums">
-                {minute}′
-              </span>
-            )}
-            {match.status === "HT" && (
-              <span className="text-gray-400 text-xs font-mono">HT</span>
+            {(showMinute || match.status === "HT") && (
+              <div
+                className={`flex items-center justify-center w-8 h-8 rounded-full font-extrabold font-mono text-[10px] shrink-0 text-white ${
+                  match.status === "HT" ? "bg-gray-600" : "bg-accent"
+                }`}
+              >
+                <span className={match.status !== "HT" ? "animate-pulse" : ""}>
+                  {match.status === "HT" ? "HT" : minute}
+                </span>
+              </div>
             )}
           </div>
           <div className="flex flex-col items-center gap-2">
@@ -115,13 +118,6 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
           </div>
         </div>
 
-        {/* Sweeping green live line */}
-        <div className="h-0.5 w-full bg-gray-800 relative overflow-hidden">
-          <div
-            className="h-full w-1/2 bg-accent absolute"
-            style={{ animation: "live-scan 6s ease-in-out infinite" }}
-          />
-        </div>
       </div>
     </Link>
   );
@@ -220,7 +216,7 @@ export default function TeamTabs({
   return (
     <div className="w-full text-white">
       {/* Banner — full width, no rounding, no side margins */}
-      <div className="flex items-center gap-4 px-6 py-15 bg-custom-gray-2 w-full">
+      <div className="flex items-center gap-4 px-6 py-15 bg-custom-gray w-full">
         <div className="w-20 h-12 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
           <img
             src={teamLogoUrl}

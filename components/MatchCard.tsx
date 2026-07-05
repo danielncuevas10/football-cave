@@ -34,6 +34,8 @@ function StatusBadge({
 
   if (status === "NS" || status === "TBD") return null;
 
+  const circleBase = "flex items-center justify-center w-8 h-8 rounded-full font-extrabold font-mono text-[10px] shrink-0";
+
   if (FINISHED_STATUSES.includes(status)) {
     const label =
       status === "FT"
@@ -42,9 +44,9 @@ function StatusBadge({
         ? tEv("penLabel")
         : status;
     return (
-      <span className="text-white text-[9px] lg:text-[10px] font-mono px-1.5 py-0.5 bg-gray-600 rounded-xl whitespace-nowrap">
+      <div className={`${circleBase} bg-gray-600 text-white`}>
         {label}
-      </span>
+      </div>
     );
   }
 
@@ -53,18 +55,22 @@ function StatusBadge({
     case "2H":
     case "ET":
       return (
-        <span className="text-white font-bold text-[7px] lg:text-xs font-mono px-1.5 py-1.5 bg-accent rounded-2xl">
-          {minute}′
-        </span>
+        <div className={`${circleBase} bg-accent text-white`}>
+          <span className="animate-pulse">{minute}</span>
+        </div>
       );
     case "HT":
       return (
-        <span className="text-white text-xs font-mono px-1.5 py-0.5 bg-gray-600 rounded-xl">
+        <div className={`${circleBase} bg-gray-600 text-white`}>
           {tEv("halfTimeBadge")}
-        </span>
+        </div>
       );
     default:
-      return <span className="text-gray-200 text-xs">{status}</span>;
+      return (
+        <div className={`${circleBase} bg-gray-700 text-gray-200`}>
+          {status}
+        </div>
+      );
   }
 }
 
@@ -119,7 +125,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
     >
       {/* Fixed 4-column layout: [badge][home][score][away]
           The badge column is always reserved so nothing shifts when live */}
-      <div className="bg-custom-gray-2 h-16 px-3 grid grid-cols-[1rem_1fr_auto_1fr] gap-2 items-center">
+      <div className="bg-custom-gray-2 h-16 px-3 grid grid-cols-[2rem_1fr_auto_1fr] gap-2 items-center">
         {/* Left badge — always occupies 2rem; empty when not live */}
         <div className="flex items-center justify-center">
           <StatusBadge
@@ -179,11 +185,11 @@ export default function MatchCard({ match }: { match: DbMatch }) {
             </span>
           ) : match.home_score !== null && match.away_score !== null ? (
             <div className="flex items-center gap-1.5 justify-center">
-              <span className="text-xl font-extrabold tabular-nums">
+              <span className="text-lg font-bold tabular-nums">
                 {match.home_score}
               </span>
               <span className="text-gray-400 font-bold text-sm">–</span>
-              <span className="text-xl font-extrabold tabular-nums">
+              <span className="text-lg font-bold tabular-nums">
                 {match.away_score}
               </span>
             </div>

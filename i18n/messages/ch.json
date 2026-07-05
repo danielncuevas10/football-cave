@@ -98,14 +98,27 @@
   "matchDetails": {
     "matchOverview": "比赛概览",
     "comingSoon": "即将推出...",
-    "noInfoYet": "暂无可用信息"
+    "noInfoYet": "暂无可用信息",
+    "h2hTitle": "历史交锋",
+    "h2hNoMeetings": "暂无历史交锋记录",
+    "formLast5": "最近5场比赛",
+    "goalsScored": "进球数",
+    "goalsConceded": "失球数",
+    "cleanSheets": "零封场次",
+    "passAccuracy": "传球准确率",
+    "avgPossession": "控球率",
+    "h2hLast1": "最近1次对阵",
+    "h2hLast2": "最近2次对阵",
+    "h2hLast3": "最近3次对阵"
   },
   "lineups": {
     "confirmedLineups": "确认阵容",
     "substitutes": "替补",
     "manager": "教练",
     "formation": "阵型",
-    "notAvailableYet": "暂无可用信息"
+    "notAvailableYet": "暂无可用信息",
+    "lineupsDropAt": "阵容将于 {time} 公布",
+    "lineupsSubtitle": "开球前1小时将公布首发阵容。"
   },
   "liveBadge": {
     "days": "天",

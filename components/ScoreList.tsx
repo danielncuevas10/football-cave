@@ -291,15 +291,6 @@ export default function ScoreList({ initialMatches }: Props) {
                         </h3>
                       </div>
                     )}
-                    <div className="h-0.5 overflow-hidden relative">
-                      <div
-                        className="absolute h-full w-50 bg-accent/50"
-                        style={{
-                          animation: "live-scan 5s ease-in-out infinite",
-                          boxShadow: "0 0 10px rgba(255,255,255,0.5)",
-                        }}
-                      />
-                    </div>
 
                     <div>
                       {matches.map((m: DbMatch, index: number) => (

@@ -98,14 +98,27 @@
   "matchDetails": {
     "matchOverview": "Resumen del partido",
     "comingSoon": "Próximamente...",
-    "noInfoYet": "No hay información disponible aún"
+    "noInfoYet": "No hay información disponible aún",
+    "h2hTitle": "Cara a Cara",
+    "h2hNoMeetings": "Sin enfrentamientos previos",
+    "formLast5": "Últimos 5 partidos",
+    "goalsScored": "Goles marcados",
+    "goalsConceded": "Goles encajados",
+    "cleanSheets": "Porterías a cero",
+    "passAccuracy": "Precisión de pases",
+    "avgPossession": "Posesión",
+    "h2hLast1": "Último enfrentamiento",
+    "h2hLast2": "Últimos 2 enfrentamientos",
+    "h2hLast3": "Últimos 3 enfrentamientos"
   },
   "lineups": {
     "confirmedLineups": "Alineaciones confirmadas",
     "substitutes": "Suplentes",
     "manager": "Entrenador",
     "formation": "Formación",
-    "notAvailableYet": "No hay información disponible aún"
+    "notAvailableYet": "No hay información disponible aún",
+    "lineupsDropAt": "Las alineaciones se publican a las {time}",
+    "lineupsSubtitle": "Tendremos el once inicial 1 hora antes del partido."
   },
   "liveBadge": {
     "days": "D",

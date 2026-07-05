@@ -98,14 +98,27 @@
   "matchDetails": {
     "matchOverview": "Maç Özeti",
     "comingSoon": "Yakında...",
-    "noInfoYet": "Henüz bilgi mevcut değil"
+    "noInfoYet": "Henüz bilgi mevcut değil",
+    "h2hTitle": "Karşılıklı Maçlar",
+    "h2hNoMeetings": "Önceki karşılaşma bulunamadı",
+    "formLast5": "Son 5 maç",
+    "goalsScored": "Atılan goller",
+    "goalsConceded": "Yenilen goller",
+    "cleanSheets": "Gol yenilmeden geçen maçlar",
+    "passAccuracy": "Pas isabet oranı",
+    "avgPossession": "Top hakimiyeti",
+    "h2hLast1": "Son karşılaşma",
+    "h2hLast2": "Son 2 karşılaşma",
+    "h2hLast3": "Son 3 karşılaşma"
   },
   "lineups": {
     "confirmedLineups": "Onaylanan Kadrolar",
     "substitutes": "Yedekler",
     "manager": "Teknik direktör",
     "formation": "Diziliş",
-    "notAvailableYet": "Henüz bilgi mevcut değil"
+    "notAvailableYet": "Henüz bilgi mevcut değil",
+    "lineupsDropAt": "Kadrolar {time}'de açıklanıyor",
+    "lineupsSubtitle": "İlk 11'i maçtan 1 saat önce öğrenebilirsiniz."
   },
   "liveBadge": {
     "days": "G",

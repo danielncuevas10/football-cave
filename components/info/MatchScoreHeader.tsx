@@ -14,14 +14,16 @@ import type {
   FixtureStatus,
   MatchEvent,
 } from "@/types/sports";
-import { LIVE_STATUSES } from "@/types/sports";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
 // Hardcoded venue data for WC 2026 knockout matches.
 // The API often omits venue for future/unplayed matches; this fills the gap.
 // When the API eventually provides venue, it takes priority (see usage below).
-const VENUE_OVERRIDES: Record<number, { venueName: string; venueCity: string }> = {
+const VENUE_OVERRIDES: Record<
+  number,
+  { venueName: string; venueCity: string }
+> = {
   // Round of 16
   1569870: { venueName: "Lincoln Financial Field", venueCity: "Philadelphia" },
   1567824: { venueName: "NRG Stadium", venueCity: "Houston" },
@@ -101,6 +103,7 @@ function formatKickoff(dateStr: string): string {
   return new Date(dateStr).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   });
 }
 
@@ -131,7 +134,11 @@ function StatusLabel({
     );
 
   if (status === "1H" || status === "2H" || status === "ET")
-    return <span className="text-accent text-xs font-mono">{minute}′</span>;
+    return (
+      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-accent text-white font-extrabold font-mono text-[10px] shrink-0">
+        <span className="animate-pulse">{minute}</span>
+      </div>
+    );
 
   if (status === "NS" || status === "TBD") return null;
 
@@ -264,8 +271,6 @@ export default function MatchScoreHeader({
   const kickoffPassed = new Date(match.fixture_date) < new Date();
   const isScheduled =
     (match.status === "NS" || match.status === "TBD") && !kickoffPassed;
-  const isLive = match.is_live || LIVE_STATUSES.includes(match.status);
-
   const isWcKnockout =
     (match.league_id === 1 || match.league_id === 10) &&
     match.stage !== null &&
@@ -411,10 +416,10 @@ export default function MatchScoreHeader({
                     </div>
                   )}
 
-                  <div className="flex items-center justify-center gap-2 flex-col text-center">
-                    <div className="text-xl font-bold">
+                  <div className="flex items-center justify-center gap-1 flex-col text-center">
+                    <div className="text-xl font-bold font-mono py-2">
                       {isScheduled ? (
-                        <span className="text-gray-300 text-sm font-medium">
+                        <span className="text-gray-300 text-sm font-medium font-sans">
                           {formatKickoff(match.fixture_date)}
                         </span>
                       ) : hasScore ? (
@@ -422,7 +427,9 @@ export default function MatchScoreHeader({
                           {displayHome} – {displayAway}
                         </>
                       ) : (
-                        <span className="text-gray-300 text-sm">–</span>
+                        <span className="text-gray-300 text-sm font-sans">
+                          –
+                        </span>
                       )}
                     </div>
                     {!match.is_live &&
@@ -497,16 +504,19 @@ export default function MatchScoreHeader({
           day: "numeric",
           year: "numeric",
         });
-        const timePart = d.toLocaleTimeString("en-US", {
-          hour: "numeric",
+        const timePart = d.toLocaleTimeString([], {
+          hour: "2-digit",
           minute: "2-digit",
+          hour12: false,
         });
         const override = VENUE_OVERRIDES[match.id];
         const resolvedVenueName = venueName ?? override?.venueName ?? null;
         const resolvedVenueCity = venueCity ?? override?.venueCity ?? null;
-        const venue = [resolvedVenueName, resolvedVenueCity].filter(Boolean).join(", ");
+        const venue = [resolvedVenueName, resolvedVenueCity]
+          .filter(Boolean)
+          .join(", ");
         return (
-          <div className="px-5 py-4.5 flex items-center justify-center gap-4 text-[11px] text-gray-300 flex-wrap">
+          <div className="px-5 py-4.5 flex items-center justify-center gap-2 text-[10px] text-gray-300 flex-wrap">
             <img
               src="/images/specs/clock.svg"
               alt=""
@@ -530,17 +540,6 @@ export default function MatchScoreHeader({
         );
       })()}
 
-      {isLive && (
-        <div className="h-0.5 overflow-hidden relative">
-          <div
-            className="absolute h-full w-50 bg-accent/50"
-            style={{
-              animation: "live-scan 5s ease-in-out infinite",
-              boxShadow: "0 0 10px rgba(255,255,255,0.5)",
-            }}
-          />
-        </div>
-      )}
     </div>
   );
 }

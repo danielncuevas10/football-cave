@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { DbMatch, FixtureStatus } from "@/types/sports";
+import { useLiveMinute } from "@/hooks/useLiveMinute";
 
 interface TournamentBracketProps {
   matches: DbMatch[];
@@ -15,31 +16,40 @@ const KNOCKOUT_STAGES = [
   { key: "FINAL", label: "Final" },
 ];
 
+const circleBase =
+  "flex items-center justify-center w-8 h-8 rounded-full font-extrabold font-mono text-[10px] shrink-0";
+
 function StatusBadge({
   status,
   elapsed,
+  fixtureDate,
 }: {
   status: FixtureStatus;
   elapsed: number | null;
+  fixtureDate: string;
 }) {
+  const minute = useLiveMinute(status, elapsed, fixtureDate);
   switch (status) {
     case "1H":
     case "2H":
     case "ET":
       return (
-        <span className="flex items-center gap-1 text-gray-200 text-sm font-medium">
-          <span className="w-1.5 h-1.5 rounded-full" />
-          {elapsed ?? ""}′
-        </span>
+        <div className={`${circleBase} bg-accent text-white`}>
+          <span className="animate-pulse">{minute}</span>
+        </div>
       );
     case "HT":
-      return <span className="text-yellow-400 text-sm font-medium">HT</span>;
+      return (
+        <div className={`${circleBase} bg-gray-600 text-white`}>HT</div>
+      );
     case "FT":
     case "AET":
     case "PEN":
-      return <span className="text-gray-300 text-sm">FT</span>;
+      return (
+        <div className={`${circleBase} bg-gray-600 text-white`}>FT</div>
+      );
     case "PST":
-      return <span className="text-orange-400 text-sm">Postponed</span>;
+      return <span className="text-orange-400 text-sm">PST</span>;
     case "CANC":
     default:
       return <span className="text-gray-200 text-sm">{status}</span>;
@@ -165,6 +175,7 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
                                   <StatusBadge
                                     status={leg.status as FixtureStatus}
                                     elapsed={leg.elapsed}
+                                    fixtureDate={leg.fixture_date}
                                   />
                                 </div>
 

@@ -98,14 +98,27 @@
   "matchDetails": {
     "matchOverview": "Pregled utakmice",
     "comingSoon": "Uskoro...",
-    "noInfoYet": "Nema dostupnih informacija još"
+    "noInfoYet": "Nema dostupnih informacija još",
+    "h2hTitle": "Međusobni dvoboji",
+    "h2hNoMeetings": "Nema prethodnih susreta",
+    "formLast5": "Posljednjih 5 utakmica",
+    "goalsScored": "Dati golovi",
+    "goalsConceded": "Primljeni golovi",
+    "cleanSheets": "Mreže bez primljenog gola",
+    "passAccuracy": "Tačnost dodavanja",
+    "avgPossession": "Posjed",
+    "h2hLast1": "Posljednji susret",
+    "h2hLast2": "Posljednja 2 susreta",
+    "h2hLast3": "Posljednja 3 susreta"
   },
   "lineups": {
     "confirmedLineups": "Potvrđene postave",
     "substitutes": "Rezerve",
     "manager": "Trener",
     "formation": "Formacija",
-    "notAvailableYet": "Nema dostupnih informacija još"
+    "notAvailableYet": "Nema dostupnih informacija još",
+    "lineupsDropAt": "Postave objavljene u {time}",
+    "lineupsSubtitle": "Imat ćemo početnu postavu 1 sat prije utakmice."
   },
   "liveBadge": {
     "days": "D",

@@ -28,6 +28,7 @@ interface PredictionWidgetProps {
   awayTeam: string;
   homeLogo: string | null;
   awayLogo: string | null;
+  isKnockout?: boolean;
 }
 
 export default function PredictionWidget({
@@ -36,6 +37,7 @@ export default function PredictionWidget({
   awayTeam,
   homeLogo,
   awayLogo,
+  isKnockout = false,
 }: PredictionWidgetProps) {
   const t = useTranslations("prediction");
   const locale = useLocale();
@@ -80,10 +82,20 @@ export default function PredictionWidget({
 
     const duration = 1200;
     const start = Date.now();
+
+    // In knockout mode, draw votes in the DB (legacy or erroneous) dilute home/away.
+    // Re-normalize to a 2-way denominator so the displayed values sum to 100%.
+    let targetHome = results.home;
+    let targetAway = results.away;
+    if (isKnockout) {
+      const twoWay = results.home + results.away;
+      targetHome = twoWay > 0 ? Math.round((results.home / twoWay) * 100) : 50;
+      targetAway = twoWay > 0 ? 100 - targetHome : 50;
+    }
     const target = {
-      home: results.home,
+      home: targetHome,
       draw: results.draw,
-      away: results.away,
+      away: targetAway,
     };
 
     let rafId: number;
@@ -101,7 +113,7 @@ export default function PredictionWidget({
 
     rafId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(rafId);
-  }, [phase, results]);
+  }, [phase, results, isKnockout]);
 
   const vote = async (prediction: Prediction) => {
     setPhase("loading");
@@ -173,12 +185,14 @@ export default function PredictionWidget({
 
   const buttons: { key: Prediction; label: string; logo: string | null }[] = [
     { key: "home", label: localHomeTeam, logo: homeLogo },
-    { key: "draw", label: t("draw"), logo: null },
+    ...(!isKnockout
+      ? [{ key: "draw" as Prediction, label: t("draw"), logo: null }]
+      : []),
     { key: "away", label: localAwayTeam, logo: awayLogo },
   ];
 
   return (
-    <div className="bg-[#1C1C1E] rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-4">
+    <div className="bg-[#1C1C1E] rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-4 mb-5">
       <p className="text-[11px] font-semibold tracking-[0.08em] text-gray-300 text-center mb-3">
         {t("whoWillWin")}
       </p>
@@ -211,7 +225,24 @@ export default function PredictionWidget({
             </span>
             {isVoted && (
               <span className="text-[13px] font-semibold text-white">
-                {displayPcts[key]}%
+                {isKnockout && results
+                  ? (() => {
+                      const twoWay = results.home + results.away;
+                      if (key === "home")
+                        return twoWay > 0
+                          ? Math.round((results.home / twoWay) * 100)
+                          : 50;
+                      if (key === "away") {
+                        const h =
+                          twoWay > 0
+                            ? Math.round((results.home / twoWay) * 100)
+                            : 50;
+                        return 100 - h;
+                      }
+                      return 0;
+                    })()
+                  : displayPcts[key]}
+                %
               </span>
             )}
           </button>

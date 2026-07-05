@@ -108,6 +108,8 @@ async function MatchContent({
       referee={referee}
       penaltyHome={(match ?? initialMatch).penalty_home}
       penaltyAway={(match ?? initialMatch).penalty_away}
+      round={(match ?? initialMatch).round}
+      kickoffDate={initialMatch.fixture_date}
     />
   );
 }

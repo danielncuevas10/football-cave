@@ -33,28 +33,15 @@ export default function MatchCenterDetails({ details }: DetailsProps) {
   const t = useTranslations("matchDetails");
   const tStat = useTranslations("statLabels");
 
-  if (!details) {
+  if (!details || !details.statistics || details.statistics.length < 2) {
     return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
-        {t("comingSoon")}
+      <div className="p-8 text-center text-gray-400">
         <img
           src="/images/specs/clock.svg"
           alt=""
-          className="w-8 h-8 object-contain mx-auto mt-4"
+          className="w-8 h-8 object-contain mx-auto mb-4 opacity-40"
         />
-      </div>
-    );
-  }
-
-  if (!details.statistics || details.statistics.length < 2) {
-    return (
-      <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
-        {t("noInfoYet")}
-        <img
-          src="/images/specs/clock.svg"
-          alt=""
-          className="w-8 h-8 object-contain mx-auto mt-4"
-        />
+        <p className="text-[13px]">{t("comingSoon")}</p>
       </div>
     );
   }

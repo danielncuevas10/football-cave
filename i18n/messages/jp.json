@@ -98,14 +98,27 @@
   "matchDetails": {
     "matchOverview": "試合概要",
     "comingSoon": "近日公開...",
-    "noInfoYet": "情報はまだありません"
+    "noInfoYet": "情報はまだありません",
+    "h2hTitle": "直接対決",
+    "h2hNoMeetings": "過去の対戦データなし",
+    "formLast5": "直近5試合",
+    "goalsScored": "得点数",
+    "goalsConceded": "失点数",
+    "cleanSheets": "クリーンシート",
+    "passAccuracy": "パス精度",
+    "avgPossession": "ポゼッション",
+    "h2hLast1": "直近1試合",
+    "h2hLast2": "直近2試合",
+    "h2hLast3": "直近3試合"
   },
   "lineups": {
     "confirmedLineups": "確定スターティングメンバー",
     "substitutes": "ベンチ",
     "manager": "監督",
     "formation": "フォーメーション",
-    "notAvailableYet": "情報はまだありません"
+    "notAvailableYet": "情報はまだありません",
+    "lineupsDropAt": "スターティングメンバーは{time}に公開",
+    "lineupsSubtitle": "キックオフ1時間前に先発メンバーをお知らせします。"
   },
   "liveBadge": {
     "days": "日",

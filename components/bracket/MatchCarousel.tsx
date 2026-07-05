@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
-import type { DbMatch } from "@/types/sports";
+import type { DbMatch, FixtureStatus } from "@/types/sports";
 import { LIVE_STATUSES } from "@/types/sports";
 import { supabase } from "@/lib/supabase";
+import { useLiveMinute } from "@/hooks/useLiveMinute";
 import { getLocalizedTeamName } from "@/lib/teamName";
 import type { GoalsMap } from "./BracketPanelServer";
 
@@ -20,6 +21,20 @@ interface Props {
   matches: DbMatch[];
   venues: VenueMap;
   goals: GoalsMap;
+}
+
+function LiveMinute({
+  status,
+  elapsed,
+  fixtureDate,
+}: {
+  status: FixtureStatus;
+  elapsed: number | null;
+  fixtureDate: string;
+}) {
+  const minute = useLiveMinute(status, elapsed, fixtureDate);
+  if (status === "HT") return <span className="text-accent text-[10px] font-mono leading-none">HT</span>;
+  return <span className="text-accent text-[10px] font-mono leading-none">{minute}′</span>;
 }
 
 const lastName = (name: string) => {
@@ -153,6 +168,7 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
     new Date(d).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      hour12: false,
     });
 
   const statusNode = (() => {
@@ -171,9 +187,11 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
       );
     if (s === "1H" || s === "2H" || s === "ET")
       return (
-        <span className="text-accent text-[10px] font-mono">
-          {match.elapsed}′
-        </span>
+        <LiveMinute
+          status={match.status}
+          elapsed={match.elapsed}
+          fixtureDate={match.fixture_date}
+        />
       );
     return null;
   })();
@@ -206,17 +224,6 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
 
         {/* Card container — clips the slide */}
         <div className="flex-1 overflow-hidden rounded-xl relative bg-custom-gray-2 min-h-0">
-          {isLive && (
-            <div className="hidden md:block h-0.5 overflow-hidden relative">
-              <div
-                className="absolute h-full w-50 bg-accent/50"
-                style={{
-                  animation: "live-scan 5s ease-in-out infinite",
-                  boxShadow: "0 0 10px rgba(255,255,255,0.5)",
-                }}
-              />
-            </div>
-          )}
           <Link
             key={animKey}
             href={`/match/${match.id}`}
@@ -296,13 +303,11 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                         : "–"}
                     </span>
                     {isLive && (
-                      <span className="text-accent text-[10px] font-mono leading-none">
-                        {match.status === "HT"
-                          ? "HT"
-                          : match.elapsed
-                          ? `${match.elapsed}′`
-                          : "LIVE"}
-                      </span>
+                      <LiveMinute
+                        status={match.status}
+                        elapsed={match.elapsed}
+                        fixtureDate={match.fixture_date}
+                      />
                     )}
                     {isFinished && (
                       <span className="text-gray-200 text-[10px] uppercase tracking-wider leading-none">

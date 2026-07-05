@@ -98,14 +98,27 @@
   "matchDetails": {
     "matchOverview": "Match Overview",
     "comingSoon": "Coming soon...",
-    "noInfoYet": "No information available yet"
+    "noInfoYet": "No information available yet",
+    "h2hTitle": "Head-to-Head",
+    "h2hNoMeetings": "No previous meetings found",
+    "formLast5": "Last 5 matches",
+    "goalsScored": "Goals scored",
+    "goalsConceded": "Goals conceded",
+    "cleanSheets": "Clean sheets",
+    "passAccuracy": "Pass accuracy",
+    "avgPossession": "Possession",
+    "h2hLast1": "Last meeting",
+    "h2hLast2": "Last 2 meetings",
+    "h2hLast3": "Last 3 meetings"
   },
   "lineups": {
     "confirmedLineups": "Confirmed Line-ups",
     "substitutes": "Substitutes",
     "manager": "Manager",
     "formation": "Formation",
-    "notAvailableYet": "No information available yet"
+    "notAvailableYet": "No information available yet",
+    "lineupsDropAt": "Lineups drop at {time}",
+    "lineupsSubtitle": "We'll have the starting XI 1 hour before kickoff."
   },
   "liveBadge": {
     "days": "D",

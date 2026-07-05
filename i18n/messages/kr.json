@@ -98,14 +98,27 @@
   "matchDetails": {
     "matchOverview": "경기 개요",
     "comingSoon": "곧 공개...",
-    "noInfoYet": "아직 이용 가능한 정보가 없습니다"
+    "noInfoYet": "아직 이용 가능한 정보가 없습니다",
+    "h2hTitle": "상대 전적",
+    "h2hNoMeetings": "이전 대결 기록 없음",
+    "formLast5": "최근 5경기",
+    "goalsScored": "득점",
+    "goalsConceded": "실점",
+    "cleanSheets": "클린시트",
+    "passAccuracy": "패스 정확도",
+    "avgPossession": "점유율",
+    "h2hLast1": "최근 1경기",
+    "h2hLast2": "최근 2경기",
+    "h2hLast3": "최근 3경기"
   },
   "lineups": {
     "confirmedLineups": "확정 라인업",
     "substitutes": "후보 선수",
     "manager": "감독",
     "formation": "포메이션",
-    "notAvailableYet": "아직 이용 가능한 정보가 없습니다"
+    "notAvailableYet": "아직 이용 가능한 정보가 없습니다",
+    "lineupsDropAt": "라인업은 {time}에 공개",
+    "lineupsSubtitle": "킥오프 1시간 전에 선발 명단을 확인하실 수 있습니다."
   },
   "liveBadge": {
     "days": "일",
