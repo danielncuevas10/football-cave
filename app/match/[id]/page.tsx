@@ -93,7 +93,6 @@ async function MatchContent({
       standings={standings}
       scorers={scorers}
       leagueName={initialMatch.league_name}
-      leagueLogo={initialMatch.league_logo}
       leagueId={initialMatch.league_id}
       matchId={matchId}
       homeTeamName={initialMatch.home_team}

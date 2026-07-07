@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, Fragment } from "react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import StandingsTable from "@/components/info/standings/page";
 import WorldCupGroups, { WorldCupLegend } from "@/components/WorldCupGroups";
 import MatchCenterDetails from "@/components/info/matchDetails/page";
@@ -83,7 +82,6 @@ interface MatchTabsProps {
   standings: DbStanding[];
   scorers: DbTopScorer[];
   leagueName: string | null;
-  leagueLogo: string | null;
   leagueId: number;
   matchId: number;
   homeTeamName?: string;
@@ -106,7 +104,6 @@ export default function MatchTabs({
   details,
   standings,
   leagueName,
-  leagueLogo,
   leagueId,
   matchId,
   homeTeamName,
@@ -1285,6 +1282,7 @@ export default function MatchTabs({
               <div className="space-y-2">
                 <PredictionWidget
                   matchId={matchId}
+                  leagueId={leagueId}
                   homeTeam={homeTeamName ?? ""}
                   awayTeam={awayTeamName ?? ""}
                   homeLogo={homeLogo ?? null}
@@ -1337,6 +1335,108 @@ export default function MatchTabs({
                 )}
               </div>
             )}
+            {referee &&
+              (() => {
+                const commaIdx = referee.indexOf(",");
+                const refName =
+                  commaIdx !== -1
+                    ? referee.slice(0, commaIdx).trim()
+                    : referee.trim();
+                const refCountry =
+                  commaIdx !== -1 ? referee.slice(commaIdx + 1).trim() : null;
+                const countryFlagCode: Record<string, string> = {
+                  Germany: "de",
+                  France: "fr",
+                  Italy: "it",
+                  Spain: "es",
+                  Netherlands: "nl",
+                  Poland: "pl",
+                  Portugal: "pt",
+                  Belgium: "be",
+                  England: "gb-eng",
+                  Argentina: "ar",
+                  Brazil: "br",
+                  Uruguay: "uy",
+                  Colombia: "co",
+                  Chile: "cl",
+                  Mexico: "mx",
+                  "United States": "us",
+                  USA: "us",
+                  Canada: "ca",
+                  Japan: "jp",
+                  "South Korea": "kr",
+                  Australia: "au",
+                  "Saudi Arabia": "sa",
+                  Qatar: "qa",
+                  Morocco: "ma",
+                  Nigeria: "ng",
+                  Senegal: "sn",
+                  Ghana: "gh",
+                  Egypt: "eg",
+                  Tunisia: "tn",
+                  Algeria: "dz",
+                  Cameroon: "cm",
+                  Turkey: "tr",
+                  Serbia: "rs",
+                  Croatia: "hr",
+                  Switzerland: "ch",
+                  Sweden: "se",
+                  Norway: "no",
+                  Denmark: "dk",
+                  Austria: "at",
+                  Greece: "gr",
+                  Romania: "ro",
+                  Ukraine: "ua",
+                  Slovakia: "sk",
+                  "Czech Republic": "cz",
+                  Russia: "ru",
+                  Iran: "ir",
+                  Ecuador: "ec",
+                  Peru: "pe",
+                  Venezuela: "ve",
+                  "Costa Rica": "cr",
+                  Panama: "pa",
+                  Honduras: "hn",
+                };
+                const flagCode = refCountry
+                  ? countryFlagCode[refCountry] ?? null
+                  : null;
+                return (
+                  <div className="bg-[#1C1C1E] rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-4 mt-5">
+                    <div className="flex items-center gap-4">
+                      <img
+                        src="/images/specs/final.svg"
+                        alt=""
+                        className="w-7 h-7 object-contain opacity-70 shrink-0"
+                      />
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[11px] text-gray-400 tracking-wider font-semibold uppercase">
+                          {tTabs("referee")}
+                        </span>
+                        <span className="text-sm font-medium text-white leading-tight">
+                          {refName}
+                        </span>
+                        {refCountry && (
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            {flagCode && (
+                              <div className="w-5 h-3.5 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-sm rounded-bl-sm">
+                                <img
+                                  src={`/images/flags/${flagCode}.svg`}
+                                  alt={refCountry}
+                                  className="w-full h-full object-cover scale-[1.15]"
+                                />
+                              </div>
+                            )}
+                            <span className="text-[11px] text-gray-400">
+                              - {refCountry}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
           </div>
         </div>
 
@@ -1356,6 +1456,7 @@ export default function MatchTabs({
                     awayLogoUrl={awayLogo ?? null}
                     homeTeamName={homeTeamName ?? ""}
                     awayTeamName={awayTeamName ?? ""}
+                    leagueId={leagueId}
                   />
                 );
               }
@@ -1408,15 +1509,6 @@ export default function MatchTabs({
                 </div>
               ) : (
                 <div className="flex items-center gap-4 p-4">
-                  {leagueLogo && (
-                    <Image
-                      src={leagueLogo}
-                      alt={leagueName || "League Logo"}
-                      width={50}
-                      height={50}
-                      className="object-contain w-15 h-15"
-                    />
-                  )}
                   <h1 className="text-xl font-extrabold tracking-tight">
                     {leagueName}
                   </h1>

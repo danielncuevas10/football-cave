@@ -145,6 +145,11 @@ function StatusLabel({
   return <span className="text-gray-200 text-xs tracking-wider">{status}</span>;
 }
 
+function isNationalTeamMatch(leagueId: number): boolean {
+  const NATIONAL_TEAM_LEAGUES = [1, 4, 5, 6, 9, 10, 17, 25, 29, 30, 32, 34];
+  return NATIONAL_TEAM_LEAGUES.includes(leagueId);
+}
+
 function teamIdFromLogo(logo: string | null | undefined): number | null {
   if (!logo) return null;
   const m = logo.match(/\/teams\/(\d+)\.png$/);
@@ -370,11 +375,13 @@ export default function MatchScoreHeader({
               const awayClass = `${baseTeamClass}${
                 awayIsLoser ? " opacity-50" : " hover:opacity-80"
               }`;
-              const flagClass = `w-18 h-12 overflow-hidden scale[1.15] shrink-0 block relative ${
-                match.league_id === 1 || match.league_id === 10
-                  ? "border border-gray-300 rounded-tr-lg rounded-bl-lg"
-                  : ""
-              }`;
+              const isNational = isNationalTeamMatch(match.league_id);
+              const flagClass = isNational
+                ? "w-18 h-12 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg"
+                : "w-14 h-14 overflow-hidden shrink-0 block relative rounded-sm";
+              const flagImgClass = isNational
+                ? "w-full h-full object-cover will-change-transform scale-[1.20]"
+                : "w-full h-full object-contain";
               return (
                 <>
                   {homeId ? (
@@ -385,7 +392,7 @@ export default function MatchScoreHeader({
                           alt=""
                           width={72}
                           height={48}
-                          className="w-full h-full object-cover  will-change-transform scale-[1.20]"
+                          className={flagImgClass}
                         />
                       </div>
 
@@ -459,7 +466,7 @@ export default function MatchScoreHeader({
                           alt=""
                           width={72}
                           height={48}
-                          className="w-full h-full object-cover  will-change-transform scale-[1.20]"
+                          className={flagImgClass}
                         />
                       </div>
                       <span

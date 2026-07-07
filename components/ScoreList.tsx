@@ -104,15 +104,20 @@ export default function ScoreList({ initialMatches }: Props) {
     setCurrentDate(next);
   };
 
+  // Temporary focus filter — set to null to show all leagues again after the WC ends
+  const FOCUSED_LEAGUE_ID = 1;
+
   const liveIds = new Set(liveMatches.map((m) => m.id));
   const merged = [
     ...liveMatches,
     ...allMatches.filter((m) => !liveIds.has(m.id)),
-  ].sort((a, b) => {
-    const d =
-      new Date(a.fixture_date).getTime() - new Date(b.fixture_date).getTime();
-    return d !== 0 ? d : a.id - b.id;
-  });
+  ]
+    .filter((m) => m.league_id === FOCUSED_LEAGUE_ID)
+    .sort((a, b) => {
+      const d =
+        new Date(a.fixture_date).getTime() - new Date(b.fixture_date).getTime();
+      return d !== 0 ? d : a.id - b.id;
+    });
 
   // A match is live if the DB says so OR if its status is an active live status.
   // This catches matches where is_live was not written correctly by the cron.
@@ -246,11 +251,6 @@ export default function ScoreList({ initialMatches }: Props) {
             {Object.entries(liveMatchesByLeague).map(
               ([leagueName, matches]) => {
                 const leagueId = matches[0]?.league_id;
-                const leagueLogo =
-                  leagueId === 1
-                    ? "/images/WC26Badge.svg"
-                    : matches.find((m) => m.league_logo)?.league_logo ||
-                      "/images/specs/placeholder.svg";
 
                 return (
                   <div
@@ -266,11 +266,6 @@ export default function ScoreList({ initialMatches }: Props) {
                             : "justify-center"
                         }`}
                       >
-                        <img
-                          src={leagueLogo}
-                          alt=""
-                          className="w-6 h-6 object-contain"
-                        />
                         <h3 className="text-[15px] font-bold text-white tracking-wider">
                           {leagueName}
                         </h3>
@@ -320,11 +315,6 @@ export default function ScoreList({ initialMatches }: Props) {
           <div className="space-y-6">
             {Object.entries(matchesByLeague).map(([leagueName, matches]) => {
               const leagueId = matches[0]?.league_id;
-              const leagueLogo =
-                leagueId === 1
-                  ? "/images/WC26Badge.svg"
-                  : matches.find((m) => m.league_logo)?.league_logo ||
-                    "/images/specs/placeholder.svg";
 
               return (
                 <div
@@ -338,11 +328,6 @@ export default function ScoreList({ initialMatches }: Props) {
                         leagueId === 1 ? "justify-start px-4" : "justify-center"
                       }`}
                     >
-                      <img
-                        src={leagueLogo}
-                        alt=""
-                        className="w-6 h-6 object-contain"
-                      />
                       <h3 className="text-[15px] font-bold text-white tracking-wider">
                         {leagueName}
                       </h3>

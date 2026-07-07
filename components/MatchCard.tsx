@@ -10,6 +10,11 @@ function isFlag(logo: string | null): boolean {
   return !!logo && logo.includes("/flags/");
 }
 
+function isNationalTeamMatch(leagueId: number): boolean {
+  const NATIONAL_TEAM_LEAGUES = [1, 4, 5, 6, 9, 10, 17, 25, 29, 30, 32, 34];
+  return NATIONAL_TEAM_LEAGUES.includes(leagueId);
+}
+
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
 function formatKickoff(dateStr: string): string {
@@ -160,20 +165,20 @@ export default function MatchCard({ match }: { match: DbMatch }) {
                   backgroundImage: `url(${resolveFlag(match.home_logo)})`,
                 }}
               />
-            ) : (
-              <div
-                className={`w-9 h-5 overflow-hidden shrink-0 ${
-                  match.league_id === 1 || match.league_id === 10
-                    ? "border border-gray-300 rounded-tr-lg rounded-bl-lg"
-                    : ""
-                }`}
-              >
+            ) : isNationalTeamMatch(match.league_id) ? (
+              <div className="w-9 h-5 overflow-hidden shrink-0 border border-gray-300 rounded-tr-lg rounded-bl-lg">
                 <img
                   src={match.home_logo}
                   alt=""
                   className="w-full h-full object-cover scale-[1.15] will-change-transform"
                 />
               </div>
+            ) : (
+              <img
+                src={match.home_logo}
+                alt=""
+                className="w-6 h-6 object-contain rounded-sm"
+              />
             ))}
         </div>
 
@@ -226,20 +231,20 @@ export default function MatchCard({ match }: { match: DbMatch }) {
                   backgroundImage: `url(${resolveFlag(match.away_logo)})`,
                 }}
               />
-            ) : (
-              <div
-                className={`w-9 h-5 overflow-hidden shrink-0 ${
-                  match.league_id === 1 || match.league_id === 10
-                    ? "border border-gray-300 rounded-tr-lg rounded-bl-lg"
-                    : ""
-                }`}
-              >
+            ) : isNationalTeamMatch(match.league_id) ? (
+              <div className="w-9 h-5 overflow-hidden shrink-0 border border-gray-300 rounded-tr-lg rounded-bl-lg">
                 <img
                   src={match.away_logo}
                   alt=""
                   className="w-full h-full object-cover scale-[1.15] will-change-transform"
                 />
               </div>
+            ) : (
+              <img
+                src={match.away_logo}
+                alt=""
+                className="w-6 h-6 object-contain rounded-sm"
+              />
             ))}
           <span
             className={`text-xs lg:text-md font-medium text-left leading-tight line-clamp-2${

@@ -16,6 +16,11 @@ function isFlag(src: string): boolean {
   return src.includes("/flags/");
 }
 
+function isNationalTeamMatch(leagueId: number): boolean {
+  const NATIONAL_TEAM_LEAGUES = [1, 4, 5, 6, 9, 10, 17, 25, 29, 30, 32, 34];
+  return NATIONAL_TEAM_LEAGUES.includes(leagueId);
+}
+
 const FINISHED: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
 async function fetchH2H(
@@ -55,8 +60,10 @@ async function fetchH2H(
     .slice(0, 3);
 }
 
-
-function FlagImg({ src }: { src: string }) {
+function FlagImg({ src, isNational }: { src: string; isNational: boolean }) {
+  if (!isNational) {
+    return <img src={src} alt="" className="w-6 h-6 object-contain rounded-sm shrink-0" />;
+  }
   if (isFlag(src)) {
     return (
       <div
@@ -78,7 +85,7 @@ function FlagImg({ src }: { src: string }) {
   );
 }
 
-function TeamBadge({ src, alt }: { src: string; alt: string }) {
+function TeamBadge({ src, alt, isNational }: { src: string; alt: string; isNational: boolean }) {
   if (isFlag(src)) {
     const resolved = resolveFlag(src) ?? src;
     return (
@@ -93,8 +100,11 @@ function TeamBadge({ src, alt }: { src: string; alt: string }) {
       </div>
     );
   }
+  if (!isNational) {
+    return <img src={src} alt={alt} className="w-8 h-8 object-contain rounded-sm shrink-0" />;
+  }
   return (
-    <div className="w-5 h-3 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-sm rounded-bl-sm shadow-[0_1px_4px_rgba(0,0,0,0.4)]">
+    <div className="w-8 h-5 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-sm rounded-bl-sm shadow-[0_1px_4px_rgba(0,0,0,0.4)]">
       <Image
         src={src}
         alt={alt}
@@ -135,7 +145,7 @@ function H2HRow({
       className="flex items-center gap-2 py-2 px-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
     >
       {match.home_logo ? (
-        <FlagImg src={match.home_logo} />
+        <FlagImg src={match.home_logo} isNational={isNationalTeamMatch(match.league_id)} />
       ) : (
         <div className="w-6 h-4 shrink-0" />
       )}
@@ -149,7 +159,7 @@ function H2HRow({
         {dateStr}
       </span>
       {match.away_logo ? (
-        <FlagImg src={match.away_logo} />
+        <FlagImg src={match.away_logo} isNational={isNationalTeamMatch(match.league_id)} />
       ) : (
         <div className="w-6 h-4 shrink-0" />
       )}
@@ -168,13 +178,13 @@ function StatRow({
 }) {
   return (
     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 py-2 border-b border-white/5 last:border-0">
-      <span className="text-[13px] font-semibold text-white tabular-nums text-right">
+      <span className="text-[15px] font-semibold text-white tabular-nums text-right">
         {homeVal}
       </span>
       <span className="text-[10px] text-gray-200 tracking-wide text-center w-28 shrink-0">
         {label}
       </span>
-      <span className="text-[13px] font-semibold text-white tabular-nums text-left">
+      <span className="text-[15px] font-semibold text-white tabular-nums text-left">
         {awayVal}
       </span>
     </div>
@@ -205,6 +215,7 @@ interface Props {
   awayLogoUrl: string | null;
   homeTeamName: string;
   awayTeamName: string;
+  leagueId: number;
 }
 
 export default function PreMatchStats({
@@ -212,6 +223,7 @@ export default function PreMatchStats({
   awayLogoUrl,
   homeTeamName,
   awayTeamName,
+  leagueId,
 }: Props) {
   const t = useTranslations("matchDetails");
 
@@ -283,7 +295,7 @@ export default function PreMatchStats({
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3 border-b border-white/5">
             <div className="flex justify-end">
               {homeLogoUrl && (
-                <TeamBadge src={homeLogoUrl} alt={homeTeamName} />
+                <TeamBadge src={homeLogoUrl} alt={homeTeamName} isNational={isNationalTeamMatch(leagueId)} />
               )}
             </div>
             <span className="text-[10px] text-gray-200 tracking-wide text-center w-28 shrink-0">
@@ -291,7 +303,7 @@ export default function PreMatchStats({
             </span>
             <div className="flex justify-start">
               {awayLogoUrl && (
-                <TeamBadge src={awayLogoUrl} alt={awayTeamName} />
+                <TeamBadge src={awayLogoUrl} alt={awayTeamName} isNational={isNationalTeamMatch(leagueId)} />
               )}
             </div>
           </div>
@@ -322,15 +334,11 @@ export default function PreMatchStats({
             />
             <StatRow
               homeVal={
-                homeStats?.possession != null
-                  ? `${homeStats.possession}%`
-                  : "–"
+                homeStats?.possession != null ? `${homeStats.possession}%` : "–"
               }
               label={t("avgPossession")}
               awayVal={
-                awayStats?.possession != null
-                  ? `${awayStats.possession}%`
-                  : "–"
+                awayStats?.possession != null ? `${awayStats.possession}%` : "–"
               }
             />
             <StatRow

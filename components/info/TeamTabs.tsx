@@ -503,13 +503,6 @@ export default function TeamTabs({
                           {(upcoming.length > 0 || finished.length === 0) && (
                             <div className="bg-custom-gray rounded-xl overflow-hidden">
                               <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
-                                {group.leagueLogo && (
-                                  <img
-                                    src={group.leagueLogo}
-                                    alt=""
-                                    className="w-5 h-5 object-contain shrink-0"
-                                  />
-                                )}
                                 <span className="text-xs font-medium text-gray-300 tracking-wide">
                                   {group.leagueName ?? "Competition"}
                                 </span>
@@ -536,13 +529,6 @@ export default function TeamTabs({
                               </p>
                               <div className="bg-custom-gray rounded-xl overflow-hidden">
                                 <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
-                                  {group.leagueLogo && (
-                                    <img
-                                      src={group.leagueLogo}
-                                      alt=""
-                                      className="w-5 h-5 object-contain shrink-0"
-                                    />
-                                  )}
                                   <span className="text-xs font-medium text-gray-300 tracking-wide">
                                     {group.leagueName ?? "Competition"}
                                   </span>
@@ -595,13 +581,6 @@ export default function TeamTabs({
                           className="bg-custom-gray rounded-xl overflow-hidden"
                         >
                           <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
-                            {group.leagueLogo && (
-                              <img
-                                src={group.leagueLogo}
-                                alt=""
-                                className="w-5 h-5 object-contain shrink-0"
-                              />
-                            )}
                             <span className="text-xs font-medium text-gray-300 tracking-wide">
                               {group.leagueName ?? "Friendlies"}
                             </span>

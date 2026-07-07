@@ -10,6 +10,11 @@ import type { DbMatch, FixtureStatus } from "@/types/sports";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
+function isNationalTeamMatch(leagueId: number): boolean {
+  const NATIONAL_TEAM_LEAGUES = [1, 4, 5, 6, 9, 10, 17, 25, 29, 30, 32, 34];
+  return NATIONAL_TEAM_LEAGUES.includes(leagueId);
+}
+
 function getResult(
   match: DbMatch,
   teamLogoUrl: string
@@ -62,18 +67,21 @@ async function fetchLastMatches(logoUrl: string): Promise<DbMatch[]> {
     .slice(0, 3);
 }
 
-function FlagImg({ src, alt }: { src: string; alt: string }) {
-  return (
-    <div className="w-6 h-4 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-md rounded-bl-md shadow-[0_1px_4px_rgba(0,0,0,0.4)]">
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        className="object-cover will-change-transform scale-[1.15]"
-        sizes="24px"
-      />
-    </div>
-  );
+function FlagImg({ src, alt, isNational }: { src: string; alt: string; isNational: boolean }) {
+  if (isNational) {
+    return (
+      <div className="w-6 h-4 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-md rounded-bl-md shadow-[0_1px_4px_rgba(0,0,0,0.4)]">
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          className="object-cover will-change-transform scale-[1.15]"
+          sizes="24px"
+        />
+      </div>
+    );
+  }
+  return <img src={src} alt={alt} className="w-6 h-6 object-contain rounded-sm shrink-0" />;
 }
 
 function MatchRow({
@@ -93,7 +101,7 @@ function MatchRow({
       className="flex items-center justify-between gap-1.5 py-2 px-5 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
     >
       {match.home_logo ? (
-        <FlagImg src={match.home_logo} alt="" />
+        <FlagImg src={match.home_logo} alt="" isNational={isNationalTeamMatch(match.league_id)} />
       ) : (
         <div className="w-6 h-4 shrink-0" />
       )}
@@ -104,7 +112,7 @@ function MatchRow({
         {match.home_score}–{match.away_score}
       </span>
       {match.away_logo ? (
-        <FlagImg src={match.away_logo} alt="" />
+        <FlagImg src={match.away_logo} alt="" isNational={isNationalTeamMatch(match.league_id)} />
       ) : (
         <div className="w-6 h-4 shrink-0" />
       )}
@@ -144,7 +152,7 @@ export default function TeamLastMatches({
 
   return (
     <div className="bg-[#1C1C1E] rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-4 space-y-3">
-      <p className="text-[10px] text-gray-200 tracking-wider text-center pb-5">
+      <p className="text-[11px] text-gray-200 tracking-wider font-semibold text-center pb-5">
         {tTeam("lastMatches")}
       </p>
 

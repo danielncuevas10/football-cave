@@ -1,9 +1,62 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import type { DbTopScorer } from "@/types/sports";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
+
+// ─── Country localisation ─────────────────────────────────────────────────────
+
+const APP_TO_BCP47: Record<string, string> = {
+  ch: "zh", gr: "el", jp: "ja", kr: "ko",
+};
+
+const COUNTRY_ISO: Record<string, string> = {
+  Germany: "DE", Brazil: "BR", France: "FR", Argentina: "AR",
+  Hungary: "HU", Portugal: "PT", Netherlands: "NL", Italy: "IT",
+  Uruguay: "UY", Spain: "ES", Mexico: "MX", "United States": "US",
+  USA: "US", Canada: "CA", Belgium: "BE", Croatia: "HR", Serbia: "RS",
+  Switzerland: "CH", Denmark: "DK", Morocco: "MA", Senegal: "SN",
+  Ghana: "GH", Cameroon: "CM", Nigeria: "NG", "South Korea": "KR",
+  Korea: "KR", Japan: "JP", Australia: "AU", "Saudi Arabia": "SA",
+  Iran: "IR", Ecuador: "EC", Colombia: "CO", Chile: "CL", Peru: "PE",
+  Venezuela: "VE", Bolivia: "BO", Paraguay: "PY", Turkey: "TR",
+  Poland: "PL", "Czech Republic": "CZ", Czechia: "CZ", Austria: "AT",
+  Ukraine: "UA", Romania: "RO", "Costa Rica": "CR", Panama: "PA",
+  Honduras: "HN", Jamaica: "JM", "New Zealand": "NZ", Algeria: "DZ",
+  Egypt: "EG", Tunisia: "TN", "Côte d'Ivoire": "CI", Mali: "ML",
+  Qatar: "QA", "United Arab Emirates": "AE", Iraq: "IQ", Slovakia: "SK",
+  Greece: "GR", Sweden: "SE", Norway: "NO", Russia: "RU",
+  Indonesia: "ID", Thailand: "TH", China: "CN", Scotland: "GB",
+  Wales: "GB", "United Kingdom": "GB",
+};
+
+const COUNTRY_OVERRIDES: Record<string, Partial<Record<string, string>>> = {
+  England: {
+    en: "England", es: "Inglaterra", fr: "Angleterre", pt: "Inglaterra",
+    tr: "İngiltere", bs: "Engleska", sr: "Engleska",
+    ch: "英格兰", gr: "Αγγλία", jp: "イングランド", kr: "잉글랜드",
+  },
+  "West Germany": {
+    en: "West Germany", es: "Alemania Occidental",
+    fr: "Allemagne de l'Ouest", pt: "Alemanha Ocidental",
+    tr: "Batı Almanya", bs: "Zapadna Njemačka", sr: "Zapadna Nemačka",
+    ch: "西德", gr: "Δυτική Γερμανία", jp: "西ドイツ", kr: "서독",
+  },
+};
+
+function localizeCountryName(name: string, locale: string): string {
+  const override = COUNTRY_OVERRIDES[name];
+  if (override?.[locale]) return override[locale] as string;
+  const iso = COUNTRY_ISO[name];
+  if (!iso) return name;
+  try {
+    const bcp47 = APP_TO_BCP47[locale] ?? locale;
+    return new Intl.DisplayNames([bcp47], { type: "region" }).of(iso) ?? name;
+  } catch {
+    return name;
+  }
+}
 
 interface Props {
   scorers: DbTopScorer[];
@@ -48,7 +101,7 @@ const BASE_ALL_TIME = [
     baseGoals: 8,
     matchKey: "ronaldo",
     matchTeam: "portugal",
-    knownWc2026Goals: 2,
+    knownWc2026Goals: 3,
   },
   {
     name: "Harry Kane",
@@ -162,6 +215,7 @@ export default function TopScorers({
 }: Props) {
   const t = useTranslations("matchTabs");
   const tDetails = useTranslations("matchDetails");
+  const locale = useLocale();
   const [isExpanded, setIsExpanded] = useState(false);
   const [view, setView] = useState<"current" | "allTime">(defaultView);
   const [liveScorers, setLiveScorers] = useState<DbTopScorer[]>(scorers);
@@ -357,7 +411,7 @@ export default function TopScorers({
                     >
                       <img
                         src={`/images/flags/${player.flag}.svg`}
-                        alt={player.country}
+                        alt={localizeCountryName(player.country, locale)}
                         className="w-full h-full object-cover scale-[1.15]"
                       />
                     </div>
@@ -482,7 +536,7 @@ export default function TopScorers({
                             {player.player_name}
                           </span>
                           <span className="text-xs text-gray-200/40 font-light truncate mt-0.5">
-                            {player.team_name}
+                            {localizeCountryName(player.team_name ?? "", locale)}
                           </span>
                         </div>
                       </div>

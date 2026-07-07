@@ -322,18 +322,18 @@ export async function POST(req: NextRequest) {
   for (const [leagueId, matchTs] of leagueLatestMatch) {
     if (affectedLeagues.has(leagueId)) continue // already synced this run
 
-    const { data: st } = await supabaseAdmin
-      .from("standings")
+    const { data: sc } = await supabaseAdmin
+      .from("top_scorers")
       .select("updated_at, season")
       .eq("league_id", leagueId)
       .order("updated_at", { ascending: false })
       .limit(1)
       .single()
 
-    const standingsTs = st ? new Date(st.updated_at).getTime() : 0
-    if (standingsTs >= matchTs) continue // already up-to-date
+    const scorersTs = sc ? new Date(sc.updated_at).getTime() : 0
+    if (scorersTs >= matchTs) continue // scorers already up-to-date
 
-    const season = st?.season ?? new Date().getFullYear()
+    const season = sc?.season ?? new Date().getFullYear()
     try {
       const recomputed = await recomputeGroupStandings(leagueId, season)
       await syncScorersFromEvents(leagueId, season)

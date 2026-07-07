@@ -36,24 +36,24 @@ export default function LeagueTabs({
   isTournament = false,
   renderHeader,
 }: LeagueTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("table");
+  const [activeTab, setActiveTab] = useState<TabType>(
+    leagueId === League.WorldCup ? "scorers" : "table"
+  );
   const tTabs = useTranslations("matchTabs");
   const tBadge = useTranslations("liveBadge");
 
-  const tabs: { id: TabType; label: string }[] = [
-    {
-      id: "table",
-      label:
-        leagueId === League.WorldCup ? tTabs("groupStage") : tTabs("standings"),
-    },
-    ...(leagueId === League.WorldCup
-      ? [{ id: "best3rd" as const, label: tTabs("bestThirdPlace") }]
-      : []),
-    { id: "scorers", label: tTabs("topScorers") },
-    ...(isTournament
-      ? [{ id: "matches" as const, label: tTabs("matches") }]
-      : []),
-  ];
+  const tabs: { id: TabType; label: string }[] = leagueId === League.WorldCup
+    ? [
+        { id: "scorers", label: tTabs("topScorers") },
+        ...(isTournament ? [{ id: "matches" as const, label: tTabs("matches") }] : []),
+        { id: "table", label: tTabs("groupStage") },
+        { id: "best3rd" as const, label: tTabs("bestThirdPlace") },
+      ]
+    : [
+        { id: "table", label: tTabs("standings") },
+        { id: "scorers", label: tTabs("topScorers") },
+        ...(isTournament ? [{ id: "matches" as const, label: tTabs("matches") }] : []),
+      ];
 
   const defaultHeader =
     leagueId === League.WorldCup ? (
@@ -76,15 +76,6 @@ export default function LeagueTabs({
       <>
         <BackButton />
         <div className="flex items-center gap-4 p-4 bg-custom-gray rounded-xl border border-custom-gray-2">
-          {leagueLogo && (
-            <Image
-              src={leagueLogo}
-              alt={leagueName}
-              width={50}
-              height={50}
-              className="object-contain w-15 h-12"
-            />
-          )}
           <div>
             <h1 className="text-xl font-extrabold tracking-tight">
               {leagueName}

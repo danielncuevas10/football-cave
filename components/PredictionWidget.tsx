@@ -4,6 +4,11 @@ import { useState, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { getLocalizedTeamName } from "@/lib/teamName";
 
+function isNationalTeamMatch(leagueId: number): boolean {
+  const NATIONAL_TEAM_LEAGUES = [1, 4, 5, 6, 9, 10, 17, 25, 29, 30, 32, 34];
+  return NATIONAL_TEAM_LEAGUES.includes(leagueId);
+}
+
 type Phase = "idle" | "loading" | "voted";
 type Prediction = "home" | "draw" | "away";
 
@@ -24,6 +29,7 @@ interface PredictResponse {
 
 interface PredictionWidgetProps {
   matchId: number;
+  leagueId: number;
   homeTeam: string;
   awayTeam: string;
   homeLogo: string | null;
@@ -33,6 +39,7 @@ interface PredictionWidgetProps {
 
 export default function PredictionWidget({
   matchId,
+  leagueId,
   homeTeam,
   awayTeam,
   homeLogo,
@@ -193,7 +200,7 @@ export default function PredictionWidget({
 
   return (
     <div className="bg-[#1C1C1E] rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-4 mb-5">
-      <p className="text-[11px] font-semibold tracking-[0.08em] text-gray-300 text-center mb-3">
+      <p className="text-[11px] font-semibold tracking-[0.08em] text-gray-200 text-center mb-3">
         {t("whoWillWin")}
       </p>
 
@@ -206,13 +213,21 @@ export default function PredictionWidget({
             style={getClickedButtonStyle(key)}
           >
             {logo ? (
-              <div className="w-8 h-5 overflow-hidden shrink-0 border border-gray-300 rounded-tr-lg rounded-bl-lg">
+              isNationalTeamMatch(leagueId) ? (
+                <div className="w-8 h-5 overflow-hidden shrink-0 border border-gray-300 rounded-tr-lg rounded-bl-lg">
+                  <img
+                    src={logo}
+                    alt=""
+                    className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                  />
+                </div>
+              ) : (
                 <img
                   src={logo}
                   alt=""
-                  className="w-full h-full object-cover scale-[1.15] will-change-transform"
+                  className="w-6 h-6 object-contain rounded-sm"
                 />
-              </div>
+              )
             ) : (
               <img
                 src="/images/specs/draw.svg"
