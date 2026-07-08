@@ -68,11 +68,22 @@ function syncMissingScores(matches: DbMatch[]): void {
   );
 }
 
+const DISPLAY_LEAGUE_IDS = [1, 2, 140, 39, 253, 262];
+
 async function getInitialMatches(): Promise<DbMatch[]> {
+  const today = new Date();
+  const start = new Date(today);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(today);
+  end.setHours(23, 59, 59, 999);
+
   const { data } = await supabaseAdmin
     .from("matches")
     .select("*")
-    .order("fixture_date", { ascending: false });
+    .in("league_id", DISPLAY_LEAGUE_IDS)
+    .gte("fixture_date", start.toISOString())
+    .lte("fixture_date", end.toISOString())
+    .order("fixture_date", { ascending: true });
   return (data ?? []) as DbMatch[];
 }
 

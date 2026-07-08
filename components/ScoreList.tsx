@@ -10,6 +10,9 @@ import { LIVE_STATUSES } from "@/types/sports";
 import Link from "next/link";
 import { getWcRoundKey } from "@/lib/wcRoundLabel";
 
+// Ordered list: World Cup → UCL → La Liga → Premier League → MLS → Liga MX
+const DISPLAY_LEAGUE_IDS = [1, 2, 140, 39, 253, 262];
+
 interface Props {
   initialMatches: DbMatch[];
 }
@@ -60,7 +63,9 @@ export default function ScoreList({ initialMatches }: Props) {
   const bcp47 = LOCALE_MAP[appLocale] ?? "en-GB";
   const { matches: liveMatches } = useLiveScores();
   const [allMatches, setAllMatches] = useState(initialMatches);
+  const [dateLoading, setDateLoading] = useState(false);
 
+  // Realtime: update existing rows in state as cron writes come in
   useEffect(() => {
     const channel = supabase
       .channel("scorelist-updates")
@@ -69,6 +74,7 @@ export default function ScoreList({ initialMatches }: Props) {
         { event: "UPDATE", schema: "public", table: "matches" },
         (payload) => {
           const updated = payload.new as DbMatch;
+          if (!DISPLAY_LEAGUE_IDS.includes(updated.league_id)) return;
           setAllMatches((prev) => {
             const idx = prev.findIndex((m) => m.id === updated.id);
             if (idx !== -1) {
@@ -92,6 +98,38 @@ export default function ScoreList({ initialMatches }: Props) {
     return today;
   });
 
+  // Fetch matches for the selected date whenever the user navigates
+  useEffect(() => {
+    const todayStr = new Date().toDateString();
+    if (currentDate.toDateString() === todayStr) return; // server already provided today
+
+    const start = new Date(currentDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(currentDate);
+    end.setHours(23, 59, 59, 999);
+
+    setDateLoading(true);
+    supabase
+      .from("matches")
+      .select("*")
+      .in("league_id", DISPLAY_LEAGUE_IDS)
+      .gte("fixture_date", start.toISOString())
+      .lte("fixture_date", end.toISOString())
+      .order("fixture_date", { ascending: true })
+      .then(({ data }) => {
+        if (data) {
+          setAllMatches((prev) => {
+            const dateStr = currentDate.toDateString();
+            const other = prev.filter(
+              (m) => new Date(m.fixture_date).toDateString() !== dateStr
+            );
+            return [...other, ...data];
+          });
+        }
+        setDateLoading(false);
+      });
+  }, [currentDate]);
+
   const prevDay = () => {
     const prev = new Date(currentDate);
     prev.setDate(prev.getDate() - 1);
@@ -104,15 +142,11 @@ export default function ScoreList({ initialMatches }: Props) {
     setCurrentDate(next);
   };
 
-  // Temporary focus filter — set to null to show all leagues again after the WC ends
-  const FOCUSED_LEAGUE_ID = 1;
-
   const liveIds = new Set(liveMatches.map((m) => m.id));
   const merged = [
     ...liveMatches,
     ...allMatches.filter((m) => !liveIds.has(m.id)),
   ]
-    .filter((m) => m.league_id === FOCUSED_LEAGUE_ID)
     .sort((a, b) => {
       const d =
         new Date(a.fixture_date).getTime() - new Date(b.fixture_date).getTime();
@@ -168,6 +202,15 @@ export default function ScoreList({ initialMatches }: Props) {
     acc[league].push(match);
     return acc;
   }, {} as Record<string, DbMatch[]>);
+
+  const sortLeagueEntries = (entries: [string, DbMatch[]][]) =>
+    entries.sort((a, b) => {
+      const idA = a[1][0]?.league_id ?? 999;
+      const idB = b[1][0]?.league_id ?? 999;
+      const rankA = DISPLAY_LEAGUE_IDS.indexOf(idA);
+      const rankB = DISPLAY_LEAGUE_IDS.indexOf(idB);
+      return (rankA === -1 ? 999 : rankA) - (rankB === -1 ? 999 : rankB);
+    });
 
   return (
     <div className="space-y-6">
@@ -248,7 +291,7 @@ export default function ScoreList({ initialMatches }: Props) {
       {live.length > 0 && (
         <section className="space-y-4">
           <div className="space-y-6">
-            {Object.entries(liveMatchesByLeague).map(
+            {sortLeagueEntries(Object.entries(liveMatchesByLeague)).map(
               ([leagueName, matches]) => {
                 const leagueId = matches[0]?.league_id;
 
@@ -313,7 +356,7 @@ export default function ScoreList({ initialMatches }: Props) {
       {Object.keys(matchesByLeague).length > 0 && (
         <section>
           <div className="space-y-6">
-            {Object.entries(matchesByLeague).map(([leagueName, matches]) => {
+            {sortLeagueEntries(Object.entries(matchesByLeague)).map(([leagueName, matches]) => {
               const leagueId = matches[0]?.league_id;
 
               return (
@@ -373,12 +416,18 @@ export default function ScoreList({ initialMatches }: Props) {
       {/* FIX: Absolute clean fallback empty state container. Shows ONLY if total count is zero */}
       {matchesForDate.length === 0 && (
         <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
-          {tTabs("noMatches")}
-          <img
-            src="/images/specs/clock.svg"
-            alt=""
-            className="w-8 h-8 object-contain mx-auto mt-4"
-          />
+          {dateLoading ? (
+            <div className="w-8 h-8 border-2 border-gray-600 border-t-white rounded-full animate-spin mx-auto" />
+          ) : (
+            <>
+              {tTabs("noMatches")}
+              <img
+                src="/images/specs/clock.svg"
+                alt=""
+                className="w-8 h-8 object-contain mx-auto mt-4"
+              />
+            </>
+          )}
         </div>
       )}
     </div>
