@@ -8,6 +8,7 @@
   },
   "matchTabs": {
     "events": "イベント",
+    "overview": "概要",
     "stats": "統計",
     "lineups": "スターティング",
     "standings": "順位表",
@@ -58,7 +59,16 @@
     "wcroundSF": "準決勝",
     "wcroundThird": "3位決定戦",
     "wcroundFinal": "決勝",
-    "matchday": "第{n}節"
+    "matchday": "第{n}節",
+    "zoneChampionsLeague": "チャンピオンズリーグ",
+    "zoneEuropaLeague": "ヨーロッパリーグ",
+    "zoneConferenceLeague": "カンファレンスリーグ",
+    "zoneRelegation": "降格",
+    "zonePlayoffs": "プレーオフ",
+    "zoneQuarterfinals": "準々決勝",
+    "zonePlayIn": "プレーイン",
+    "zoneDirectQualification": "直接出場権",
+    "zonePlayOff": "プレーオフ"
   },
   "matchEvents": {
     "matchStarted": "試合開始",
@@ -110,7 +120,16 @@
     "avgPossession": "ポゼッション",
     "h2hLast1": "直近1試合",
     "h2hLast2": "直近2試合",
-    "h2hLast3": "直近3試合"
+    "h2hLast3": "直近3試合",
+    "roundMatchday": "第{n}節",
+    "roundPlayoff": "プレーオフ",
+    "roundR32": "ラウンド32",
+    "roundR16": "ラウンド16",
+    "roundQF": "準々決勝",
+    "roundSF": "準決勝",
+    "roundFinal": "決勝",
+    "roundGroup": "グループステージ",
+    "roundNumber": "第{n}ラウンド"
   },
   "lineups": {
     "confirmedLineups": "確定スターティングメンバー",
@@ -171,5 +190,15 @@
     "accept": "同意する",
     "reject": "拒否する",
     "privacyPolicy": "プライバシーポリシー"
+  },
+  "wcPlaceholder": {
+    "sf1Home": "フランス / モロッコ",
+    "sf1Away": "スペイン / ベルギー",
+    "sf2Home": "ノルウェー / イングランド",
+    "sf2Away": "アルゼンチン / スイス",
+    "loserSF1": "準決勝1の敗者",
+    "loserSF2": "準決勝2の敗者",
+    "winnerSF1": "準決勝1の勝者",
+    "winnerSF2": "準決勝2の勝者"
   }
 }

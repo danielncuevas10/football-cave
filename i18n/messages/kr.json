@@ -8,6 +8,7 @@
   },
   "matchTabs": {
     "events": "이벤트",
+    "overview": "개요",
     "stats": "통계",
     "lineups": "라인업",
     "standings": "순위표",
@@ -58,7 +59,16 @@
     "wcroundSF": "4강",
     "wcroundThird": "3위전",
     "wcroundFinal": "결승",
-    "matchday": "{n}라운드"
+    "matchday": "{n}라운드",
+    "zoneChampionsLeague": "챔피언스리그",
+    "zoneEuropaLeague": "유로파리그",
+    "zoneConferenceLeague": "컨퍼런스리그",
+    "zoneRelegation": "강등",
+    "zonePlayoffs": "플레이오프",
+    "zoneQuarterfinals": "8강",
+    "zonePlayIn": "플레이인",
+    "zoneDirectQualification": "직접 진출",
+    "zonePlayOff": "플레이오프"
   },
   "matchEvents": {
     "matchStarted": "경기 시작",
@@ -110,7 +120,16 @@
     "avgPossession": "점유율",
     "h2hLast1": "최근 1경기",
     "h2hLast2": "최근 2경기",
-    "h2hLast3": "최근 3경기"
+    "h2hLast3": "최근 3경기",
+    "roundMatchday": "{n}라운드",
+    "roundPlayoff": "플레이오프",
+    "roundR32": "32강",
+    "roundR16": "16강",
+    "roundQF": "8강",
+    "roundSF": "4강",
+    "roundFinal": "결승",
+    "roundGroup": "조별 리그",
+    "roundNumber": "{n}라운드"
   },
   "lineups": {
     "confirmedLineups": "확정 라인업",
@@ -171,5 +190,15 @@
     "accept": "동의",
     "reject": "거부",
     "privacyPolicy": "개인정보 처리방침"
+  },
+  "wcPlaceholder": {
+    "sf1Home": "프랑스 / 모로코",
+    "sf1Away": "스페인 / 벨기에",
+    "sf2Home": "노르웨이 / 잉글랜드",
+    "sf2Away": "아르헨티나 / 스위스",
+    "loserSF1": "준결승 1 패자",
+    "loserSF2": "준결승 2 패자",
+    "winnerSF1": "준결승 1 승자",
+    "winnerSF2": "준결승 2 승자"
   }
 }

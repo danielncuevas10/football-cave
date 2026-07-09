@@ -8,6 +8,7 @@
   },
   "matchTabs": {
     "events": "事件",
+    "overview": "概览",
     "stats": "数据",
     "lineups": "阵容",
     "standings": "积分榜",
@@ -58,7 +59,16 @@
     "wcroundSF": "四强",
     "wcroundThird": "季军赛",
     "wcroundFinal": "决赛",
-    "matchday": "第{n}轮"
+    "matchday": "第{n}轮",
+    "zoneChampionsLeague": "欧冠",
+    "zoneEuropaLeague": "欧联",
+    "zoneConferenceLeague": "欧会杯",
+    "zoneRelegation": "降级",
+    "zonePlayoffs": "季后赛",
+    "zoneQuarterfinals": "四分之一决赛",
+    "zonePlayIn": "附加赛",
+    "zoneDirectQualification": "直接晋级",
+    "zonePlayOff": "资格赛"
   },
   "matchEvents": {
     "matchStarted": "比赛开始",
@@ -110,7 +120,16 @@
     "avgPossession": "控球率",
     "h2hLast1": "最近1次对阵",
     "h2hLast2": "最近2次对阵",
-    "h2hLast3": "最近3次对阵"
+    "h2hLast3": "最近3次对阵",
+    "roundMatchday": "第{n}轮",
+    "roundPlayoff": "附加赛",
+    "roundR32": "32强赛",
+    "roundR16": "16强赛",
+    "roundQF": "四分之一决赛",
+    "roundSF": "半决赛",
+    "roundFinal": "决赛",
+    "roundGroup": "小组赛",
+    "roundNumber": "第{n}轮"
   },
   "lineups": {
     "confirmedLineups": "确认阵容",
@@ -171,5 +190,15 @@
     "accept": "接受",
     "reject": "拒绝",
     "privacyPolicy": "隐私政策"
+  },
+  "wcPlaceholder": {
+    "sf1Home": "法国 / 摩洛哥",
+    "sf1Away": "西班牙 / 比利时",
+    "sf2Home": "挪威 / 英格兰",
+    "sf2Away": "阿根廷 / 瑞士",
+    "loserSF1": "半决赛1负者",
+    "loserSF2": "半决赛2负者",
+    "winnerSF1": "半决赛1胜者",
+    "winnerSF2": "半决赛2胜者"
   }
 }

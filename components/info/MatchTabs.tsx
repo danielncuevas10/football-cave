@@ -22,6 +22,17 @@ import PredictionWidget from "@/components/PredictionWidget";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
+function getLeagueFlag(leagueId: number): string | null {
+  switch (leagueId) {
+    case 39:  return "/images/flags/gb-eng.svg";
+    case 140: return "/images/flags/es.svg";
+    case 135: return "/images/flags/it.svg";
+    case 253: return "/images/flags/us.svg";
+    case 262: return "/images/flags/mx.svg";
+    default:  return null;
+  }
+}
+
 function applyOptimisticResult(
   standings: DbStanding[],
   homeTeamName: string,
@@ -428,7 +439,7 @@ export default function MatchTabs({
   };
 
   const tabs: { id: TabType; label: string }[] = [
-    { id: "events", label: tTabs("events") },
+    { id: "events", label: (status === "NS" || status === "TBD") ? tTabs("overview") : tTabs("events") },
     { id: "details", label: tTabs("stats") },
     { id: "lineups", label: tTabs("lineups") },
     ...(!isFriendly
@@ -558,7 +569,13 @@ export default function MatchTabs({
             {liveDetails?.events && liveDetails.events.length > 0 ? (
               <div className="bg-custom-gray rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
                 <div className=" divide-y divide-custom-gray/30">
-                  {liveDetails.events.map((ev: MatchEvent, index: number) => {
+                  {[...liveDetails.events]
+                    .sort(
+                      (a, b) =>
+                        a.time.elapsed * 1000 + (a.time.extra ?? 999) -
+                        (b.time.elapsed * 1000 + (b.time.extra ?? 999))
+                    )
+                    .map((ev: MatchEvent, index: number) => {
                     const isOwnGoal =
                       ev.type === "Goal" && ev.detail === "Own Goal";
                     const eventFromHome = homeTeamId
@@ -603,6 +620,25 @@ export default function MatchTabs({
                         ev.detail === "Penalty cancelled");
                     if (isShootoutCallEvent) return null;
 
+                    // Drop VAR events whose detail is not in the meaningful set.
+                    // The API logs every interim referee/VAR decision live (e.g.
+                    // "Corner Cancelled") and often deletes them in the next update.
+                    // Only details that carry real information for the user are shown.
+                    const MEANINGFUL_VAR_DETAILS = new Set([
+                      "Goal Disallowed - handball",
+                      "Goal Disallowed - offside",
+                      "Goal Disallowed - Offside",
+                      "Goal Disallowed",
+                      "Goal ok",
+                      "Goal confirmed",
+                      "Penalty confirmed",
+                      "Penalty awarded",
+                      "Penalty cancelled",
+                      "Red Card Upgrade",
+                      "Yellow Card Upgrade",
+                    ]);
+                    if (isVar && !MEANINGFUL_VAR_DETAILS.has(ev.detail)) return null;
+
                     // Drop events with unrecognized types that carry no player name —
                     // nothing meaningful can be shown and they'd fall into the catch-all
                     // with "unknown" text.
@@ -636,9 +672,18 @@ export default function MatchTabs({
                     if (showSecondHalfAddedTime)
                       renderedSecondHalfAddedTime = true;
 
+                    // Also trigger for substitutions at elapsed=45 with no extra when the
+                    // first half is over — the API commonly reports HT subs or early 2H
+                    // subs with elapsed=45 before correcting to the real minute.
                     const showHalfTimeBreak =
                       !renderedHalfTimeDivider &&
-                      ev.time.elapsed > 45 &&
+                      (ev.time.elapsed > 45 ||
+                        (ev.time.elapsed === 45 &&
+                          !ev.time.extra &&
+                          ev.type === "subst" &&
+                          status !== "1H" &&
+                          status !== "NS" &&
+                          status !== "TBD")) &&
                       !isPenaltyResult;
                     if (showHalfTimeBreak) renderedHalfTimeDivider = true;
 
@@ -1508,7 +1553,13 @@ export default function MatchTabs({
                   </span>
                 </div>
               ) : (
-                <div className="flex items-center gap-4 p-4">
+                <div className="flex items-center gap-3 p-4">
+                  {(() => {
+                    const flag = getLeagueFlag(leagueId);
+                    return flag ? (
+                      <img src={flag} alt="" className="w-5 h-3.5 object-cover rounded-xs shrink-0" />
+                    ) : null;
+                  })()}
                   <h1 className="text-xl font-extrabold tracking-tight">
                     {leagueName}
                   </h1>
@@ -1537,7 +1588,10 @@ export default function MatchTabs({
                 />
               )
             ) : (
-              <StandingsTable standings={localStandings} />
+              <StandingsTable
+                standings={localStandings}
+                highlightNames={[homeTeamName ?? "", awayTeamName ?? ""].filter(Boolean)}
+              />
             )}
           </div>
           {isWorldCup && <WorldCupLegend />}

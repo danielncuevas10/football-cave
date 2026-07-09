@@ -12,6 +12,8 @@ const TRACKED_LEAGUES = (process.env.TRACKED_LEAGUE_IDS ?? "")
   .map(Number)
   .filter(Boolean);
 
+const isYouthTeam = (name: string) => /U\d{2}/i.test(name);
+
 /**
  * Normalises events and, for PEN matches where the API omits individual kick
  * events, appends a synthetic "penaltyResult" event so the UI can display the
@@ -87,7 +89,10 @@ export async function GET(req: NextRequest) {
   // 1. Fetch all currently live matches from the API in one call
   const fresh = await footballApi.liveMatches();
   const liveFromApi = (fresh?.response ?? []).filter(
-    (m) => TRACKED_LEAGUES.length === 0 || TRACKED_LEAGUES.includes(m.league.id)
+    (m) =>
+      TRACKED_LEAGUES.includes(m.league.id) &&
+      !isYouthTeam(m.teams.home.name) &&
+      !isYouthTeam(m.teams.away.name)
   );
 
   if (liveFromApi.length > 0) {

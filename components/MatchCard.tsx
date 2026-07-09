@@ -186,7 +186,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
         <div className="relative flex items-center justify-center px-2 min-w-14">
           {isScheduled ? (
             <span className="text-gray-400 text-xs font-medium tabular-nums whitespace-nowrap">
-              {formatKickoff(match.fixture_date)}
+              {match.status === "TBD" ? "TBA" : formatKickoff(match.fixture_date)}
             </span>
           ) : match.home_score !== null && match.away_score !== null ? (
             <div className="flex items-center gap-1.5 justify-center">

@@ -10,6 +10,7 @@ import { getOrSyncLeagueData } from "@/lib/server/sync-league";
 import { getMatchDetails } from "@/lib/server/get-match-details";
 import BackButton from "@/components/ui/BackButton";
 import { League } from "@/types/sports";
+import { cleanLeagueName } from "@/lib/teamName";
 import type { DbMatch } from "@/types/sports";
 
 function getCurrentSeason(leagueId: number): number {
@@ -92,7 +93,7 @@ async function MatchContent({
       details={details}
       standings={standings}
       scorers={scorers}
-      leagueName={initialMatch.league_name}
+      leagueName={cleanLeagueName(initialMatch.league_name)}
       leagueId={initialMatch.league_id}
       matchId={matchId}
       homeTeamName={initialMatch.home_team}

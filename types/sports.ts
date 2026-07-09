@@ -1,10 +1,12 @@
 export enum League {
     WorldCup = 1,
-    PremierLeague = 39,
-    LaLiga = 140,
-    SerieA = 135,
     ChampionsLeague = 2,
-    Friendly = 10
+    Friendly = 10,
+    PremierLeague = 39,
+    SerieA = 135,
+    LaLiga = 140,
+    MLS = 253,
+    LigaMX = 262,
 }
 
 export type TournamentStage = "GROUP" | "R32" | "R16" | "QF" | "SF" | "FINAL" | "UNKNOWN";

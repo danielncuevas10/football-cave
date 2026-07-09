@@ -5,13 +5,64 @@ import { useLiveScores } from "@/hooks/useLiveScores";
 import { useTranslations, useLocale } from "next-intl";
 import { supabase } from "@/lib/supabase";
 import MatchCard from "./MatchCard";
+import WcPlaceholderCard from "./WcPlaceholderCard";
 import type { DbMatch } from "@/types/sports";
 import { LIVE_STATUSES } from "@/types/sports";
 import Link from "next/link";
 import { getWcRoundKey } from "@/lib/wcRoundLabel";
+import { cleanLeagueName } from "@/lib/teamName";
 
 // Ordered list: World Cup → UCL → La Liga → Premier League → MLS → Liga MX
 const DISPLAY_LEAGUE_IDS = [1, 2, 140, 39, 253, 262];
+
+type WcPlaceholderKey =
+  | "sf1Home" | "sf1Away"
+  | "sf2Home" | "sf2Away"
+  | "loserSF1" | "loserSF2"
+  | "winnerSF1" | "winnerSF2";
+
+interface WcPlaceholderMatch {
+  homeKey: WcPlaceholderKey;
+  awayKey: WcPlaceholderKey;
+  time: string;
+  roundKey: "wcroundSF" | "wcroundThird" | "wcroundFinal";
+}
+
+const WC_PLACEHOLDER_BY_DATE: Record<string, WcPlaceholderMatch[]> = {
+  "2026-07-14": [{ homeKey: "sf1Home", awayKey: "sf1Away", time: "21:00", roundKey: "wcroundSF" }],
+  "2026-07-15": [{ homeKey: "sf2Home", awayKey: "sf2Away", time: "21:00", roundKey: "wcroundSF" }],
+  "2026-07-18": [{ homeKey: "loserSF1", awayKey: "loserSF2", time: "23:00", roundKey: "wcroundThird" }],
+  "2026-07-19": [{ homeKey: "winnerSF1", awayKey: "winnerSF2", time: "21:00", roundKey: "wcroundFinal" }],
+};
+
+const LEAGUE_NAME_OVERRIDES: Record<number, string> = {
+  2: "Champions League",
+};
+
+function getDisplayLeagueName(leagueId: number | undefined, apiName: string): string {
+  if (leagueId === undefined) return apiName;
+  return LEAGUE_NAME_OVERRIDES[leagueId] ?? apiName;
+}
+
+function getMatchdayLabel(round: string | null | undefined): string | null {
+  if (!round) return null;
+  const numMatch = round.match(/[-–]\s*(\d+)$/);
+  if (numMatch) return `Matchday ${numMatch[1]}`;
+  const dashIdx = round.indexOf(" - ");
+  if (dashIdx !== -1) return round.slice(dashIdx + 3);
+  return round;
+}
+
+function getLeagueIcon(leagueId: number | undefined): { src: string; isWc: boolean } | null {
+  switch (leagueId) {
+    case 1:   return { src: "/images/WC26Badge.svg", isWc: true };
+    case 39:  return { src: "/images/flags/gb-eng.svg", isWc: false };
+    case 140: return { src: "/images/flags/es.svg", isWc: false };
+    case 253: return { src: "/images/flags/us.svg", isWc: false };
+    case 262: return { src: "/images/flags/mx.svg", isWc: false };
+    default:  return null;
+  }
+}
 
 interface Props {
   initialMatches: DbMatch[];
@@ -189,15 +240,27 @@ export default function ScoreList({ initialMatches }: Props) {
 
   // Group scheduled and finished matches by league
   const matchesByLeague = scheduledOrFinished.reduce((acc, match) => {
-    const league = match.league_name || "Unknown League";
+    const league = cleanLeagueName(match.league_name) || "Unknown League";
     if (!acc[league]) acc[league] = [];
     acc[league].push(match);
     return acc;
   }, {} as Record<string, DbMatch[]>);
 
+  // WC knockout placeholder logic
+  const dateKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
+  const wcPlaceholders = WC_PLACEHOLDER_BY_DATE[dateKey] ?? [];
+  const hasRealWcMatch = matchesForDate.some(
+    (m) =>
+      m.league_id === 1 &&
+      !m.home_team.toLowerCase().includes("winner") &&
+      !m.home_team.toLowerCase().includes("loser") &&
+      m.home_team !== "TBD"
+  );
+  const showWcPlaceholder = wcPlaceholders.length > 0 && !hasRealWcMatch;
+
   // Group live matches by league dynamically to match design container structure
   const liveMatchesByLeague = live.reduce((acc, match) => {
-    const league = match.league_name || "Unknown League";
+    const league = cleanLeagueName(match.league_name) || "Unknown League";
     if (!acc[league]) acc[league] = [];
     acc[league].push(match);
     return acc;
@@ -303,27 +366,37 @@ export default function ScoreList({ initialMatches }: Props) {
                     {leagueId ? (
                       <Link
                         href={`/league/${leagueId}`}
-                        className={`relative flex items-center gap-3 py-4 border-b border-[#38383A] hover:bg-gray-900/20 transition-colors ${
-                          leagueId === 1
-                            ? "justify-start px-4"
-                            : "justify-center"
-                        }`}
+                        className="relative flex items-center justify-start px-4 gap-3 py-4 border-b border-[#38383A] hover:bg-gray-900/20 transition-colors"
                       >
+                        {(() => {
+                          const icon = getLeagueIcon(leagueId);
+                          if (!icon) return null;
+                          return icon.isWc
+                            ? <img src={icon.src} alt="FIFA World Cup 2026" className="w-5 h-5 object-contain shrink-0" />
+                            : <img src={icon.src} alt="" className="w-5 h-3.5 object-cover rounded-xs shrink-0" />;
+                        })()}
                         <h3 className="text-[15px] font-bold text-white tracking-wider">
-                          {leagueName}
+                          {getDisplayLeagueName(leagueId, leagueName)}
                         </h3>
-                        {leagueId === 1 &&
-                          (() => {
+                        {(() => {
+                          if (leagueId === 1) {
                             const key = getWcRoundKey(matches[0]?.round);
                             return key ? (
                               <span className="absolute right-3 text-[12px] text-gray-200 font-bold tracking-wide">
                                 {tTabs(key)}
                               </span>
                             ) : null;
-                          })()}
+                          }
+                          const label = getMatchdayLabel(matches[0]?.round);
+                          return label ? (
+                            <span className="absolute right-3 text-[12px] text-gray-200 font-bold tracking-wide">
+                              {label}
+                            </span>
+                          ) : null;
+                        })()}
                       </Link>
                     ) : (
-                      <div className="flex items-center justify-center gap-3 py-4 border-b border-gray-800/40">
+                      <div className="flex items-center justify-start px-4 gap-3 py-4 border-b border-gray-800/40">
                         <h3 className="text-[15px] font-bold text-gray-200 tracking-wider">
                           {leagueName}
                         </h3>
@@ -352,6 +425,36 @@ export default function ScoreList({ initialMatches }: Props) {
         </section>
       )}
 
+      {/* WC knockout placeholder section */}
+      {showWcPlaceholder && (
+        <section>
+          <div className="space-y-6">
+            <div className="bg-custom-gray rounded-xl overflow-hidden border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+              <div className="relative flex items-center justify-start px-4 gap-3 py-4 border-b border-[#38383A]">
+                <img src="/images/WC26Badge.svg" alt="FIFA World Cup 2026" className="w-5 h-5 object-contain shrink-0" />
+                <h3 className="text-[15px] font-bold text-white tracking-wider">
+                  {tTabs("wc26")}
+                </h3>
+                <span className="absolute right-3 text-[12px] text-gray-200 font-bold tracking-wide">
+                  {tTabs(wcPlaceholders[0].roundKey)}
+                </span>
+              </div>
+              <div>
+                {wcPlaceholders.map((p, index) => (
+                  <WcPlaceholderCard
+                    key={`${p.homeKey}-${p.awayKey}`}
+                    homeKey={p.homeKey}
+                    awayKey={p.awayKey}
+                    time={p.time}
+                    isLast={index === wcPlaceholders.length - 1}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* FIX: Render Scheduled/Finished Matches section only if they exist */}
       {Object.keys(matchesByLeague).length > 0 && (
         <section>
@@ -367,25 +470,37 @@ export default function ScoreList({ initialMatches }: Props) {
                   {leagueId ? (
                     <Link
                       href={`/league/${leagueId}`}
-                      className={`relative flex items-center gap-3 py-4 hover:bg-gray-900/20 transition-colors ${
-                        leagueId === 1 ? "justify-start px-4" : "justify-center"
-                      }`}
+                      className="relative flex items-center justify-start px-4 gap-3 py-4 hover:bg-gray-900/20 transition-colors"
                     >
+                      {(() => {
+                        const icon = getLeagueIcon(leagueId);
+                        if (!icon) return null;
+                        return icon.isWc
+                          ? <img src={icon.src} alt="FIFA World Cup 2026" className="w-5 h-5 object-contain shrink-0" />
+                          : <img src={icon.src} alt="" className="w-5 h-3.5 object-cover rounded-xs shrink-0" />;
+                      })()}
                       <h3 className="text-[15px] font-bold text-white tracking-wider">
-                        {leagueName}
+                        {getDisplayLeagueName(leagueId, leagueName)}
                       </h3>
-                      {leagueId === 1 &&
-                        (() => {
+                      {(() => {
+                        if (leagueId === 1) {
                           const key = getWcRoundKey(matches[0]?.round);
                           return key ? (
                             <span className="absolute right-3 text-[12px] text-gray-200 font-bold tracking-wide">
                               {tTabs(key)}
                             </span>
                           ) : null;
-                        })()}
+                        }
+                        const label = getMatchdayLabel(matches[0]?.round);
+                        return label ? (
+                          <span className="absolute right-3 text-[12px] text-gray-200 font-bold tracking-wide">
+                            {label}
+                          </span>
+                        ) : null;
+                      })()}
                     </Link>
                   ) : (
-                    <div className="flex items-center justify-center gap-3 py-4 border-b border-gray-800/40">
+                    <div className="flex items-center justify-start px-4 gap-3 py-4 border-b border-gray-800/40">
                       <h3 className="text-[15px] font-bold text-gray-200 tracking-wider">
                         {leagueName}
                       </h3>
@@ -413,8 +528,8 @@ export default function ScoreList({ initialMatches }: Props) {
         </section>
       )}
 
-      {/* FIX: Absolute clean fallback empty state container. Shows ONLY if total count is zero */}
-      {matchesForDate.length === 0 && (
+      {/* FIX: Absolute clean fallback empty state container. Shows ONLY if total count is zero and no placeholder is visible */}
+      {matchesForDate.length === 0 && !showWcPlaceholder && (
         <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
           {dateLoading ? (
             <div className="w-8 h-8 border-2 border-gray-600 border-t-white rounded-full animate-spin mx-auto" />

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
-import { getLocalizedTeamName } from "@/lib/teamName";
+import { getLocalizedTeamName, cleanLeagueName } from "@/lib/teamName";
 import { supabase } from "@/lib/supabase";
 import { useLiveMinute } from "@/hooks/useLiveMinute";
 import { getWcRoundKey } from "@/lib/wcRoundLabel";
@@ -330,7 +330,7 @@ export default function MatchScoreHeader({
               const competition =
                 match.league_id === 1
                   ? tBadge("worldCup")
-                  : match.league_name ?? null;
+                  : cleanLeagueName(match.league_name);
 
               let roundLabel: string | null = null;
               const round = match.round;

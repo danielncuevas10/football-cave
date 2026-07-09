@@ -125,6 +125,15 @@ const LOCALE_TO_BCP47: Record<string, string> = {
 };
 
 /**
+ * Strips the "UEFA " prefix that the API prepends to competition names.
+ * "UEFA Champions League" → "Champions League", etc.
+ */
+export function cleanLeagueName(name: string | null | undefined): string | null {
+  if (!name) return name ?? null;
+  return name.replace(/^UEFA\s+/i, "");
+}
+
+/**
  * Returns the localized display name for a national team.
  * Club teams (no ISO entry) are returned unchanged.
  * Falls back to the original name on any error.

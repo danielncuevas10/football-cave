@@ -17,15 +17,29 @@ import {
   syncScorersFromEvents,
 } from "@/lib/server/sync-league";
 import { League } from "@/types/sports";
+import type { DbStanding } from "@/types/sports";
 import { isTournamentLeague } from "@/lib/tournament/isTournamentLeague";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-function getCurrentSeason(): number {
+/**
+ * Returns the correct API-Football season year for a given league.
+ * - MLS and Liga MX use calendar-year seasons (2026 = the 2026 season).
+ * - European / international leagues start in late summer; before August
+ *   the active season belongs to the previous year (e.g. July 2026 → 2025).
+ */
+function getSeasonForLeague(leagueId: number): number {
   const now = new Date();
-  return now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0 = Jan … 11 = Dec
+
+  if (leagueId === League.MLS || leagueId === League.LigaMX) {
+    return year; // calendar-year format
+  }
+  // European / international: season starts August, so Jul and earlier → year-1
+  return month < 7 ? year - 1 : year;
 }
 
 function getLeagueMeta(id: number): { name: string; logo: string } {
@@ -60,6 +74,16 @@ function getLeagueMeta(id: number): { name: string; logo: string } {
         name: "FIFA World Cup",
         logo: "https://media.api-sports.io/football/leagues/1.png",
       };
+    case League.MLS:
+      return {
+        name: "MLS",
+        logo: "https://media.api-sports.io/football/leagues/253.png",
+      };
+    case League.LigaMX:
+      return {
+        name: "Liga MX",
+        logo: "https://media.api-sports.io/football/leagues/262.png",
+      };
     default:
       return { name: "League Competition", logo: "" };
   }
@@ -71,12 +95,12 @@ export default async function LeaguePage({ params }: PageProps) {
 
   if (isNaN(leagueId)) notFound();
 
-  const season = getCurrentSeason();
+  const season = getSeasonForLeague(leagueId);
   const isTournament = isTournamentLeague(leagueId);
   const meta = getLeagueMeta(leagueId);
 
-  // For the World Cup, skip the season filter — the data may have been stored
-  // under any season. For all other leagues, filter by the current season.
+  // World Cup: no season filter — data may be stored under any year.
+  // Others: filter by the per-league computed season.
   const standingsQuery =
     leagueId === League.WorldCup
       ? supabase
@@ -91,8 +115,6 @@ export default async function LeaguePage({ params }: PageProps) {
           .eq("season", season)
           .order("rank", { ascending: true });
 
-  // World Cup scorers are stored under the current calendar year (2026),
-  // not the cross-year season returned by getCurrentSeason() (2025 in June).
   const scorersQuery =
     leagueId === League.WorldCup
       ? supabase
@@ -123,10 +145,9 @@ export default async function LeaguePage({ params }: PageProps) {
 
   let standings = standingsResult.data ?? [];
 
-  // For World Cup, season 2026 is stored in the API under the current calendar year,
-  // but getCurrentSeason() returns year-1 in June (month < 6). Use the season from
-  // the existing DB rows (already correct), or fall back to the current year.
-  const syncSeason =
+  // Resolve the season to use for API syncs.
+  // WC: use the season already stored in DB; others: use the computed season.
+  let syncSeason =
     leagueId === League.WorldCup
       ? standings[0]?.season ?? new Date().getFullYear()
       : season;
@@ -134,15 +155,29 @@ export default async function LeaguePage({ params }: PageProps) {
   const STALE_AFTER_MS = 30 * 60 * 1000; // 30 minutes
 
   if (standings.length === 0) {
-    // Initial load — fetch everything from the API and seed the DB
+    // Try API sync for the computed season
     const synced = await getOrSyncLeagueData(leagueId, syncSeason);
     standings = synced.standings;
+
+    // Fallback: if API also returned nothing (e.g. off-season), show whatever
+    // is already stored in the DB for any season (most recent data available).
+    // Exclude UCL and LigaMX — they get their own pre-season zeroed table below.
+    if (standings.length === 0 && leagueId !== League.WorldCup && leagueId !== League.ChampionsLeague && leagueId !== League.LigaMX) {
+      const { data: anyStandings } = await supabase
+        .from("standings")
+        .select("*")
+        .eq("league_id", leagueId)
+        .order("rank", { ascending: true });
+      if (anyStandings?.length) {
+        standings = anyStandings;
+        syncSeason = anyStandings[0].season;
+      }
+    }
   } else {
     const latestUpdate = Math.max(
       ...standings.map((s) => new Date(s.updated_at).getTime())
     );
     if (Date.now() - latestUpdate > STALE_AFTER_MS) {
-      // Data is older than 2 hours — re-sync from the API then re-fetch from DB
       await syncStandingsForLeague(leagueId, syncSeason);
       const { data: fresh } = await (leagueId === League.WorldCup
         ? supabase
@@ -154,7 +189,7 @@ export default async function LeaguePage({ params }: PageProps) {
             .from("standings")
             .select("*")
             .eq("league_id", leagueId)
-            .eq("season", season)
+            .eq("season", syncSeason)
             .order("rank", { ascending: true }));
       if (fresh?.length) standings = fresh;
     }
@@ -165,7 +200,7 @@ export default async function LeaguePage({ params }: PageProps) {
   const scorersSyncSeason =
     leagueId === League.WorldCup
       ? scorers[0]?.season ?? standings[0]?.season ?? new Date().getFullYear()
-      : season;
+      : syncSeason;
 
   if (scorers.length === 0) {
     await syncScorersFromEvents(leagueId, scorersSyncSeason);
@@ -183,6 +218,198 @@ export default async function LeaguePage({ params }: PageProps) {
       if (fresh?.length) scorers = fresh;
     }
   }
+
+  const now = new Date();
+  const nowMonth = now.getMonth();
+  const nowYear = now.getFullYear();
+
+  // European leagues (UCL, PL, La Liga, Serie A) run Sept–May.
+  // June–August is off-season — clear any stale completed-season data.
+  const EUROPEAN_LEAGUES = [
+    League.ChampionsLeague,
+    League.PremierLeague,
+    League.LaLiga,
+    League.SerieA,
+  ];
+  const isEuropeanOffSeason = EUROPEAN_LEAGUES.includes(leagueId) && nowMonth >= 5 && nowMonth <= 7;
+  if (isEuropeanOffSeason) {
+    standings = [];
+    scorers = [];
+  }
+
+  // Normalize a team name for fuzzy matching: lowercase + strip diacritics.
+  // Needed so "Atlético" matches "Atletico", "Alavés" matches "Alaves", etc.
+  const norm = (s: string) =>
+    s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+  // ── Premier League 2026/27: use the exact known roster ──────────────────────
+  // Generic DB supplement would include relegated teams and miss promoted ones.
+  if (leagueId === League.PremierLeague && standings.length === 0) {
+    const PL_2026_27 = [
+      "Arsenal", "Aston Villa", "Bournemouth", "Brentford", "Brighton",
+      "Chelsea", "Coventry City", "Crystal Palace", "Everton", "Fulham",
+      "Hull City", "Ipswich Town", "Leeds United", "Liverpool",
+      "Manchester City", "Manchester United", "Newcastle United",
+      "Nottingham Forest", "Sunderland", "Tottenham Hotspur",
+    ];
+
+    // Build name → { team_id, logo } from historical PL standings + matches
+    const { data: plHist } = await supabase
+      .from("standings")
+      .select("team_id, team_name, team_logo")
+      .eq("league_id", League.PremierLeague)
+      .order("season", { ascending: false });
+
+    const plMap = new Map<string, { team_id: number; logo: string }>();
+    for (const t of (plHist ?? [])) {
+      plMap.set(norm(t.team_name), { team_id: t.team_id, logo: t.team_logo ?? "" });
+    }
+    for (const m of (matchesResult.data ?? [])) {
+      const hl = norm(m.home_team);
+      const al = norm(m.away_team);
+      if (!plMap.has(hl)) plMap.set(hl, { team_id: -(plMap.size + 1), logo: m.home_logo ?? "" });
+      if (!plMap.has(al)) plMap.set(al, { team_id: -(plMap.size + 1), logo: m.away_logo ?? "" });
+    }
+
+    // Partial-match lookup — handles "Brighton" → "Brighton & Hove Albion" etc.
+    const findPLTeam = (name: string) => {
+      const n = norm(name);
+      if (plMap.has(n)) return plMap.get(n)!;
+      for (const [key, val] of plMap) {
+        if (key.includes(n) || n.includes(key)) return val;
+      }
+      return null;
+    };
+
+    let pseudoId = -1000;
+    standings = PL_2026_27.map((name, i) => {
+      const found = findPLTeam(name);
+      return {
+        team_id: found?.team_id ?? pseudoId--,
+        team_name: name,
+        team_logo: found?.logo ?? "",
+        league_id: League.PremierLeague,
+        season: nowYear,
+        rank: i + 1,
+        points: 0, played: 0, won: 0, drawn: 0, lost: 0,
+        goals_for: 0, goals_against: 0,
+        updated_at: now.toISOString(),
+        group_name: null,
+      };
+    });
+  }
+
+  // ── La Liga 2026/27: use the exact known roster ───────────────────────────
+  if (leagueId === League.LaLiga && standings.length === 0) {
+    const LALIGA_2026_27 = [
+      "Alavés", "Athletic Club", "Atlético Madrid", "Barcelona", "Celta Vigo",
+      "Deportivo La Coruña", "Elche", "Espanyol", "Getafe", "Levante",
+      "Málaga", "Osasuna", "Racing Santander", "Rayo Vallecano", "Real Betis",
+      "Real Madrid", "Real Sociedad", "Sevilla", "Valencia", "Villarreal",
+    ];
+
+    const { data: laHist } = await supabase
+      .from("standings")
+      .select("team_id, team_name, team_logo")
+      .eq("league_id", League.LaLiga)
+      .order("season", { ascending: false });
+
+    const laMap = new Map<string, { team_id: number; logo: string }>();
+    for (const t of (laHist ?? [])) {
+      laMap.set(norm(t.team_name), { team_id: t.team_id, logo: t.team_logo ?? "" });
+    }
+    for (const m of (matchesResult.data ?? [])) {
+      const hl = norm(m.home_team);
+      const al = norm(m.away_team);
+      if (!laMap.has(hl)) laMap.set(hl, { team_id: -(laMap.size + 1), logo: m.home_logo ?? "" });
+      if (!laMap.has(al)) laMap.set(al, { team_id: -(laMap.size + 1), logo: m.away_logo ?? "" });
+    }
+
+    const findLaTeam = (name: string) => {
+      const n = norm(name);
+      if (laMap.has(n)) return laMap.get(n)!;
+      for (const [key, val] of laMap) {
+        if (key.includes(n) || n.includes(key)) return val;
+      }
+      return null;
+    };
+
+    let pseudoId = -2000;
+    standings = LALIGA_2026_27.map((name, i) => {
+      const found = findLaTeam(name);
+      return {
+        team_id: found?.team_id ?? pseudoId--,
+        team_name: name,
+        team_logo: found?.logo ?? "",
+        league_id: League.LaLiga,
+        season: nowYear,
+        rank: i + 1,
+        points: 0, played: 0, won: 0, drawn: 0, lost: 0,
+        goals_for: 0, goals_against: 0,
+        updated_at: now.toISOString(),
+        group_name: null,
+      };
+    });
+  }
+
+  // ── LigaMX: supplement from historical data + matches ─────────────────────
+  if ([League.LigaMX].includes(leagueId)) {
+    const existingIds = new Set(standings.map(s => s.team_id));
+    const seenNames = new Set(standings.map(s => s.team_name.toLowerCase()));
+    const seenIds = new Set<number>(existingIds);
+
+    const { data: historicalTeams } = await supabase
+      .from("standings")
+      .select("team_id, team_name, team_logo, league_id")
+      .eq("league_id", leagueId)
+      .order("season", { ascending: false })
+      .order("rank", { ascending: true });
+
+    const fromHistory = (historicalTeams as Pick<DbStanding, "team_id" | "team_name" | "team_logo" | "league_id">[] | null ?? [])
+      .filter(t => {
+        if (seenIds.has(t.team_id) || seenNames.has(t.team_name.toLowerCase())) return false;
+        seenIds.add(t.team_id);
+        seenNames.add(t.team_name.toLowerCase());
+        return true;
+      });
+
+    const matchTeamMap = new Map<string, { name: string; logo: string | null }>();
+    for (const m of (matchesResult.data ?? [])) {
+      const hl = m.home_team.toLowerCase();
+      const al = m.away_team.toLowerCase();
+      if (!seenNames.has(hl)) { matchTeamMap.set(hl, { name: m.home_team, logo: m.home_logo }); seenNames.add(hl); }
+      if (!seenNames.has(al)) { matchTeamMap.set(al, { name: m.away_team, logo: m.away_logo }); seenNames.add(al); }
+    }
+    const fromMatches = Array.from(matchTeamMap.values());
+
+    const allMissing: { team_id: number; team_name: string; team_logo: string }[] = [
+      ...fromHistory.map(t => ({ team_id: t.team_id, team_name: t.team_name, team_logo: t.team_logo ?? "" })),
+      ...fromMatches.map((t, i) => ({ team_id: -(i + 1), team_name: t.name, team_logo: t.logo ?? "" })),
+    ].sort((a, b) => a.team_name.localeCompare(b.team_name));
+
+    const supplement: DbStanding[] = allMissing.map((t, i) => ({
+      team_id: t.team_id,
+      team_name: t.team_name,
+      team_logo: t.team_logo,
+      league_id: leagueId,
+      season: nowYear,
+      rank: standings.length + i + 1,
+      points: 0, played: 0, won: 0, drawn: 0, lost: 0,
+      goals_for: 0, goals_against: 0,
+      updated_at: now.toISOString(),
+      group_name: null,
+    }));
+
+    if (standings.length === 0) {
+      standings = supplement.map((t, i) => ({ ...t, rank: i + 1 }));
+    } else if (supplement.length > 0) {
+      standings = [...standings, ...supplement];
+    }
+  }
+
+  // Season passed to the client so TopScorers doesn't re-hydrate with stale DB data.
+  // During European off-season, point at the upcoming season (no data → empty state).
+  const displaySeason = isEuropeanOffSeason ? nowYear : syncSeason;
 
   if (!standings.length && !matchesResult.data?.length) {
     notFound();
@@ -281,6 +508,7 @@ export default async function LeaguePage({ params }: PageProps) {
         leagueLogo={meta.logo}
         leagueId={leagueId}
         isTournament={isTournament}
+        season={displaySeason}
       />
     </main>
   );

@@ -116,16 +116,53 @@ function TeamBadge({ src, alt, isNational }: { src: string; alt: string; isNatio
   );
 }
 
+type TFunc = ReturnType<typeof useTranslations<"matchDetails">>;
+
+function parseRound(round: string | null | undefined, t: TFunc): string | null {
+  if (!round) return null;
+  const r = round.toLowerCase();
+
+  const matchdayMatch = r.match(/regular season\s*[-–]\s*(\d+)/);
+  if (matchdayMatch) return t("roundMatchday", { n: parseInt(matchdayMatch[1]) });
+
+  if (r.includes("reclasificacion") || r.includes("wild card") || r.includes("play-off") || r.includes("playoff"))
+    return t("roundPlayoff");
+  if (r.includes("round of 32") || r.includes("1/16-finals") || r.includes("last 32"))
+    return t("roundR32");
+  if (r.includes("round of 16") || r.includes("last 16"))
+    return t("roundR16");
+  if (r.includes("quarter"))
+    return t("roundQF");
+  if (r.includes("semi"))
+    return t("roundSF");
+  if (r.includes("final") && !r.includes("semi") && !r.includes("quarter"))
+    return t("roundFinal");
+  if (r.includes("group"))
+    return t("roundGroup");
+
+  const roundNumMatch = r.match(/(?:(\d+)(?:st|nd|rd|th)?\s+round|round\s+(\d+))/);
+  if (roundNumMatch) {
+    const n = parseInt(roundNumMatch[1] ?? roundNumMatch[2]);
+    return t("roundNumber", { n });
+  }
+
+  return null;
+}
+
 function H2HRow({
   match,
   homeLogoUrl,
+  t,
 }: {
   match: DbMatch;
   homeLogoUrl: string;
+  t: TFunc;
 }) {
   const isHomeAsHome = match.home_logo === homeLogoUrl;
   const homeScore = isHomeAsHome ? match.home_score : match.away_score;
   const awayScore = isHomeAsHome ? match.away_score : match.home_score;
+  const homeLogo = isHomeAsHome ? match.home_logo : match.away_logo;
+  const awayLogo = isHomeAsHome ? match.away_logo : match.home_logo;
 
   let chipBg = "#6B7280";
   if (homeScore != null && awayScore != null) {
@@ -139,30 +176,48 @@ function H2HRow({
     year: "numeric",
   });
 
+  const isNational = isNationalTeamMatch(match.league_id);
+  const roundLabel = parseRound(match.round, t);
+
   return (
     <Link
       href={`/match/${match.id}`}
-      className="flex items-center gap-2 py-2 px-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
+      className="flex flex-col gap-2 py-2.5 px-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
     >
-      {match.home_logo ? (
-        <FlagImg src={match.home_logo} isNational={isNationalTeamMatch(match.league_id)} />
-      ) : (
-        <div className="w-6 h-4 shrink-0" />
-      )}
-      <span
-        className="font-mono text-[11px] text-white tabular-nums shrink-0 rounded-lg border border-white/8 px-2 py-0.5"
-        style={{ backgroundColor: chipBg }}
-      >
-        {match.home_score}–{match.away_score}
-      </span>
-      <span className="text-[10px] text-gray-500 flex-1 text-center">
-        {dateStr}
-      </span>
-      {match.away_logo ? (
-        <FlagImg src={match.away_logo} isNational={isNationalTeamMatch(match.league_id)} />
-      ) : (
-        <div className="w-6 h-4 shrink-0" />
-      )}
+      {/* competition · round · date */}
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[10px] text-gray-500 truncate">
+          {(match.league_name ?? "").replace(/\bUEFA\b\s*/g, "")}
+        </span>
+        <div className="flex flex-col items-end shrink-0">
+          {roundLabel && (
+            <span className="text-[10px] text-gray-400 font-medium leading-tight">
+              {roundLabel}
+            </span>
+          )}
+          <span className="text-[10px] text-gray-500 leading-tight">{dateStr}</span>
+        </div>
+      </div>
+
+      {/* badge · score · badge */}
+      <div className="flex items-center justify-center gap-4">
+        {homeLogo ? (
+          <FlagImg src={homeLogo} isNational={isNational} />
+        ) : (
+          <div className="w-6 h-6 shrink-0" />
+        )}
+        <span
+          className="font-mono text-[13px] text-white tabular-nums shrink-0 rounded-lg border border-white/8 px-2.5 py-0.5"
+          style={{ backgroundColor: chipBg }}
+        >
+          {homeScore}–{awayScore}
+        </span>
+        {awayLogo ? (
+          <FlagImg src={awayLogo} isNational={isNational} />
+        ) : (
+          <div className="w-6 h-6 shrink-0" />
+        )}
+      </div>
     </Link>
   );
 }
@@ -282,7 +337,7 @@ export default function PreMatchStats({
           </div>
           <div>
             {h2h.map((m) => (
-              <H2HRow key={m.id} match={m} homeLogoUrl={homeLogoUrl!} />
+              <H2HRow key={m.id} match={m} homeLogoUrl={homeLogoUrl!} t={t} />
             ))}
           </div>
         </div>

@@ -22,8 +22,26 @@ interface LeagueTabsProps {
   leagueLogo: string | null;
   leagueId: number;
   isTournament?: boolean;
+  season?: number;
   /** When provided (even null), replaces the default BackButton + banner header. */
   renderHeader?: React.ReactNode;
+}
+
+function getLeagueCountry(leagueId: number): { flag: string | null; country: string | null } {
+  switch (leagueId) {
+    case League.PremierLeague:
+      return { flag: "/images/flags/gb-eng.svg", country: "England" };
+    case League.LaLiga:
+      return { flag: "/images/flags/es.svg", country: "Spain" };
+    case League.SerieA:
+      return { flag: "/images/flags/it.svg", country: "Italy" };
+    case League.MLS:
+      return { flag: "/images/flags/us.svg", country: "United States" };
+    case League.LigaMX:
+      return { flag: "/images/flags/mx.svg", country: "Mexico" };
+    default:
+      return { flag: null, country: null };
+  }
 }
 
 export default function LeagueTabs({
@@ -34,13 +52,22 @@ export default function LeagueTabs({
   leagueLogo,
   leagueId,
   isTournament = false,
+  season,
   renderHeader,
 }: LeagueTabsProps) {
+  const isUCL = leagueId === League.ChampionsLeague;
+  const uclHasStandings = isUCL && standings.length > 0;
+
   const [activeTab, setActiveTab] = useState<TabType>(
-    leagueId === League.WorldCup ? "scorers" : "table"
+    leagueId === League.WorldCup
+      ? "scorers"
+      : isUCL && !uclHasStandings
+      ? "matches"
+      : "table"
   );
   const tTabs = useTranslations("matchTabs");
   const tBadge = useTranslations("liveBadge");
+  const { flag, country } = getLeagueCountry(leagueId);
 
   const tabs: { id: TabType; label: string }[] = leagueId === League.WorldCup
     ? [
@@ -50,8 +77,8 @@ export default function LeagueTabs({
         { id: "best3rd" as const, label: tTabs("bestThirdPlace") },
       ]
     : [
-        { id: "table", label: tTabs("standings") },
-        { id: "scorers", label: tTabs("topScorers") },
+        ...(isUCL && !uclHasStandings ? [] : [{ id: "table" as const, label: tTabs("standings") }]),
+        ...(scorers.length === 0 ? [] : [{ id: "scorers" as const, label: tTabs("topScorers") }]),
         ...(isTournament ? [{ id: "matches" as const, label: tTabs("matches") }] : []),
       ];
 
@@ -75,11 +102,23 @@ export default function LeagueTabs({
     ) : (
       <>
         <BackButton />
-        <div className="flex items-center gap-4 p-4 bg-custom-gray rounded-xl border border-custom-gray-2">
+        <div className="flex items-center gap-3 p-4 bg-custom-gray rounded-xl border border-custom-gray-2">
+          {flag && (
+            <Image
+              src={flag}
+              alt={country ?? leagueName}
+              width={28}
+              height={20}
+              className="rounded-sm object-cover shrink-0"
+            />
+          )}
           <div>
             <h1 className="text-xl font-extrabold tracking-tight">
               {leagueName}
             </h1>
+            {country && (
+              <p className="text-xs text-gray-400 mt-0.5">{country}</p>
+            )}
           </div>
         </div>
       </>
@@ -142,6 +181,7 @@ export default function LeagueTabs({
             scorers={scorers ?? []}
             isWorldCup={leagueId === League.WorldCup}
             leagueId={leagueId}
+            season={season}
           />
         </div>
 

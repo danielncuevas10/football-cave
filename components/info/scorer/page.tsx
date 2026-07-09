@@ -64,6 +64,7 @@ interface Props {
   defaultView?: "current" | "allTime";
   channelId?: string;
   leagueId?: number;
+  season?: number;
 }
 
 // ─── All-time WC data ────────────────────────────────────────────────────────
@@ -212,6 +213,7 @@ export default function TopScorers({
   defaultView = "current",
   channelId = "top-scorers-live",
   leagueId: leagueIdProp,
+  season,
 }: Props) {
   const t = useTranslations("matchTabs");
   const tDetails = useTranslations("matchDetails");
@@ -227,20 +229,22 @@ export default function TopScorers({
     setLiveScorers(scorers);
   }, [scorers]);
 
-  // Fetch fresh scorers on mount so ISR-cached server data doesn't cause stale display
+  // Fetch fresh scorers on mount so ISR-cached server data doesn't cause stale display.
+  // When a season is provided, filter by it so off-season pages don't re-hydrate with stale data.
   useEffect(() => {
     if (!effectiveLeagueId) return;
-    supabase
+    let query = supabase
       .from("top_scorers")
       .select("*")
       .eq("league_id", effectiveLeagueId)
       .gt("goals", 0)
       .order("goals", { ascending: false })
-      .limit(20)
-      .then(({ data }) => {
-        if (data && data.length > 0) setLiveScorers(data as DbTopScorer[]);
-      });
-  }, [effectiveLeagueId]);
+      .limit(20);
+    if (season !== undefined) query = query.eq("season", season);
+    query.then(({ data }) => {
+      if (data && data.length > 0) setLiveScorers(data as DbTopScorer[]);
+    });
+  }, [effectiveLeagueId, season]);
 
   useEffect(() => {
     if (!effectiveLeagueId) return;

@@ -8,6 +8,7 @@
   },
   "matchTabs": {
     "events": "Γεγονότα",
+    "overview": "Επισκόπηση",
     "stats": "Στατιστικά",
     "lineups": "Ενδεκάδες",
     "standings": "Βαθμολογία",
@@ -58,7 +59,16 @@
     "wcroundSF": "Ημιτελικά",
     "wcroundThird": "3η θέση",
     "wcroundFinal": "Τελικός",
-    "matchday": "Αγωνιστική {n}"
+    "matchday": "Αγωνιστική {n}",
+    "zoneChampionsLeague": "Champions League",
+    "zoneEuropaLeague": "Γιουρόπα Λιγκ",
+    "zoneConferenceLeague": "Λιγκ Κόνφερενς",
+    "zoneRelegation": "Υποβιβασμός",
+    "zonePlayoffs": "Πλέι Οφ",
+    "zoneQuarterfinals": "Προημιτελικά",
+    "zonePlayIn": "Πλέι Ιν",
+    "zoneDirectQualification": "Άμεση Πρόκριση",
+    "zonePlayOff": "Μπαράζ"
   },
   "matchEvents": {
     "matchStarted": "Έναρξη αγώνα",
@@ -110,7 +120,16 @@
     "avgPossession": "Κατοχή",
     "h2hLast1": "Τελευταία αναμέτρηση",
     "h2hLast2": "Τελευταίες 2 αναμετρήσεις",
-    "h2hLast3": "Τελευταίες 3 αναμετρήσεις"
+    "h2hLast3": "Τελευταίες 3 αναμετρήσεις",
+    "roundMatchday": "Αγωνιστική {n}",
+    "roundPlayoff": "Πλέι-οφ",
+    "roundR32": "Γύρος 32",
+    "roundR16": "Γύρος 16",
+    "roundQF": "Προημιτελικός",
+    "roundSF": "Ημιτελικός",
+    "roundFinal": "Τελικός",
+    "roundGroup": "Φάση ομίλων",
+    "roundNumber": "Γύρος {n}"
   },
   "lineups": {
     "confirmedLineups": "Επιβεβαιωμένες ενδεκάδες",
@@ -171,5 +190,15 @@
     "accept": "Αποδοχή",
     "reject": "Απόρριψη",
     "privacyPolicy": "Πολιτική Απορρήτου"
+  },
+  "wcPlaceholder": {
+    "sf1Home": "Γαλλία / Μαρόκο",
+    "sf1Away": "Ισπανία / Βέλγιο",
+    "sf2Home": "Νορβηγία / Αγγλία",
+    "sf2Away": "Αργεντινή / Ελβετία",
+    "loserSF1": "Χαμένος ΗΦ 1",
+    "loserSF2": "Χαμένος ΗΦ 2",
+    "winnerSF1": "Νικητής ΗΦ 1",
+    "winnerSF2": "Νικητής ΗΦ 2"
   }
 }

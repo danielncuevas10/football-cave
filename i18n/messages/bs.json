@@ -8,6 +8,7 @@
   },
   "matchTabs": {
     "events": "Događaji",
+    "overview": "Pregled",
     "stats": "Statistika",
     "lineups": "Postave",
     "standings": "Tabela",
@@ -58,7 +59,16 @@
     "wcroundSF": "Polufinale",
     "wcroundThird": "Treće mjesto",
     "wcroundFinal": "Finale",
-    "matchday": "{n}. kolo"
+    "matchday": "{n}. kolo",
+    "zoneChampionsLeague": "Champions League",
+    "zoneEuropaLeague": "Europska liga",
+    "zoneConferenceLeague": "Konferencijska liga",
+    "zoneRelegation": "Ispadanje",
+    "zonePlayoffs": "Doigravanje",
+    "zoneQuarterfinals": "Četvrtfinale",
+    "zonePlayIn": "Play-In",
+    "zoneDirectQualification": "Direktna kvalifikacija",
+    "zonePlayOff": "Baraž"
   },
   "matchEvents": {
     "matchStarted": "Utakmica počela",
@@ -110,7 +120,16 @@
     "avgPossession": "Posjed",
     "h2hLast1": "Posljednji susret",
     "h2hLast2": "Posljednja 2 susreta",
-    "h2hLast3": "Posljednja 3 susreta"
+    "h2hLast3": "Posljednja 3 susreta",
+    "roundMatchday": "Kolo {n}",
+    "roundPlayoff": "Doigravanje",
+    "roundR32": "Runda 32",
+    "roundR16": "Šesnaestina finala",
+    "roundQF": "Četvrtfinale",
+    "roundSF": "Polufinale",
+    "roundFinal": "Finale",
+    "roundGroup": "Grupna faza",
+    "roundNumber": "Runda {n}"
   },
   "lineups": {
     "confirmedLineups": "Potvrđene postave",
@@ -171,5 +190,15 @@
     "accept": "Prihvati",
     "reject": "Odbij",
     "privacyPolicy": "Politika privatnosti"
+  },
+  "wcPlaceholder": {
+    "sf1Home": "Francuska / Maroko",
+    "sf1Away": "Španija / Belgija",
+    "sf2Home": "Norveška / Engleska",
+    "sf2Away": "Argentina / Švicarska",
+    "loserSF1": "Poraženac SF 1",
+    "loserSF2": "Poraženac SF 2",
+    "winnerSF1": "Pobjednik SF 1",
+    "winnerSF2": "Pobjednik SF 2"
   }
 }

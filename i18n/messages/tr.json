@@ -8,6 +8,7 @@
   },
   "matchTabs": {
     "events": "Olaylar",
+    "overview": "Genel Bakış",
     "stats": "İstatistikler",
     "lineups": "Kadrolar",
     "standings": "Puan Durumu",
@@ -58,7 +59,16 @@
     "wcroundSF": "Yarı final",
     "wcroundThird": "3. yer maçı",
     "wcroundFinal": "Final",
-    "matchday": "{n}. Hafta"
+    "matchday": "{n}. Hafta",
+    "zoneChampionsLeague": "Champions League",
+    "zoneEuropaLeague": "Avrupa Ligi",
+    "zoneConferenceLeague": "Konferans Ligi",
+    "zoneRelegation": "Küme Düşme",
+    "zonePlayoffs": "Play-off",
+    "zoneQuarterfinals": "Çeyrek Final",
+    "zonePlayIn": "Play-In",
+    "zoneDirectQualification": "Direkt Kualifikasyon",
+    "zonePlayOff": "Play-off"
   },
   "matchEvents": {
     "matchStarted": "Maç başladı",
@@ -110,7 +120,16 @@
     "avgPossession": "Top hakimiyeti",
     "h2hLast1": "Son karşılaşma",
     "h2hLast2": "Son 2 karşılaşma",
-    "h2hLast3": "Son 3 karşılaşma"
+    "h2hLast3": "Son 3 karşılaşma",
+    "roundMatchday": "{n}. Hafta",
+    "roundPlayoff": "Playoff",
+    "roundR32": "32 Turu",
+    "roundR16": "Son 16",
+    "roundQF": "Çeyrek Final",
+    "roundSF": "Yarı Final",
+    "roundFinal": "Final",
+    "roundGroup": "Grup Aşaması",
+    "roundNumber": "{n}. Tur"
   },
   "lineups": {
     "confirmedLineups": "Onaylanan Kadrolar",
@@ -171,5 +190,15 @@
     "accept": "Kabul Et",
     "reject": "Reddet",
     "privacyPolicy": "Gizlilik Politikası"
+  },
+  "wcPlaceholder": {
+    "sf1Home": "Fransa / Fas",
+    "sf1Away": "İspanya / Belçika",
+    "sf2Home": "Norveç / İngiltere",
+    "sf2Away": "Arjantin / İsviçre",
+    "loserSF1": "YF1 Kaybedeni",
+    "loserSF2": "YF2 Kaybedeni",
+    "winnerSF1": "YF1 Kazananı",
+    "winnerSF2": "YF2 Kazananı"
   }
 }

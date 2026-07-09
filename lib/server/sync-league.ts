@@ -142,8 +142,9 @@ export async function syncStandingsForLeague(leagueId: number, season: number): 
   const seenTeamIds = new Set<number>();
   const dbRows = rawRows
     .filter((row: any) => {
-      // Skip the flat "Group Stage" aggregate — teams appear in their real group first
-      if (!row.group || row.group === "Group Stage") return false;
+      // Skip only the flat "Group Stage" aggregate row — regular leagues have no
+      // group field at all (or a descriptive name) and must NOT be filtered out.
+      if (row.group === "Group Stage") return false;
       if (seenTeamIds.has(row.team.id)) return false;
       seenTeamIds.add(row.team.id);
       return true;

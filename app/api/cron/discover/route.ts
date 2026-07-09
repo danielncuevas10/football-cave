@@ -38,14 +38,22 @@ export async function POST(req: NextRequest) {
   const errors: string[] = []
 
   for (const leagueId of TRACKED_LEAGUE_IDS) {
-    const [upcoming, recent] = await Promise.all([
+    // Liga MX needs more history: 9 matches/matchday × 2 matchdays = 18, plus
+    // the full Liguilla (~20 matches). 40 covers both without over-fetching.
+    const lastCount = leagueId === 262 ? 40 : 5;
+
+    const [upcoming, recent, tbd] = await Promise.all([
       footballApi.fixturesByLeague({ league: leagueId, season, next: 20 }),
-      footballApi.fixturesByLeague({ league: leagueId, season, last: 5 }),
+      footballApi.fixturesByLeague({ league: leagueId, season, last: lastCount }),
+      // Fetch all TBD fixtures so the DB reflects confirmed times as soon as
+      // API-Football announces them — not just the nearest 20 upcoming matches.
+      footballApi.fixturesByLeague({ league: leagueId, season, status: "TBD" }),
     ])
 
     const combined = [
       ...(upcoming?.response ?? []),
       ...(recent?.response ?? []),
+      ...(tbd?.response ?? []),
     ]
 
     if (!combined.length) continue

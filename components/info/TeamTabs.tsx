@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { getWcRoundKey } from "@/lib/wcRoundLabel";
-import { getLocalizedTeamName } from "@/lib/teamName";
+import { getLocalizedTeamName, cleanLeagueName } from "@/lib/teamName";
 import Link from "next/link";
 import MatchCard from "@/components/MatchCard";
 import StandingsTable from "@/components/info/standings/page";
@@ -319,7 +319,7 @@ export default function TeamTabs({
                 } else {
                   groupMap.set(m.league_id, {
                     leagueId: m.league_id,
-                    leagueName: m.league_name,
+                    leagueName: cleanLeagueName(m.league_name),
                     leagueLogo: m.league_logo,
                     matches: [m],
                   });

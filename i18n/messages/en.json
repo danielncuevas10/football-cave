@@ -8,6 +8,7 @@
   },
   "matchTabs": {
     "events": "Events",
+    "overview": "Overview",
     "stats": "Stats",
     "lineups": "Lineups",
     "standings": "Standings",
@@ -58,7 +59,16 @@
     "wcroundSF": "Semi-finals",
     "wcroundThird": "3rd Place",
     "wcroundFinal": "Final",
-    "matchday": "Matchday {n}"
+    "matchday": "Matchday {n}",
+    "zoneChampionsLeague": "Champions League",
+    "zoneEuropaLeague": "Europa League",
+    "zoneConferenceLeague": "Conference League",
+    "zoneRelegation": "Relegation",
+    "zonePlayoffs": "Playoffs",
+    "zoneQuarterfinals": "Quarterfinals",
+    "zonePlayIn": "Play-In",
+    "zoneDirectQualification": "Direct Qualification",
+    "zonePlayOff": "Play-off"
   },
   "matchEvents": {
     "matchStarted": "Match Started",
@@ -110,7 +120,16 @@
     "avgPossession": "Possession",
     "h2hLast1": "Last meeting",
     "h2hLast2": "Last 2 meetings",
-    "h2hLast3": "Last 3 meetings"
+    "h2hLast3": "Last 3 meetings",
+    "roundMatchday": "Matchday {n}",
+    "roundPlayoff": "Playoff",
+    "roundR32": "Round of 32",
+    "roundR16": "Round of 16",
+    "roundQF": "Quarter-final",
+    "roundSF": "Semi-final",
+    "roundFinal": "Final",
+    "roundGroup": "Group Stage",
+    "roundNumber": "Round {n}"
   },
   "lineups": {
     "confirmedLineups": "Confirmed Line-ups",
@@ -171,5 +190,15 @@
     "accept": "Accept",
     "reject": "Decline",
     "privacyPolicy": "Privacy Policy"
+  },
+  "wcPlaceholder": {
+    "sf1Home": "France / Morocco",
+    "sf1Away": "Spain / Belgium",
+    "sf2Home": "Norway / England",
+    "sf2Away": "Argentina / Switzerland",
+    "loserSF1": "Loser SF 1",
+    "loserSF2": "Loser SF 2",
+    "winnerSF1": "Winner SF 1",
+    "winnerSF2": "Winner SF 2"
   }
 }

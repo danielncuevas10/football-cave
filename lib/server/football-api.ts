@@ -89,11 +89,12 @@ export const footballApi = {
     ),
 
 
-  fixturesByLeague: (params: { league: number; season: number; next?: number; last?: number }) => {
+  fixturesByLeague: (params: { league: number; season: number; next?: number; last?: number; status?: string }) => {
     let endpoint = `/fixtures?league=${params.league}&season=${params.season}`
 
     if (params.next) endpoint += `&next=${params.next}`
     if (params.last) endpoint += `&last=${params.last}`
+    if (params.status) endpoint += `&status=${params.status}`
 
     return apiFetch(endpoint, matchesResponseSchema)
   },
