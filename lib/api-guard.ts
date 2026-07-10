@@ -3,7 +3,7 @@ import { rateLimits, getClientIp } from "./ratelimit"
 
 export async function guardRoute(req: NextRequest): Promise<NextResponse | null> {
   const ip = getClientIp(req)
-  const { success, limit, remaining, reset } = await rateLimits.public.limit(`ip:${ip}`)
+  const { success, limit, reset } = await rateLimits.public.limit(`ip:${ip}`)
 
   if (!success) {
     return NextResponse.json(
@@ -22,7 +22,7 @@ export async function guardRoute(req: NextRequest): Promise<NextResponse | null>
   return null
 }
 
-// Protects server-only routes (sync-live, standings, scorers) from browser calls.
+// Protects server-only routes (standings, scorers) from browser calls.
 // Caller must send: Authorization: Bearer <CRON_SECRET>
 export function verifyCronSecret(req: NextRequest): NextResponse | null {
   const secret = process.env.CRON_SECRET

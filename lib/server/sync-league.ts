@@ -1,7 +1,28 @@
 import { supabase } from "@/lib/supabase";
 import { supabaseAdmin } from "@/lib/server/supabase-admin";
 import { footballApi } from "@/lib/server/football-api";
+import { redis } from "@/lib/ratelimit";
 import type { DbStanding, DbTopScorer } from "@/types/sports";
+
+// Prevents duplicate Football API calls when concurrent requests (page renders
+// or cron runs) try to sync the same league simultaneously. The lock expires
+// automatically after `ttlSeconds` even if the holder crashes mid-flight.
+async function withSyncLock<T>(
+  key: string,
+  ttlSeconds: number,
+  fn: () => Promise<T>
+): Promise<T | null> {
+  const acquired = await redis.set(key, "1", { nx: true, ex: ttlSeconds })
+  if (!acquired) {
+    console.log(`[sync-lock] skipped ${key} — already in progress`)
+    return null
+  }
+  try {
+    return await fn()
+  } finally {
+    await redis.del(key)
+  }
+}
 
 /**
  * Recomputes group-stage standings entirely from the `matches` table —
@@ -133,43 +154,45 @@ export async function recomputeGroupStandings(
 }
 
 export async function syncStandingsForLeague(leagueId: number, season: number): Promise<void> {
-  const freshStandings = await footballApi.standings(leagueId, season);
-  if (!freshStandings?.response?.[0]?.league?.standings) return;
+  await withSyncLock(`sync:standings:${leagueId}:${season}`, 120, async () => {
+    const freshStandings = await footballApi.standings(leagueId, season);
+    if (!freshStandings?.response?.[0]?.league?.standings) return;
 
-  const allGroups = freshStandings.response[0].league.standings;
-  const rawRows = allGroups.flat();
+    const allGroups = freshStandings.response[0].league.standings;
+    const rawRows = allGroups.flat();
 
-  const seenTeamIds = new Set<number>();
-  const dbRows = rawRows
-    .filter((row: any) => {
-      // Skip only the flat "Group Stage" aggregate row — regular leagues have no
-      // group field at all (or a descriptive name) and must NOT be filtered out.
-      if (row.group === "Group Stage") return false;
-      if (seenTeamIds.has(row.team.id)) return false;
-      seenTeamIds.add(row.team.id);
-      return true;
-    })
-    .map((row: any) => ({
-      team_id: row.team.id,
-      team_name: row.team.name,
-      team_logo: row.team.logo,
-      league_id: leagueId,
-      season,
-      rank: row.rank,
-      points: row.points,
-      played: row.all.played,
-      won: row.all.win,
-      drawn: row.all.draw,
-      lost: row.all.lose,
-      goals_for: row.all.goals.for,
-      goals_against: row.all.goals.against,
-      group_name: row.group || null,
-      updated_at: new Date().toISOString(),
-    }));
+    const seenTeamIds = new Set<number>();
+    const dbRows = rawRows
+      .filter((row: any) => {
+        // Skip only the flat "Group Stage" aggregate row — regular leagues have no
+        // group field at all (or a descriptive name) and must NOT be filtered out.
+        if (row.group === "Group Stage") return false;
+        if (seenTeamIds.has(row.team.id)) return false;
+        seenTeamIds.add(row.team.id);
+        return true;
+      })
+      .map((row: any) => ({
+        team_id: row.team.id,
+        team_name: row.team.name,
+        team_logo: row.team.logo,
+        league_id: leagueId,
+        season,
+        rank: row.rank,
+        points: row.points,
+        played: row.all.played,
+        won: row.all.win,
+        drawn: row.all.draw,
+        lost: row.all.lose,
+        goals_for: row.all.goals.for,
+        goals_against: row.all.goals.against,
+        group_name: row.group || null,
+        updated_at: new Date().toISOString(),
+      }));
 
-  await supabaseAdmin
-    .from("standings")
-    .upsert(dbRows, { onConflict: "team_id,league_id,season" });
+    await supabaseAdmin
+      .from("standings")
+      .upsert(dbRows, { onConflict: "team_id,league_id,season" });
+  });
 }
 
 // Build top scorers from events+lineups already stored in match_details.
@@ -268,27 +291,29 @@ export async function syncScorersFromEvents(leagueId: number, season: number): P
 }
 
 export async function syncScorersForLeague(leagueId: number, season: number): Promise<void> {
-  const freshScorers = await footballApi.topScorers(leagueId, season);
-  if (!freshScorers?.response?.length) return;
+  await withSyncLock(`sync:scorers:${leagueId}:${season}`, 120, async () => {
+    const freshScorers = await footballApi.topScorers(leagueId, season);
+    if (!freshScorers?.response?.length) return;
 
-  const dbRows: Omit<DbTopScorer, "updated_at">[] = freshScorers.response.map((row: any) => ({
-    player_id: row.player.id,
-    player_name: row.player.name,
-    player_photo: row.player.photo || null,
-    team_name: row.statistics[0]?.team.name || "Unknown",
-    goals: row.statistics[0]?.goals.total ?? 0,
-    assists: row.statistics[0]?.goals.assists ?? 0,
-    appearances: row.statistics[0]?.games.appearences ?? 0,
-    league_id: leagueId,
-    season,
-  }));
+    const dbRows: Omit<DbTopScorer, "updated_at">[] = freshScorers.response.map((row: any) => ({
+      player_id: row.player.id,
+      player_name: row.player.name,
+      player_photo: row.player.photo || null,
+      team_name: row.statistics[0]?.team.name || "Unknown",
+      goals: row.statistics[0]?.goals.total ?? 0,
+      assists: row.statistics[0]?.goals.assists ?? 0,
+      appearances: row.statistics[0]?.games.appearences ?? 0,
+      league_id: leagueId,
+      season,
+    }));
 
-  await supabaseAdmin
-    .from("top_scorers")
-    .upsert(
-      dbRows.map((r) => ({ ...r, updated_at: new Date().toISOString() })),
-      { onConflict: "player_id,league_id,season" }
-    );
+    await supabaseAdmin
+      .from("top_scorers")
+      .upsert(
+        dbRows.map((r) => ({ ...r, updated_at: new Date().toISOString() })),
+        { onConflict: "player_id,league_id,season" }
+      );
+  });
 }
 
 export async function getOrSyncLeagueData(leagueId: number, season: number) {

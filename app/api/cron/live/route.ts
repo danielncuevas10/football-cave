@@ -75,6 +75,28 @@ export async function POST(req: NextRequest) {
 
   const previouslyLiveIds = (activeDbMatches ?? []).map(m => m.id)
 
+  // GUARD: Skip the Football API entirely when nothing is happening.
+  // Two conditions allow the cron to proceed:
+  //   a) DB thinks something is currently live (previouslyLiveIds not empty)
+  //   b) A tracked match kicks off within the next 30 min or started ≤3 h ago
+  // Both checks are cheap Supabase count queries — no API quota consumed.
+  if (previouslyLiveIds.length === 0) {
+    const windowStart = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
+    const windowEnd   = new Date(Date.now() + 30 * 60 * 1000).toISOString()
+
+    const { count: imminentCount } = await supabaseAdmin
+      .from("matches")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["NS", "TBD"])
+      .in("league_id", TRACKED_LEAGUES)
+      .gte("fixture_date", windowStart)
+      .lte("fixture_date", windowEnd)
+
+    if ((imminentCount ?? 0) === 0) {
+      return NextResponse.json({ skipped: true, reason: "No matches in active window" })
+    }
+  }
+
   // 2. Fetch live matches from API
   const fresh = await footballApi.liveMatches()
 
