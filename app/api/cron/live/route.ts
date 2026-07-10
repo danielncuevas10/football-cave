@@ -66,36 +66,42 @@ export async function POST(req: NextRequest) {
   }
   // ─── END SAFETY NET ────────────────────────────────────────────────────────
 
-  // 1. Find which matches the DB currently thinks are live
-  const { data: activeDbMatches } = await supabaseAdmin
-    .from("matches")
-    .select("id")
-    .or("is_live.eq.true,status.in.(1H,2H,HT,ET,PEN)")
-    .in("league_id", TRACKED_LEAGUES)
+  // GUARD: Two independent parallel count queries — no reliance on status values
+  // that may be stale in the DB. Only skip when both return zero.
+  const windowStart = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
+  const windowEnd   = new Date(Date.now() + 30 * 60 * 1000).toISOString()
 
-  const previouslyLiveIds = (activeDbMatches ?? []).map(m => m.id)
-
-  // GUARD: Skip the Football API entirely when nothing is happening.
-  // Two conditions allow the cron to proceed:
-  //   a) DB thinks something is currently live (previouslyLiveIds not empty)
-  //   b) A tracked match kicks off within the next 30 min or started ≤3 h ago
-  // Both checks are cheap Supabase count queries — no API quota consumed.
-  if (previouslyLiveIds.length === 0) {
-    const windowStart = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
-    const windowEnd   = new Date(Date.now() + 30 * 60 * 1000).toISOString()
-
-    const { count: imminentCount } = await supabaseAdmin
+  const [{ count: liveCount }, { count: imminentCount }] = await Promise.all([
+    supabaseAdmin
+      .from("matches")
+      .select("id", { count: "exact", head: true })
+      .eq("is_live", true),
+    supabaseAdmin
       .from("matches")
       .select("id", { count: "exact", head: true })
       .in("status", ["NS", "TBD"])
       .in("league_id", TRACKED_LEAGUES)
       .gte("fixture_date", windowStart)
-      .lte("fixture_date", windowEnd)
+      .lte("fixture_date", windowEnd),
+  ])
 
-    if ((imminentCount ?? 0) === 0) {
-      return NextResponse.json({ skipped: true, reason: "No matches in active window" })
-    }
+  if ((liveCount ?? 0) === 0 && (imminentCount ?? 0) === 0) {
+    return NextResponse.json({ skipped: true, reason: "No matches in active window" })
   }
+
+  // 1. Find which matches the DB currently thinks are live.
+  // Date-filtered to last 5 hours so stale historical rows with live-like
+  // statuses (1H, 2H, etc.) never contaminate previouslyLiveIds or newlyFinishedIds.
+  const fiveHoursAgo = new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
+
+  const { data: activeDbMatches } = await supabaseAdmin
+    .from("matches")
+    .select("id")
+    .or("is_live.eq.true,status.in.(1H,2H,HT,ET,PEN)")
+    .in("league_id", TRACKED_LEAGUES)
+    .gte("fixture_date", fiveHoursAgo)
+
+  const previouslyLiveIds = (activeDbMatches ?? []).map(m => m.id)
 
   // 2. Fetch live matches from API
   const fresh = await footballApi.liveMatches()
@@ -197,34 +203,29 @@ export async function POST(req: NextRequest) {
 
   for (const matchId of newlyFinishedIds) {
     try {
-      const result = await footballApi.getMatchById(matchId)
-      const finalData = result?.response?.[0]
+      // Single call — getMatchDetails hits /fixtures?id=X and now includes
+      // venue + referee via the updated schema, so getMatchById is redundant.
+      const details = await footballApi.getMatchDetails(matchId)
 
-      if (finalData) {
+      if (details) {
         await supabaseAdmin
           .from("matches")
           .update({
-            home_score: finalData.goals.home,
-            away_score: finalData.goals.away,
-            penalty_home: finalData.score.penalty.home ?? null,
-            penalty_away: finalData.score.penalty.away ?? null,
-            status: finalData.fixture.status.short,
-            elapsed: finalData.fixture.status.elapsed,
+            home_score: details.goals.home,
+            away_score: details.goals.away,
+            penalty_home: details.score?.penalty?.home ?? null,
+            penalty_away: details.score?.penalty?.away ?? null,
+            status: details.fixture.status.short,
+            elapsed: details.fixture.status.elapsed,
             is_live: false,
             updated_at: new Date().toISOString(),
           })
           .eq("id", matchId)
 
-        affectedLeagues.set(finalData.league.id, finalData.league.season)
+        affectedLeagues.set(details.league.id, details.league.season)
         finishedCount++
 
-        // Always fetch and write final match_details when a match just finishes.
-        // Mid-match cron snapshots are partial — skipping this caused late events
-        // (substitutions, cards, goals scored near FT) to be permanently missing.
         const detailPromise = (async () => {
-          const details = await footballApi.getMatchDetails(matchId)
-          if (!details) return
-
           await supabaseAdmin.from("match_details").upsert(
             {
               match_id: matchId,
@@ -234,9 +235,9 @@ export async function POST(req: NextRequest) {
               })),
               lineups: details.lineups,
               statistics: details.statistics,
-              venue_name: finalData.fixture?.venue?.name ?? null,
-              venue_city: finalData.fixture?.venue?.city ?? null,
-              referee: finalData.fixture?.referee ?? null,
+              venue_name: details.fixture?.venue?.name ?? null,
+              venue_city: details.fixture?.venue?.city ?? null,
+              referee: details.fixture?.referee ?? null,
               updated_at: new Date().toISOString(),
             },
             { onConflict: "match_id" }
