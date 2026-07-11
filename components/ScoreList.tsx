@@ -334,11 +334,10 @@ export default function ScoreList({ initialMatches }: Props) {
     window.history.replaceState(null, "", url);
   };
 
-  // Fetch matches for the selected date whenever the user navigates
+  // Fetch matches for the selected date whenever the user navigates.
+  // Always runs — even for "today" — because the server query uses UTC midnight
+  // but the user's local "today" may span a different UTC range (e.g. Mexico UTC-5).
   useEffect(() => {
-    const todayStr = new Date().toDateString();
-    if (currentDate.toDateString() === todayStr) return; // server already provided today
-
     const start = new Date(currentDate);
     start.setHours(0, 0, 0, 0);
     const end = new Date(currentDate);

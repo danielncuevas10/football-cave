@@ -11,6 +11,9 @@ export const revalidate = 60;
 
 const DISPLAY_LEAGUE_IDS = [1, 2, 140, 39, 78, 61, 135, 253, 262];
 
+// WARNING: this runs on the server in UTC. Users in UTC-offset timezones (e.g. Mexico UTC-5)
+// may have a "today" that extends past midnight UTC. ScoreList always re-fetches on the
+// client using local time to cover those gaps — do NOT add a guard that skips that fetch.
 async function getInitialMatches(): Promise<DbMatch[]> {
   const today = new Date();
   const start = new Date(today);
