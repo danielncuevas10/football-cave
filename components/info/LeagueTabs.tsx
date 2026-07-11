@@ -35,6 +35,10 @@ function getLeagueCountry(leagueId: number): { flag: string | null; country: str
       return { flag: "/images/flags/es.svg", country: "Spain" };
     case League.SerieA:
       return { flag: "/images/flags/it.svg", country: "Italy" };
+    case League.Bundesliga:
+      return { flag: "/images/flags/de.svg", country: "Germany" };
+    case League.Ligue1:
+      return { flag: "/images/flags/fr.svg", country: "France" };
     case League.MLS:
       return { flag: "/images/flags/us.svg", country: "United States" };
     case League.LigaMX:

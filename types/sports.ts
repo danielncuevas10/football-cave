@@ -3,6 +3,8 @@ export enum League {
     ChampionsLeague = 2,
     Friendly = 10,
     PremierLeague = 39,
+    Ligue1 = 61,
+    Bundesliga = 78,
     SerieA = 135,
     LaLiga = 140,
     MLS = 253,

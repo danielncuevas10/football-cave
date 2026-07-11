@@ -74,6 +74,16 @@ function getLeagueMeta(id: number): { name: string; logo: string } {
         name: "FIFA World Cup",
         logo: "https://media.api-sports.io/football/leagues/1.png",
       };
+    case League.Bundesliga:
+      return {
+        name: "Bundesliga",
+        logo: "https://media.api-sports.io/football/leagues/78.png",
+      };
+    case League.Ligue1:
+      return {
+        name: "Ligue 1",
+        logo: "https://media.api-sports.io/football/leagues/61.png",
+      };
     case League.MLS:
       return {
         name: "MLS",
@@ -230,6 +240,8 @@ export default async function LeaguePage({ params }: PageProps) {
     League.PremierLeague,
     League.LaLiga,
     League.SerieA,
+    League.Bundesliga,
+    League.Ligue1,
   ];
   const isEuropeanOffSeason = EUROPEAN_LEAGUES.includes(leagueId) && nowMonth >= 5 && nowMonth <= 7;
   if (isEuropeanOffSeason) {

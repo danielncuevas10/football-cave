@@ -77,7 +77,7 @@ export default function TopNav() {
           <img
             src="/images/specs/title.svg"
             alt="Match Score"
-            className="h-5 sm:h-12 w-auto object-contain"
+            className="h-7 sm:h-12 w-auto object-contain"
             onError={(e) => {
               e.currentTarget.onerror = null;
               e.currentTarget.src = "/images/WC26Badge.svg";

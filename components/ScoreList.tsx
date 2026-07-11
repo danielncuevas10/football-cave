@@ -69,6 +69,7 @@ const WC_PLACEHOLDER_BY_DATE: Record<string, WcPlaceholderMatch[]> = {
 
 const LEAGUE_NAME_OVERRIDES: Record<number, string> = {
   2: "Champions League",
+  253: "MLS",
 };
 
 function getDisplayLeagueName(
@@ -311,6 +312,28 @@ export default function ScoreList({ initialMatches }: Props) {
     return today;
   });
 
+  // Restore selected date from URL on mount (e.g. after pressing back from a match page)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const dateParam = params.get("date");
+    if (dateParam) {
+      const [y, m, d] = dateParam.split("-").map(Number);
+      if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+        const restored = new Date(y, m - 1, d);
+        restored.setHours(0, 0, 0, 0);
+        setCurrentDate(restored);
+      }
+    }
+  }, []);
+
+  const updateDate = (newDate: Date) => {
+    setCurrentDate(newDate);
+    const todayStr = new Date().toISOString().split("T")[0];
+    const dateStr = newDate.toISOString().split("T")[0];
+    const url = dateStr === todayStr ? "/" : `/?date=${dateStr}`;
+    window.history.replaceState(null, "", url);
+  };
+
   // Fetch matches for the selected date whenever the user navigates
   useEffect(() => {
     const todayStr = new Date().toDateString();
@@ -346,13 +369,13 @@ export default function ScoreList({ initialMatches }: Props) {
   const prevDay = () => {
     const prev = new Date(currentDate);
     prev.setDate(prev.getDate() - 1);
-    setCurrentDate(prev);
+    updateDate(prev);
   };
 
   const nextDay = () => {
     const next = new Date(currentDate);
     next.setDate(next.getDate() + 1);
-    setCurrentDate(next);
+    updateDate(next);
   };
 
   const liveIds = new Set(liveMatches.map((m) => m.id));
@@ -489,7 +512,7 @@ export default function ScoreList({ initialMatches }: Props) {
               value={currentDate.toISOString().split("T")[0]}
               onChange={(e) => {
                 const [y, m, d] = e.target.value.split("-").map(Number);
-                setCurrentDate(new Date(y, m - 1, d));
+                updateDate(new Date(y, m - 1, d));
               }}
               className="absolute opacity-0 w-0 h-0"
             />
