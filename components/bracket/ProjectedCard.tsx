@@ -3,6 +3,7 @@
 // Bracket slot card for R32_T matches where the third-place away team is
 // projected (group stage not complete). Home team is a confirmed group winner.
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 interface ProjectedCardProps {
@@ -21,9 +22,11 @@ function Flag({ src, muted }: { src: string; muted?: boolean }) {
         muted ? "opacity-70 border-[#FFC000]" : "border-gray-200"
       }`}
     >
-      <img
+      <Image
         src={src}
         alt=""
+        width={64}
+        height={40}
         className="w-full h-full object-cover will-change-transform scale-[1.15]"
       />
     </div>

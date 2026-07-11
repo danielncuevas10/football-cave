@@ -3,7 +3,7 @@ if (typeof window !== "undefined") {
   }
   
   export const TRACKED_LEAGUE_IDS: number[] = (
-    process.env.TRACKED_LEAGUE_IDS ?? "1,2,39,140,253,262"
+    process.env.TRACKED_LEAGUE_IDS ?? "1,2,39,140,78,61,135,253,262"
   )
     .split(",")
     .map(id => Number(id.trim()))

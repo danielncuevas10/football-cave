@@ -1,9 +1,10 @@
 "use client";
 import type { DbMatch, FixtureStatus } from "@/types/sports";
+import Image from "next/image";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { getLocalizedTeamName } from "@/lib/teamName";
-import { useLiveMinute } from "@/hooks/useLiveMinute";
+import { useLiveMinute, formatMinute } from "@/hooks/useLiveMinute";
 import { resolveFlag } from "@/lib/flagUrl";
 
 function isFlag(logo: string | null): boolean {
@@ -25,57 +26,30 @@ function formatKickoff(dateStr: string): string {
   });
 }
 
-function StatusBadge({
-  status,
-  elapsed,
-  fixtureDate,
-}: {
-  status: FixtureStatus;
-  elapsed: number | null;
-  fixtureDate: string;
-}) {
-  const tEv = useTranslations("matchEvents");
-  const minute = useLiveMinute(status, elapsed, fixtureDate);
+const circleBase = "flex items-center justify-center w-8 h-8 rounded-full font-extrabold font-mono text-[10px] shrink-0";
 
-  if (status === "NS" || status === "TBD") return null;
+function StatusBadge({ match }: { match: DbMatch }) {
+  const minute = useLiveMinute(match);
 
-  const circleBase = "flex items-center justify-center w-8 h-8 rounded-full font-extrabold font-mono text-[10px] shrink-0";
+  if (match.status === "NS" || match.status === "TBD") return null;
 
-  if (FINISHED_STATUSES.includes(status)) {
-    const label =
-      status === "FT"
-        ? tEv("ftLabel")
-        : status === "PEN"
-        ? tEv("penLabel")
-        : status;
-    return (
-      <div className={`${circleBase} bg-gray-600 text-white`}>
-        {label}
-      </div>
-    );
+  if (FINISHED_STATUSES.includes(match.status)) {
+    return <div className={`${circleBase} bg-gray-600 text-white`}>FT</div>;
   }
 
-  switch (status) {
+  switch (match.status) {
     case "1H":
     case "2H":
     case "ET":
       return (
         <div className={`${circleBase} bg-accent text-white`}>
-          <span className="animate-pulse">{minute}</span>
+          <span className="animate-pulse">{formatMinute(minute, match.status)}</span>
         </div>
       );
     case "HT":
-      return (
-        <div className={`${circleBase} bg-gray-600 text-white`}>
-          {tEv("halfTimeBadge")}
-        </div>
-      );
+      return <div className={`${circleBase} bg-gray-600 text-white`}>HT</div>;
     default:
-      return (
-        <div className={`${circleBase} bg-gray-700 text-gray-200`}>
-          {status}
-        </div>
-      );
+      return null;
   }
 }
 
@@ -133,11 +107,7 @@ export default function MatchCard({ match }: { match: DbMatch }) {
       <div className="bg-custom-gray-2 h-16 px-3 grid grid-cols-[2rem_1fr_auto_1fr] gap-2 items-center">
         {/* Left badge — always occupies 2rem; empty when not live */}
         <div className="flex items-center justify-center">
-          <StatusBadge
-            status={match.status}
-            elapsed={match.elapsed}
-            fixtureDate={match.fixture_date}
-          />
+          <StatusBadge match={match} />
         </div>
 
         {/* Home team */}
@@ -167,16 +137,20 @@ export default function MatchCard({ match }: { match: DbMatch }) {
               />
             ) : isNationalTeamMatch(match.league_id) ? (
               <div className="w-9 h-5 overflow-hidden shrink-0 border border-gray-300 rounded-tr-lg rounded-bl-lg">
-                <img
+                <Image
                   src={match.home_logo}
                   alt=""
+                  width={72}
+                  height={40}
                   className="w-full h-full object-cover scale-[1.15] will-change-transform"
                 />
               </div>
             ) : (
-              <img
+              <Image
                 src={match.home_logo}
                 alt=""
+                width={48}
+                height={48}
                 className="w-6 h-6 object-contain rounded-sm"
               />
             ))}
@@ -233,16 +207,20 @@ export default function MatchCard({ match }: { match: DbMatch }) {
               />
             ) : isNationalTeamMatch(match.league_id) ? (
               <div className="w-9 h-5 overflow-hidden shrink-0 border border-gray-300 rounded-tr-lg rounded-bl-lg">
-                <img
+                <Image
                   src={match.away_logo}
                   alt=""
+                  width={72}
+                  height={40}
                   className="w-full h-full object-cover scale-[1.15] will-change-transform"
                 />
               </div>
             ) : (
-              <img
+              <Image
                 src={match.away_logo}
                 alt=""
+                width={48}
+                height={48}
                 className="w-6 h-6 object-contain rounded-sm"
               />
             ))}

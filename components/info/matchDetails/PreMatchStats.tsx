@@ -62,7 +62,15 @@ async function fetchH2H(
 
 function FlagImg({ src, isNational }: { src: string; isNational: boolean }) {
   if (!isNational) {
-    return <img src={src} alt="" className="w-6 h-6 object-contain rounded-sm shrink-0" />;
+    return (
+      <Image
+        src={src}
+        alt=""
+        width={48}
+        height={48}
+        className="w-6 h-6 object-contain rounded-sm shrink-0"
+      />
+    );
   }
   if (isFlag(src)) {
     return (
@@ -85,7 +93,15 @@ function FlagImg({ src, isNational }: { src: string; isNational: boolean }) {
   );
 }
 
-function TeamBadge({ src, alt, isNational }: { src: string; alt: string; isNational: boolean }) {
+function TeamBadge({
+  src,
+  alt,
+  isNational,
+}: {
+  src: string;
+  alt: string;
+  isNational: boolean;
+}) {
   if (isFlag(src)) {
     const resolved = resolveFlag(src) ?? src;
     return (
@@ -101,7 +117,15 @@ function TeamBadge({ src, alt, isNational }: { src: string; alt: string; isNatio
     );
   }
   if (!isNational) {
-    return <img src={src} alt={alt} className="w-8 h-8 object-contain rounded-sm shrink-0" />;
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        width={64}
+        height={64}
+        className="w-8 h-8 object-contain rounded-sm shrink-0"
+      />
+    );
   }
   return (
     <div className="w-8 h-5 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-sm rounded-bl-sm shadow-[0_1px_4px_rgba(0,0,0,0.4)]">
@@ -123,24 +147,32 @@ function parseRound(round: string | null | undefined, t: TFunc): string | null {
   const r = round.toLowerCase();
 
   const matchdayMatch = r.match(/regular season\s*[-–]\s*(\d+)/);
-  if (matchdayMatch) return t("roundMatchday", { n: parseInt(matchdayMatch[1]) });
+  if (matchdayMatch)
+    return t("roundMatchday", { n: parseInt(matchdayMatch[1]) });
 
-  if (r.includes("reclasificacion") || r.includes("wild card") || r.includes("play-off") || r.includes("playoff"))
+  if (
+    r.includes("reclasificacion") ||
+    r.includes("wild card") ||
+    r.includes("play-off") ||
+    r.includes("playoff")
+  )
     return t("roundPlayoff");
-  if (r.includes("round of 32") || r.includes("1/16-finals") || r.includes("last 32"))
+  if (
+    r.includes("round of 32") ||
+    r.includes("1/16-finals") ||
+    r.includes("last 32")
+  )
     return t("roundR32");
-  if (r.includes("round of 16") || r.includes("last 16"))
-    return t("roundR16");
-  if (r.includes("quarter"))
-    return t("roundQF");
-  if (r.includes("semi"))
-    return t("roundSF");
+  if (r.includes("round of 16") || r.includes("last 16")) return t("roundR16");
+  if (r.includes("quarter")) return t("roundQF");
+  if (r.includes("semi")) return t("roundSF");
   if (r.includes("final") && !r.includes("semi") && !r.includes("quarter"))
     return t("roundFinal");
-  if (r.includes("group"))
-    return t("roundGroup");
+  if (r.includes("group")) return t("roundGroup");
 
-  const roundNumMatch = r.match(/(?:(\d+)(?:st|nd|rd|th)?\s+round|round\s+(\d+))/);
+  const roundNumMatch = r.match(
+    /(?:(\d+)(?:st|nd|rd|th)?\s+round|round\s+(\d+))/
+  );
   if (roundNumMatch) {
     const n = parseInt(roundNumMatch[1] ?? roundNumMatch[2]);
     return t("roundNumber", { n });
@@ -182,24 +214,26 @@ function H2HRow({
   return (
     <Link
       href={`/match/${match.id}`}
-      className="flex flex-col gap-2 py-2.5 px-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
+      className="relative flex items-center justify-center min-h-13 px-4 pt-3 pb-3.5 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
     >
-      {/* competition · round · date */}
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] text-gray-500 truncate">
-          {(match.league_name ?? "").replace(/\bUEFA\b\s*/g, "")}
+      {/* league — top left */}
+      <span className="absolute top-2 left-4 text-[10px] text-gray-500 truncate max-w-[42%] leading-tight">
+        {(match.league_name ?? "").replace(/\bUEFA\b\s*/g, "")}
+      </span>
+
+      {/* round + date — top right */}
+      <div className="absolute top-2 right-4 flex flex-col items-end">
+        {roundLabel && (
+          <span className="text-[10px] text-gray-400 font-medium leading-tight">
+            {roundLabel}
+          </span>
+        )}
+        <span className="text-[10px] text-gray-500 leading-tight">
+          {dateStr}
         </span>
-        <div className="flex flex-col items-end shrink-0">
-          {roundLabel && (
-            <span className="text-[10px] text-gray-400 font-medium leading-tight">
-              {roundLabel}
-            </span>
-          )}
-          <span className="text-[10px] text-gray-500 leading-tight">{dateStr}</span>
-        </div>
       </div>
 
-      {/* badge · score · badge */}
+      {/* badge · score · badge — centered */}
       <div className="flex items-center justify-center gap-4">
         {homeLogo ? (
           <FlagImg src={homeLogo} isNational={isNational} />
@@ -350,7 +384,11 @@ export default function PreMatchStats({
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3 border-b border-white/5">
             <div className="flex justify-end">
               {homeLogoUrl && (
-                <TeamBadge src={homeLogoUrl} alt={homeTeamName} isNational={isNationalTeamMatch(leagueId)} />
+                <TeamBadge
+                  src={homeLogoUrl}
+                  alt={homeTeamName}
+                  isNational={isNationalTeamMatch(leagueId)}
+                />
               )}
             </div>
             <span className="text-[10px] text-gray-200 tracking-wide text-center w-28 shrink-0">
@@ -358,7 +396,11 @@ export default function PreMatchStats({
             </span>
             <div className="flex justify-start">
               {awayLogoUrl && (
-                <TeamBadge src={awayLogoUrl} alt={awayTeamName} isNational={isNationalTeamMatch(leagueId)} />
+                <TeamBadge
+                  src={awayLogoUrl}
+                  alt={awayTeamName}
+                  isNational={isNationalTeamMatch(leagueId)}
+                />
               )}
             </div>
           </div>

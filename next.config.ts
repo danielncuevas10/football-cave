@@ -6,7 +6,7 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts")
 const csp = [
   "default-src 'self'",
 
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://www.googletagmanager.com https://challenges.cloudflare.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
 
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 
@@ -14,9 +14,9 @@ const csp = [
 
   "font-src 'self' https://fonts.gstatic.com",
 
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://v3.football.api-sports.io https://*.google-analytics.com https://*.googlesyndication.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://v3.football.api-sports.io",
 
-  "frame-src https://*.doubleclick.net https://*.googlesyndication.com https://challenges.cloudflare.com",
+  "frame-src https://challenges.cloudflare.com",
 
   "media-src 'self' https:",
 

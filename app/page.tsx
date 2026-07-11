@@ -9,7 +9,7 @@ import type { DbMatch } from "@/types/sports";
 // ISR: revalidate every 60 s.
 export const revalidate = 60;
 
-const DISPLAY_LEAGUE_IDS = [1, 2, 140, 39, 253, 262];
+const DISPLAY_LEAGUE_IDS = [1, 2, 140, 39, 78, 61, 135, 253, 262];
 
 async function getInitialMatches(): Promise<DbMatch[]> {
   const today = new Date();

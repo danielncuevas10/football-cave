@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
-import type { DbMatch, FixtureStatus } from "@/types/sports";
+import type { DbMatch } from "@/types/sports";
 import { LIVE_STATUSES } from "@/types/sports";
 import { supabase } from "@/lib/supabase";
-import { useLiveMinute } from "@/hooks/useLiveMinute";
+import { useLiveMinute, formatMinute } from "@/hooks/useLiveMinute";
 import { getLocalizedTeamName } from "@/lib/teamName";
 import type { GoalsMap } from "./BracketPanelServer";
 
@@ -23,18 +23,10 @@ interface Props {
   goals: GoalsMap;
 }
 
-function LiveMinute({
-  status,
-  elapsed,
-  fixtureDate,
-}: {
-  status: FixtureStatus;
-  elapsed: number | null;
-  fixtureDate: string;
-}) {
-  const minute = useLiveMinute(status, elapsed, fixtureDate);
-  if (status === "HT") return <span className="text-accent text-[10px] font-mono leading-none">HT</span>;
-  return <span className="text-accent text-[10px] font-mono leading-none">{minute}′</span>;
+function LiveMinute({ match }: { match: DbMatch }) {
+  const minute = useLiveMinute(match);
+  if (match.status === "HT") return <span className="text-accent text-[10px] font-mono leading-none">HT</span>;
+  return <span className="text-accent text-[10px] font-mono leading-none">{formatMinute(minute, match.status)}′</span>;
 }
 
 const lastName = (name: string) => {
@@ -187,11 +179,7 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
       );
     if (s === "1H" || s === "2H" || s === "ET")
       return (
-        <LiveMinute
-          status={match.status}
-          elapsed={match.elapsed}
-          fixtureDate={match.fixture_date}
-        />
+        <LiveMinute match={match} />
       );
     return null;
   })();
@@ -303,11 +291,7 @@ export default function MatchCarousel({ matches, venues, goals }: Props) {
                         : "–"}
                     </span>
                     {isLive && (
-                      <LiveMinute
-                        status={match.status}
-                        elapsed={match.elapsed}
-                        fixtureDate={match.fixture_date}
-                      />
+                      <LiveMinute match={match} />
                     )}
                     {isFinished && (
                       <span className="text-gray-200 text-[10px] uppercase tracking-wider leading-none">

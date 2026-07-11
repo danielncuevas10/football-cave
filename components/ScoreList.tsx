@@ -12,14 +12,18 @@ import Link from "next/link";
 import { getWcRoundKey } from "@/lib/wcRoundLabel";
 import { cleanLeagueName } from "@/lib/teamName";
 
-// Ordered list: World Cup → UCL → La Liga → Premier League → MLS → Liga MX
-const DISPLAY_LEAGUE_IDS = [1, 2, 140, 39, 253, 262];
+// Ordered list: World Cup → UCL → La Liga → Premier League → Bundesliga → Ligue 1 → Serie A → MLS → Liga MX
+const DISPLAY_LEAGUE_IDS = [1, 2, 140, 39, 78, 61, 135, 253, 262];
 
 type WcPlaceholderKey =
-  | "sf1Home" | "sf1Away"
-  | "sf2Home" | "sf2Away"
-  | "loserSF1" | "loserSF2"
-  | "winnerSF1" | "winnerSF2";
+  | "sf1Home"
+  | "sf1Away"
+  | "sf2Home"
+  | "sf2Away"
+  | "loserSF1"
+  | "loserSF2"
+  | "winnerSF1"
+  | "winnerSF2";
 
 interface WcPlaceholderMatch {
   homeKey: WcPlaceholderKey;
@@ -29,17 +33,48 @@ interface WcPlaceholderMatch {
 }
 
 const WC_PLACEHOLDER_BY_DATE: Record<string, WcPlaceholderMatch[]> = {
-  "2026-07-14": [{ homeKey: "sf1Home", awayKey: "sf1Away", time: "21:00", roundKey: "wcroundSF" }],
-  "2026-07-15": [{ homeKey: "sf2Home", awayKey: "sf2Away", time: "21:00", roundKey: "wcroundSF" }],
-  "2026-07-18": [{ homeKey: "loserSF1", awayKey: "loserSF2", time: "23:00", roundKey: "wcroundThird" }],
-  "2026-07-19": [{ homeKey: "winnerSF1", awayKey: "winnerSF2", time: "21:00", roundKey: "wcroundFinal" }],
+  "2026-07-14": [
+    {
+      homeKey: "sf1Home",
+      awayKey: "sf1Away",
+      time: "21:00",
+      roundKey: "wcroundSF",
+    },
+  ],
+  "2026-07-15": [
+    {
+      homeKey: "sf2Home",
+      awayKey: "sf2Away",
+      time: "21:00",
+      roundKey: "wcroundSF",
+    },
+  ],
+  "2026-07-18": [
+    {
+      homeKey: "loserSF1",
+      awayKey: "loserSF2",
+      time: "23:00",
+      roundKey: "wcroundThird",
+    },
+  ],
+  "2026-07-19": [
+    {
+      homeKey: "winnerSF1",
+      awayKey: "winnerSF2",
+      time: "21:00",
+      roundKey: "wcroundFinal",
+    },
+  ],
 };
 
 const LEAGUE_NAME_OVERRIDES: Record<number, string> = {
   2: "Champions League",
 };
 
-function getDisplayLeagueName(leagueId: number | undefined, apiName: string): string {
+function getDisplayLeagueName(
+  leagueId: number | undefined,
+  apiName: string
+): string {
   if (leagueId === undefined) return apiName;
   return LEAGUE_NAME_OVERRIDES[leagueId] ?? apiName;
 }
@@ -53,15 +88,142 @@ function getMatchdayLabel(round: string | null | undefined): string | null {
   return round;
 }
 
-function getLeagueIcon(leagueId: number | undefined): { src: string; isWc: boolean } | null {
+function getLeagueIcon(
+  leagueId: number | undefined
+): { src: string; isWc: boolean } | null {
   switch (leagueId) {
-    case 1:   return { src: "/images/WC26Badge.svg", isWc: true };
-    case 39:  return { src: "/images/flags/gb-eng.svg", isWc: false };
-    case 140: return { src: "/images/flags/es.svg", isWc: false };
-    case 253: return { src: "/images/flags/us.svg", isWc: false };
-    case 262: return { src: "/images/flags/mx.svg", isWc: false };
-    default:  return null;
+    case 1:
+      return { src: "/images/WC26Badge.svg", isWc: true };
+    case 39:
+      return { src: "/images/flags/gb-eng.svg", isWc: false };
+    case 140:
+      return { src: "/images/flags/es.svg", isWc: false };
+    case 78:
+      return { src: "/images/flags/de.svg", isWc: false };
+    case 61:
+      return { src: "/images/flags/fr.svg", isWc: false };
+    case 135:
+      return { src: "/images/flags/it.svg", isWc: false };
+    case 253:
+      return { src: "/images/flags/us.svg", isWc: false };
+    case 262:
+      return { src: "/images/flags/mx.svg", isWc: false };
+    default:
+      return null;
   }
+}
+
+function LeagueBlock({
+  leagueName,
+  matches,
+  borderBottom = false,
+}: {
+  leagueName: string;
+  matches: DbMatch[];
+  borderBottom?: boolean;
+}) {
+  const tTabs = useTranslations("matchTabs");
+  const [collapsed, setCollapsed] = useState(false);
+  const leagueId = matches[0]?.league_id;
+  const canCollapse = matches.length > 1;
+
+  const roundLabel: string | null =
+    leagueId === 1
+      ? (() => {
+          const key = getWcRoundKey(matches[0]?.round);
+          return key ? tTabs(key) : null;
+        })()
+      : getMatchdayLabel(matches[0]?.round);
+
+  return (
+    <div className="bg-custom-gray rounded-xl overflow-hidden border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+      <div
+        className={`flex items-center px-4 gap-3 py-4 ${
+          borderBottom || !collapsed ? "border-b border-[#38383A]" : ""
+        }`}
+      >
+        {leagueId ? (
+          <Link
+            href={`/league/${leagueId}`}
+            className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity"
+          >
+            {(() => {
+              const icon = getLeagueIcon(leagueId);
+              if (!icon) return null;
+              return icon.isWc ? (
+                <img
+                  src={icon.src}
+                  alt="FIFA World Cup 2026"
+                  className="w-5 h-5 object-contain shrink-0"
+                />
+              ) : (
+                <img
+                  src={icon.src}
+                  alt=""
+                  className="w-5 h-3.5 object-cover rounded-xs shrink-0"
+                />
+              );
+            })()}
+            <h3 className="text-[15px] font-bold text-white tracking-wider">
+              {getDisplayLeagueName(leagueId, leagueName)}
+            </h3>
+          </Link>
+        ) : (
+          <span className="flex-1 text-[15px] font-bold text-gray-200 tracking-wider">
+            {leagueName}
+          </span>
+        )}
+
+        {canCollapse ? (
+          <button
+            onClick={() => setCollapsed((c) => !c)}
+            className="flex items-center gap-1.5 ml-auto shrink-0"
+          >
+            {roundLabel && (
+              <span className="text-[11px] text-gray-200 font-bold tracking-wide mr-2">
+                {roundLabel}
+              </span>
+            )}
+            <img
+              src="/images/specs/calendar.svg"
+              alt=""
+              className="w-2 h-2 object-contain transition-transform duration-[1000ms]"
+              style={{
+                transform: collapsed ? "rotate(-180deg)" : "rotate(0deg)",
+              }}
+            />
+          </button>
+        ) : roundLabel ? (
+          <span className="ml-auto text-[11px] text-gray-200 font-bold tracking-wide shrink-0">
+            {roundLabel}
+          </span>
+        ) : null}
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateRows: collapsed ? "0fr" : "1fr",
+          transition: "grid-template-rows 600ms ease-in-out",
+        }}
+      >
+        <div className="overflow-hidden">
+          {matches.map((m, index) => (
+            <div
+              key={m.id}
+              className={
+                index === matches.length - 1
+                  ? "rounded-b-lg"
+                  : "border-b border-white/4"
+              }
+            >
+              <MatchCard match={m} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 interface Props {
@@ -197,12 +359,11 @@ export default function ScoreList({ initialMatches }: Props) {
   const merged = [
     ...liveMatches,
     ...allMatches.filter((m) => !liveIds.has(m.id)),
-  ]
-    .sort((a, b) => {
-      const d =
-        new Date(a.fixture_date).getTime() - new Date(b.fixture_date).getTime();
-      return d !== 0 ? d : a.id - b.id;
-    });
+  ].sort((a, b) => {
+    const d =
+      new Date(a.fixture_date).getTime() - new Date(b.fixture_date).getTime();
+    return d !== 0 ? d : a.id - b.id;
+  });
 
   // A match is live if the DB says so OR if its status is an active live status.
   // This catches matches where is_live was not written correctly by the cron.
@@ -247,7 +408,9 @@ export default function ScoreList({ initialMatches }: Props) {
   }, {} as Record<string, DbMatch[]>);
 
   // WC knockout placeholder logic
-  const dateKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
+  const dateKey = `${currentDate.getFullYear()}-${String(
+    currentDate.getMonth() + 1
+  ).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
   const wcPlaceholders = WC_PLACEHOLDER_BY_DATE[dateKey] ?? [];
   const hasRealWcMatch = matchesForDate.some(
     (m) =>
@@ -355,71 +518,14 @@ export default function ScoreList({ initialMatches }: Props) {
         <section className="space-y-4">
           <div className="space-y-6">
             {sortLeagueEntries(Object.entries(liveMatchesByLeague)).map(
-              ([leagueName, matches]) => {
-                const leagueId = matches[0]?.league_id;
-
-                return (
-                  <div
-                    key={`live-${leagueName}`}
-                    className="bg-custom-gray rounded-xl overflow-hidden border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
-                  >
-                    {leagueId ? (
-                      <Link
-                        href={`/league/${leagueId}`}
-                        className="relative flex items-center justify-start px-4 gap-3 py-4 border-b border-[#38383A] hover:bg-gray-900/20 transition-colors"
-                      >
-                        {(() => {
-                          const icon = getLeagueIcon(leagueId);
-                          if (!icon) return null;
-                          return icon.isWc
-                            ? <img src={icon.src} alt="FIFA World Cup 2026" className="w-5 h-5 object-contain shrink-0" />
-                            : <img src={icon.src} alt="" className="w-5 h-3.5 object-cover rounded-xs shrink-0" />;
-                        })()}
-                        <h3 className="text-[15px] font-bold text-white tracking-wider">
-                          {getDisplayLeagueName(leagueId, leagueName)}
-                        </h3>
-                        {(() => {
-                          if (leagueId === 1) {
-                            const key = getWcRoundKey(matches[0]?.round);
-                            return key ? (
-                              <span className="absolute right-3 text-[12px] text-gray-200 font-bold tracking-wide">
-                                {tTabs(key)}
-                              </span>
-                            ) : null;
-                          }
-                          const label = getMatchdayLabel(matches[0]?.round);
-                          return label ? (
-                            <span className="absolute right-3 text-[12px] text-gray-200 font-bold tracking-wide">
-                              {label}
-                            </span>
-                          ) : null;
-                        })()}
-                      </Link>
-                    ) : (
-                      <div className="flex items-center justify-start px-4 gap-3 py-4 border-b border-gray-800/40">
-                        <h3 className="text-[15px] font-bold text-gray-200 tracking-wider">
-                          {leagueName}
-                        </h3>
-                      </div>
-                    )}
-
-                    <div>
-                      {matches.map((m: DbMatch, index: number) => (
-                        <div
-                          key={m.id}
-                          className={`${
-                            index === matches.length - 1
-                              ? "rounded-b-lg"
-                              : "border-b border-white/4"
-                          }`}
-                        >
-                          <MatchCard match={m} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              }
+              ([leagueName, matches]) => (
+                <LeagueBlock
+                  key={`live-${leagueName}`}
+                  leagueName={leagueName}
+                  matches={matches}
+                  borderBottom
+                />
+              )
             )}
           </div>
         </section>
@@ -431,7 +537,11 @@ export default function ScoreList({ initialMatches }: Props) {
           <div className="space-y-6">
             <div className="bg-custom-gray rounded-xl overflow-hidden border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
               <div className="relative flex items-center justify-start px-4 gap-3 py-4 border-b border-[#38383A]">
-                <img src="/images/WC26Badge.svg" alt="FIFA World Cup 2026" className="w-5 h-5 object-contain shrink-0" />
+                <img
+                  src="/images/WC26Badge.svg"
+                  alt="FIFA World Cup 2026"
+                  className="w-5 h-5 object-contain shrink-0"
+                />
                 <h3 className="text-[15px] font-bold text-white tracking-wider">
                   {tTabs("wc26")}
                 </h3>
@@ -459,71 +569,15 @@ export default function ScoreList({ initialMatches }: Props) {
       {Object.keys(matchesByLeague).length > 0 && (
         <section>
           <div className="space-y-6">
-            {sortLeagueEntries(Object.entries(matchesByLeague)).map(([leagueName, matches]) => {
-              const leagueId = matches[0]?.league_id;
-
-              return (
-                <div
+            {sortLeagueEntries(Object.entries(matchesByLeague)).map(
+              ([leagueName, matches]) => (
+                <LeagueBlock
                   key={leagueName}
-                  className="bg-custom-gray rounded-xl overflow-hidden border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
-                >
-                  {leagueId ? (
-                    <Link
-                      href={`/league/${leagueId}`}
-                      className="relative flex items-center justify-start px-4 gap-3 py-4 hover:bg-gray-900/20 transition-colors"
-                    >
-                      {(() => {
-                        const icon = getLeagueIcon(leagueId);
-                        if (!icon) return null;
-                        return icon.isWc
-                          ? <img src={icon.src} alt="FIFA World Cup 2026" className="w-5 h-5 object-contain shrink-0" />
-                          : <img src={icon.src} alt="" className="w-5 h-3.5 object-cover rounded-xs shrink-0" />;
-                      })()}
-                      <h3 className="text-[15px] font-bold text-white tracking-wider">
-                        {getDisplayLeagueName(leagueId, leagueName)}
-                      </h3>
-                      {(() => {
-                        if (leagueId === 1) {
-                          const key = getWcRoundKey(matches[0]?.round);
-                          return key ? (
-                            <span className="absolute right-3 text-[12px] text-gray-200 font-bold tracking-wide">
-                              {tTabs(key)}
-                            </span>
-                          ) : null;
-                        }
-                        const label = getMatchdayLabel(matches[0]?.round);
-                        return label ? (
-                          <span className="absolute right-3 text-[12px] text-gray-200 font-bold tracking-wide">
-                            {label}
-                          </span>
-                        ) : null;
-                      })()}
-                    </Link>
-                  ) : (
-                    <div className="flex items-center justify-start px-4 gap-3 py-4 border-b border-gray-800/40">
-                      <h3 className="text-[15px] font-bold text-gray-200 tracking-wider">
-                        {leagueName}
-                      </h3>
-                    </div>
-                  )}
-
-                  <div>
-                    {matches.map((m: DbMatch, index: number) => (
-                      <div
-                        key={m.id}
-                        className={`${
-                          index === matches.length - 1
-                            ? "rounded-b-lg"
-                            : "border-b border-white/4"
-                        }`}
-                      >
-                        <MatchCard match={m} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+                  leagueName={leagueName}
+                  matches={matches}
+                />
+              )
+            )}
           </div>
         </section>
       )}

@@ -40,6 +40,10 @@ export const apiMatchSchema = z.object({
         city: z.string().nullable().optional(),
       }).optional().nullable(),
       referee: z.string().nullable().optional(),
+      periods: z.object({
+        first: z.number().nullable(),
+        second: z.number().nullable(),
+      }).optional(),
     }),
     league: z.object({
       id: z.number(),

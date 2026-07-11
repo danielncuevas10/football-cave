@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 interface TBDCardProps {
@@ -14,9 +15,11 @@ interface TBDCardProps {
 function Flag({ src }: { src: string }) {
   return (
     <div className="w-6 h-4 lg:w-10 lg:h-6 overflow-hidden shrink-0 relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
-      <img
+      <Image
         src={src}
         alt=""
+        width={64}
+        height={40}
         className="w-full h-full object-cover will-change-transform scale-[1.15]"
       />
     </div>

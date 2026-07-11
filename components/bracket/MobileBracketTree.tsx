@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { DbMatch, DbStanding } from "@/types/sports";
 import type { ResolvedSlot } from "@/types/bracket";
@@ -63,7 +64,7 @@ function FlagImg({ src, muted }: { src: string; muted?: boolean }) {
         muted ? "opacity-50" : ""
       }`}
     >
-      <img src={src} alt="" className="w-full h-full object-cover " />
+      <Image src={src} alt="" width={48} height={32} className="w-full h-full object-cover" />
     </div>
   );
 }

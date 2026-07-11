@@ -73,7 +73,7 @@ export default function TopNav() {
   return (
     <header className="sticky top-0 z-50 bg-custom-gray px-6 py-5 border-b border-white/8">
       <div className="max-w-7xl lg:max-w-360 mx-auto flex items-center justify-between w-full">
-        <Link href="/">
+        <a href="/">
           <img
             src="/images/specs/title.svg"
             alt="Match Score"
@@ -83,7 +83,7 @@ export default function TopNav() {
               e.currentTarget.src = "/images/WC26Badge.svg";
             }}
           />
-        </Link>
+        </a>
 
         <div className="flex gap-5">
           <nav className="hidden lg:flex items-center gap-6 text-xs font-light tracking-widest">

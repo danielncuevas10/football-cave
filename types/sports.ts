@@ -143,6 +143,9 @@ export interface DbMatch {
     is_live: boolean
     updated_at: string
     stage?: TournamentStage | null;
+    first_half_started_at?: string | null
+    second_half_started_at?: string | null
+    ht_started_at?: string | null
   }
 
   export interface MatchEvent {
@@ -209,4 +212,4 @@ export interface DbStanding {
     group_name?: string | null;
   }
   
-  export type Language = "en" | "es" | "pt" | "bs" | "gr"| "ch" | "kr" | "fr" | "jp"
+  export type Language = "en" | "es" | "pt" | "it" | "bs" | "gr" | "ch" | "kr" | "fr" | "jp"

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { getLocalizedTeamName, cleanLeagueName } from "@/lib/teamName";
 import { supabase } from "@/lib/supabase";
-import { useLiveMinute } from "@/hooks/useLiveMinute";
+import { useLiveMinute, formatMinute } from "@/hooks/useLiveMinute";
 import { getWcRoundKey } from "@/lib/wcRoundLabel";
 import type {
   DbMatch,
@@ -107,17 +107,10 @@ function formatKickoff(dateStr: string): string {
   });
 }
 
-function StatusLabel({
-  status,
-  elapsed,
-  fixtureDate,
-}: {
-  status: FixtureStatus;
-  elapsed: number | null;
-  fixtureDate: string;
-}) {
+function StatusLabel({ match }: { match: Parameters<typeof useLiveMinute>[0] }) {
   const tEv = useTranslations("matchEvents");
-  const minute = useLiveMinute(status, elapsed, fixtureDate);
+  const minute = useLiveMinute(match);
+  const { status } = match;
 
   if (FINISHED_STATUSES.includes(status))
     return (
@@ -136,7 +129,7 @@ function StatusLabel({
   if (status === "1H" || status === "2H" || status === "ET")
     return (
       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-accent text-white font-extrabold font-mono text-[10px] shrink-0">
-        <span className="animate-pulse">{minute}</span>
+        <span className="animate-pulse">{formatMinute(minute, status)}</span>
       </div>
     );
 
@@ -445,11 +438,7 @@ export default function MatchScoreHeader({
                         {tEv("matchFinished")}
                       </span>
                     ) : (
-                      <StatusLabel
-                        status={match.status}
-                        elapsed={match.elapsed}
-                        fixtureDate={match.fixture_date}
-                      />
+                      <StatusLabel match={match} />
                     )}
                     {showPenScore && (
                       <span className="text-gray-300/70 text-[10px] font-mono tabular-nums">

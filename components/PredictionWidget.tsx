@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { getLocalizedTeamName } from "@/lib/teamName";
 
@@ -215,16 +216,20 @@ export default function PredictionWidget({
             {logo ? (
               isNationalTeamMatch(leagueId) ? (
                 <div className="w-8 h-5 overflow-hidden shrink-0 border border-gray-300 rounded-tr-lg rounded-bl-lg">
-                  <img
+                  <Image
                     src={logo}
                     alt=""
+                    width={48}
+                    height={32}
                     className="w-full h-full object-cover scale-[1.15] will-change-transform"
                   />
                 </div>
               ) : (
-                <img
+                <Image
                   src={logo}
                   alt=""
+                  width={48}
+                  height={48}
                   className="w-6 h-6 object-contain rounded-sm"
                 />
               )

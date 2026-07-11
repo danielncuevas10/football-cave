@@ -3,9 +3,10 @@
 import type { DbMatch, FixtureStatus } from "@/types/sports";
 import { LIVE_STATUSES } from "@/types/sports";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { getLocalizedTeamName } from "@/lib/teamName";
-import { useLiveMinute } from "@/hooks/useLiveMinute";
+import { useLiveMinute, formatMinute } from "@/hooks/useLiveMinute";
 import { resolveFlag } from "@/lib/flagUrl";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
@@ -46,9 +47,11 @@ function Flag({ src, isWc }: { src: string; isWc?: boolean }) {
         isWc ? " border border-gray-300 rounded-tr-lg rounded-bl-lg" : ""
       }`}
     >
-      <img
+      <Image
         src={src}
         alt=""
+        width={64}
+        height={40}
         className="w-full h-full object-cover scale-[1.15] will-change-transform"
       />
     </div>
@@ -61,17 +64,10 @@ function FlagPlaceholder() {
   );
 }
 
-function LiveBadge({
-  status,
-  elapsed,
-  fixtureDate,
-}: {
-  status: FixtureStatus;
-  elapsed: number | null;
-  fixtureDate: string;
-}) {
+function LiveBadge({ match }: { match: DbMatch }) {
   const tEv = useTranslations("matchEvents");
-  const minute = useLiveMinute(status, elapsed, fixtureDate);
+  const minute = useLiveMinute(match);
+  const { status } = match;
 
   switch (status) {
     case "1H":
@@ -79,7 +75,7 @@ function LiveBadge({
     case "ET":
       return (
         <span className="text-white text-[6px] font-mono px-1.5 py-1.5 bg-accent rounded-2xl">
-          {minute}′
+          {formatMinute(minute, status)}′
         </span>
       );
     case "HT":
@@ -170,11 +166,7 @@ export default function BracketMatchCard({
         <div className="flex flex-col items-center justify-center gap-0.5 px-1 lg:px-2 min-w-10 lg:min-w-14">
           {(isLive || match.status === "HT") && (
             <div className="mb-0.5">
-              <LiveBadge
-                status={match.status}
-                elapsed={match.elapsed}
-                fixtureDate={match.fixture_date}
-              />
+              <LiveBadge match={match} />
             </div>
           )}
           {isScheduled ? (

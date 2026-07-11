@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import Image from "next/image";
 import { getWcRoundKey } from "@/lib/wcRoundLabel";
 import { getLocalizedTeamName, cleanLeagueName } from "@/lib/teamName";
 import Link from "next/link";
@@ -11,7 +12,7 @@ import WorldCupGroups from "@/components/WorldCupGroups";
 import { League, LIVE_STATUSES } from "@/types/sports";
 import type { DbMatch, DbStanding, FixtureStatus } from "@/types/sports";
 import { supabase } from "@/lib/supabase";
-import { useLiveMinute } from "@/hooks/useLiveMinute";
+import { useLiveMinute, formatMinute } from "@/hooks/useLiveMinute";
 import { resolveFlag } from "@/lib/flagUrl";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
@@ -58,9 +59,11 @@ function TeamLogo({
     <div
       className={`${cls} overflow-hidden shrink-0 rounded-tr-lg rounded-bl-lg`}
     >
-      <img
+      <Image
         src={logo}
         alt=""
+        width={64}
+        height={40}
         className="w-full h-full object-cover scale-[1.15]"
       />
     </div>
@@ -70,7 +73,7 @@ function TeamLogo({
 
 function LiveMatchBanner({ match }: { match: DbMatch }) {
   const locale = useLocale();
-  const minute = useLiveMinute(match.status, match.elapsed, match.fixture_date);
+  const minute = useLiveMinute(match);
   const showMinute =
     match.status === "1H" || match.status === "2H" || match.status === "ET";
 
@@ -105,7 +108,7 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
                 }`}
               >
                 <span className={match.status !== "HT" ? "animate-pulse" : ""}>
-                  {match.status === "HT" ? "HT" : minute}
+                  {match.status === "HT" ? "HT" : formatMinute(minute, match.status)}
                 </span>
               </div>
             )}
@@ -218,9 +221,11 @@ export default function TeamTabs({
       {/* Banner — full width, no rounding, no side margins */}
       <div className="flex items-center gap-4 px-6 py-15 bg-custom-gray w-full">
         <div className="w-20 h-12 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
-          <img
+          <Image
             src={teamLogoUrl}
             alt=""
+            width={96}
+            height={48}
             className="w-full h-full object-cover  will-change-transform scale-[1.15]"
           />
         </div>
@@ -397,9 +402,11 @@ export default function TeamTabs({
                           <div className="flex flex-col items-center gap-2">
                             {nextWcMatch.home_logo && (
                               <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
-                                <img
+                                <Image
                                   src={nextWcMatch.home_logo}
                                   alt=""
+                                  width={64}
+                                  height={40}
                                   className="w-full h-full object-cover  will-change-transform scale-[1.15]"
                                 />
                               </div>
@@ -427,9 +434,11 @@ export default function TeamTabs({
                           <div className="flex flex-col items-center gap-2">
                             {nextWcMatch.away_logo && (
                               <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
-                                <img
+                                <Image
                                   src={nextWcMatch.away_logo}
                                   alt=""
+                                  width={64}
+                                  height={40}
                                   className="w-full h-full object-cover  will-change-transform scale-[1.15]"
                                 />
                               </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { DbStanding } from "@/types/sports";
 import { getLocalizedTeamName } from "@/lib/teamName";
@@ -171,9 +172,11 @@ export default function WorldCupGroups({
                     >
                       {team.team_logo && (
                         <div className="w-8 h-5 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
-                          <img
+                          <Image
                             src={team.team_logo}
                             alt=""
+                            width={48}
+                            height={32}
                             className="w-full h-full object-cover  will-change-transform scale-[1.15]"
                           />
                         </div>

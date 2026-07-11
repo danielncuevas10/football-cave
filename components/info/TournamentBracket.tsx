@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
-import type { DbMatch, FixtureStatus } from "@/types/sports";
-import { useLiveMinute } from "@/hooks/useLiveMinute";
+import type { DbMatch } from "@/types/sports";
+import { useLiveMinute, formatMinute } from "@/hooks/useLiveMinute";
 
 interface TournamentBracketProps {
   matches: DbMatch[];
@@ -19,23 +20,16 @@ const KNOCKOUT_STAGES = [
 const circleBase =
   "flex items-center justify-center w-8 h-8 rounded-full font-extrabold font-mono text-[10px] shrink-0";
 
-function StatusBadge({
-  status,
-  elapsed,
-  fixtureDate,
-}: {
-  status: FixtureStatus;
-  elapsed: number | null;
-  fixtureDate: string;
-}) {
-  const minute = useLiveMinute(status, elapsed, fixtureDate);
+function StatusBadge({ match }: { match: DbMatch }) {
+  const minute = useLiveMinute(match);
+  const { status } = match;
   switch (status) {
     case "1H":
     case "2H":
     case "ET":
       return (
         <div className={`${circleBase} bg-accent text-white`}>
-          <span className="animate-pulse">{minute}</span>
+          <span className="animate-pulse">{formatMinute(minute, status)}</span>
         </div>
       );
     case "HT":
@@ -172,11 +166,7 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
                               <div className="grid grid-cols-12 gap-2 items-center p-4">
                                 {/* Column 1: Status & Info */}
                                 <div className="col-span-1 flex flex-col min-w-0">
-                                  <StatusBadge
-                                    status={leg.status as FixtureStatus}
-                                    elapsed={leg.elapsed}
-                                    fixtureDate={leg.fixture_date}
-                                  />
+                                  <StatusBadge match={leg} />
                                 </div>
 
                                 {/* Column 2: Home Team */}
@@ -185,9 +175,11 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
                                     {leg.home_team}
                                   </span>
                                   {leg.home_logo && (
-                                    <img
+                                    <Image
                                       src={leg.home_logo}
                                       alt=""
+                                      width={64}
+                                      height={64}
                                       className="w-10 h-10 object-contain shrink-0"
                                     />
                                   )}
@@ -226,9 +218,11 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
                                 {/* Column 4: Away Team */}
                                 <div className="col-span-5 flex items-center justify-start gap-3 min-w-0">
                                   {leg.away_logo && (
-                                    <img
+                                    <Image
                                       src={leg.away_logo}
                                       alt=""
+                                      width={64}
+                                      height={64}
                                       className="w-10 h-10 object-contain shrink-0"
                                     />
                                   )}

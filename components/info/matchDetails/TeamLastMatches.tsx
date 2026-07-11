@@ -81,7 +81,7 @@ function FlagImg({ src, alt, isNational }: { src: string; alt: string; isNationa
       </div>
     );
   }
-  return <img src={src} alt={alt} className="w-6 h-6 object-contain rounded-sm shrink-0" />;
+  return <Image src={src} alt={alt} width={48} height={48} className="w-6 h-6 object-contain rounded-sm shrink-0" />;
 }
 
 function MatchRow({

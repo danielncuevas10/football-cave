@@ -1473,7 +1473,7 @@ export default function MatchTabs({
                               </div>
                             )}
                             <span className="text-[11px] text-gray-400">
-                              - {refCountry}
+                              {flagCode ? "- " : ""}{refCountry}
                             </span>
                           </div>
                         )}

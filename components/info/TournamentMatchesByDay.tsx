@@ -134,9 +134,6 @@ export default function TournamentMatchesByDay({ matches }: Props) {
                 }}
               />
             </button>
-            <span className="text-[8px] font-light tracking-wide">
-              {tDate("prev")}
-            </span>
           </div>
 
           <span className="text-sm font-bold text-white select-none">
@@ -169,9 +166,6 @@ export default function TournamentMatchesByDay({ matches }: Props) {
                 }}
               />
             </button>
-            <span className="text-[9px] font-light tracking-wide">
-              {tDate("next")}
-            </span>
           </div>
         </div>
       </div>
