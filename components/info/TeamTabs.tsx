@@ -16,6 +16,7 @@ import { useLiveMinute, formatMinute } from "@/hooks/useLiveMinute";
 import { resolveFlag } from "@/lib/flagUrl";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
+const NATIONAL_TEAM_LEAGUES = [1, 4, 5, 6, 9, 10, 17, 25, 29, 30, 32, 34];
 
 type TabType = "matches" | "standings";
 
@@ -220,15 +221,24 @@ export default function TeamTabs({
     <div className="w-full text-white">
       {/* Banner — full width, no rounding, no side margins */}
       <div className="flex items-center gap-4 px-6 py-15 bg-custom-gray w-full">
-        <div className="w-20 h-12 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
-          <Image
-            src={teamLogoUrl}
-            alt=""
-            width={96}
-            height={48}
-            className="w-full h-full object-cover  will-change-transform scale-[1.15]"
-          />
-        </div>
+        {(() => {
+          const isNational = leagueId !== null && NATIONAL_TEAM_LEAGUES.includes(leagueId);
+          return (
+            <div
+              className={`w-20 h-12 overflow-hidden shrink-0 block relative${
+                isNational ? " border border-gray-300 rounded-tr-lg rounded-bl-lg" : ""
+              }`}
+            >
+              <Image
+                src={teamLogoUrl}
+                alt=""
+                width={96}
+                height={48}
+                className={`w-full h-full ${isNational ? "object-cover will-change-transform scale-[1.15]" : "object-contain"}`}
+              />
+            </div>
+          );
+        })()}
         <div className="flex flex-col gap-1.5 min-w-0">
           <h1 className="text-xl font-extrabold tracking-tight truncate">
             {getLocalizedTeamName(teamName, locale)}

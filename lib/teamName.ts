@@ -1,4 +1,132 @@
 /**
+ * Short display names for club teams whose API name is too long or differs
+ * from the name fans actually use. Applied in all locales — club nicknames
+ * are language-agnostic (PSG is PSG everywhere).
+ */
+const CLUB_SHORT_NAMES: Record<string, string> = {
+  // Premier League
+  "Manchester City":            "Man City",
+  "Manchester United":          "Man United",
+  "Wolverhampton Wanderers":    "Wolves",
+  "Nottingham Forest":          "Nott'm Forest",
+  "Tottenham Hotspur":          "Spurs",
+  "West Ham United":            "West Ham",
+  "Newcastle United":           "Newcastle",
+  "Brighton & Hove Albion":     "Brighton",
+  "Brighton And Hove Albion":   "Brighton",
+  "Sheffield United":           "Sheffield Utd",
+  "Leicester City":             "Leicester",
+
+  // Ligue 1
+  "Paris Saint Germain":        "PSG",
+  "Paris Saint-Germain":        "PSG",
+  "Olympique Lyonnais":         "Lyon",
+  "Olympique de Marseille":     "Marseille",
+  "Stade Rennais FC":           "Rennes",
+  "Stade Brestois 29":          "Brest",
+
+  // Bundesliga
+  "Bayern München":             "Bayern",
+  "FC Bayern München":          "Bayern",
+  "Borussia Dortmund":          "Dortmund",
+  "Borussia Mönchengladbach":   "M'gladbach",
+  "Bayer Leverkusen":           "Leverkusen",
+  "Eintracht Frankfurt":        "Frankfurt",
+  "FSV Mainz 05":               "Mainz",
+  "1899 Hoffenheim":            "Hoffenheim",
+  "1. FC Köln":                 "Köln",
+  "1. FC Heidenheim 1846":      "Heidenheim",
+  "SV Darmstadt 98":            "Darmstadt",
+  "SC Freiburg":                "Freiburg",
+  "SC Paderborn 07":            "Paderborn",
+  "SV Elversberg":              "Elversberg",
+  "FC Augsburg":                "Augsburg",
+  "FC Schalke 04":              "Schalke",
+  "VfB Stuttgart":              "Stuttgart",
+  "VfL Wolfsburg":              "Wolfsburg",
+  "VfL Bochum":                 "Bochum",
+  "Hamburger SV":               "Hamburg",
+  "FC Union Berlin":            "Union Berlin",
+  "RB Leipzig":                 "Leipzig",
+  "Werder Bremen":              "Bremen",
+
+  // Serie A
+  "AC Milan":                   "Milan",
+  "AS Roma":                    "Roma",
+  "SS Lazio":                   "Lazio",
+  "SSC Napoli":                 "Napoli",
+  "ACF Fiorentina":             "Fiorentina",
+  "US Lecce":                   "Lecce",
+  "US Sassuolo":                "Sassuolo",
+  "Hellas Verona":              "Verona",
+  "FC Internazionale":          "Inter",
+
+  // La Liga
+  "Atletico Madrid":            "Atlético",
+  "Atlético de Madrid":         "Atlético",
+  "Deportivo Alavés":           "Alavés",
+  "Deportivo La Coruna":        "D. La Coruña",
+  "Real Sociedad":              "R. Sociedad",
+  "Rayo Vallecano":             "Rayo",
+  "Real Betis":                 "Betis",
+
+  // Liga MX
+  "U.N.A.M. - Pumas":          "Pumas",
+  "Pumas U.N.A.M.":            "Pumas",
+  "Pumas UNAM":                 "Pumas",
+  "Club America":               "América",
+  "Guadalajara Chivas":         "Chivas",
+  "CF Pachuca":                 "Pachuca",
+  "Club Queretaro":             "Querétaro",
+  "Club Tijuana":               "Tijuana",
+  "Tigres UANL":                "Tigres",
+  "Santos Laguna":              "Santos",
+  "Atletico San Luis":          "Atlético SL",
+  "FC Juarez":                  "Juárez",
+  "Atlante FC":                 "Atlante",
+
+  // MLS
+  "Los Angeles Galaxy":         "LA Galaxy",
+  "Los Angeles FC":             "LAFC",
+  "New York Red Bulls":         "NY Red Bulls",
+  "New York City FC":           "NYCFC",
+  "New England Revolution":     "New England",
+  "Atlanta United FC":          "Atlanta Utd",
+  "Minnesota United FC":        "Minnesota Utd",
+  "San Jose Earthquakes":       "San Jose",
+  "Colorado Rapids":            "Colorado",
+  "Portland Timbers":           "Portland",
+  "Seattle Sounders":           "Seattle",
+  "Seattle Sounders FC":        "Seattle",
+  "Sporting Kansas City":       "Kansas City",
+  "Vancouver Whitecaps":        "Vancouver",
+  "Vancouver Whitecaps FC":     "Vancouver",
+  "CF Montreal":                "Montréal",
+  "CF Montréal":                "Montréal",
+  "FC Cincinnati":              "Cincinnati",
+  "FC Dallas":                  "Dallas",
+  "Orlando City SC":            "Orlando City",
+  "Nashville SC":               "Nashville",
+  "Chicago Fire FC":            "Chicago Fire",
+  "DC United":                  "DC United",
+  "Toronto FC":                 "Toronto",
+  "Philadelphia Union":         "Philadelphia",
+  "Real Salt Lake":             "Salt Lake",
+  "St. Louis City":             "St. Louis",
+  "St. Louis City SC":          "St. Louis",
+  "Charlotte FC":               "Charlotte",
+  "Austin FC":                  "Austin",
+  "Houston Dynamo FC":          "Houston Dynamo",
+  "Inter Miami CF":             "Inter Miami",
+
+  // Champions League / international club names
+  "FC Barcelona":               "Barcelona",
+  "FC Porto":                   "Porto",
+  "FC Bayern Munich":           "Bayern",
+  "Paris Saint-Germain FC":     "PSG",
+};
+
+/**
  * Maps API team names to ISO 3166-1 alpha-2 codes so Intl.DisplayNames
  * can produce the correct localized country name automatically.
  * Club teams have no entry here and will always return their original name.
@@ -140,6 +268,11 @@ export function cleanLeagueName(name: string | null | undefined): string | null 
  */
 export function getLocalizedTeamName(name: string, appLocale: string): string {
   if (!name) return name;
+
+  // Club short names apply in every locale — "PSG" is "PSG" everywhere
+  const short = CLUB_SHORT_NAMES[name];
+  if (short) return short;
+
   if (appLocale === "en") return name;
 
   // Sub-national teams that need manual overrides

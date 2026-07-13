@@ -165,7 +165,7 @@ function LeagueBlock({
                 />
               );
             })()}
-            <h3 className="text-[15px] font-bold text-white tracking-wider">
+            <h3 className="text-[11px] lg:text-[15px] font-medium text-white tracking-wider">
               {getDisplayLeagueName(leagueId, leagueName)}
             </h3>
           </Link>

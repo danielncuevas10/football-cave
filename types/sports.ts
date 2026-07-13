@@ -215,3 +215,6 @@ export interface DbStanding {
   }
   
   export type Language = "en" | "es" | "pt" | "it" | "bs" | "gr" | "ch" | "kr" | "fr" | "jp"
+
+export type GoalEntry = { name: string; minute: number; isOwnGoal: boolean };
+export type GoalsMap = Record<number, { home: GoalEntry[]; away: GoalEntry[] }>;

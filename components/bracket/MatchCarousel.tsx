@@ -9,7 +9,7 @@ import { LIVE_STATUSES } from "@/types/sports";
 import { supabase } from "@/lib/supabase";
 import { useLiveMinute, formatMinute } from "@/hooks/useLiveMinute";
 import { getLocalizedTeamName } from "@/lib/teamName";
-import type { GoalsMap } from "./BracketPanelServer";
+import type { GoalsMap } from "@/types/sports";
 
 const FINISHED = ["FT", "AET", "PEN", "AWD", "WO"];
 

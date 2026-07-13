@@ -107,7 +107,11 @@ function formatKickoff(dateStr: string): string {
   });
 }
 
-function StatusLabel({ match }: { match: Parameters<typeof useLiveMinute>[0] }) {
+function StatusLabel({
+  match,
+}: {
+  match: Parameters<typeof useLiveMinute>[0];
+}) {
   const tEv = useTranslations("matchEvents");
   const minute = useLiveMinute(match);
   const { status } = match;
@@ -315,7 +319,7 @@ export default function MatchScoreHeader({
   const hasScore = displayHome !== null && displayAway !== null;
 
   return (
-    <div className="bg-custom-gray">
+    <div className="bg-custom-gray lg:rounded-xl overflow-hidden">
       <div className="px-6 py-8">
         <div className="flex flex-col items-center gap-6 w-full">
           <div className="flex flex-col items-center gap-2 w-full">
@@ -512,7 +516,7 @@ export default function MatchScoreHeader({
           .filter(Boolean)
           .join(", ");
         return (
-          <div className="px-5 py-4.5 flex items-center justify-center gap-2 text-[10px] text-gray-300 flex-wrap">
+          <div className="px-2 py-4.5 flex items-center justify-center gap-2 text-[8px] lg:text-[12px] text-gray-300 flex-wrap">
             <img
               src="/images/specs/clock.svg"
               alt=""
@@ -535,7 +539,6 @@ export default function MatchScoreHeader({
           </div>
         );
       })()}
-
     </div>
   );
 }

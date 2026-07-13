@@ -1,6 +1,7 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { getLocalizedTeamName } from "@/lib/teamName";
 import { League } from "@/types/sports";
 import type { DbStanding } from "@/types/sports";
 import Image from "next/image";
@@ -101,6 +102,7 @@ function ZoneLegend({ leagueId }: { leagueId: number | undefined }) {
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function StandingsTable({ standings, highlightNames = [] }: Props) {
   const t = useTranslations("matchTabs");
+  const locale = useLocale();
   const leagueId = standings[0]?.league_id;
 
   // Group by conference/group when the standings contain multiple groups (e.g. MLS)
@@ -141,7 +143,7 @@ export default function StandingsTable({ standings, highlightNames = [] }: Props
                 />
               )}
               <span className="font-sans text-sm text-gray-100 truncate">
-                {team.team_name}
+                {getLocalizedTeamName(team.team_name, locale)}
               </span>
             </Link>
           </td>

@@ -191,6 +191,20 @@
     "reject": "거부",
     "privacyPolicy": "개인정보 처리방침"
   },
+  "quickNav": {
+    "teams": "팀",
+    "leagues": "리그",
+    "argentina": "아르헨티나",
+    "nationalSpain": "스페인",
+    "nationalFrance": "프랑스",
+    "leagueEngland": "잉글랜드",
+    "leagueSpain": "스페인",
+    "leagueFrance": "프랑스",
+    "leagueGermany": "독일",
+    "leagueItaly": "이탈리아",
+    "leagueMexico": "멕시코",
+    "leagueUSA": "미국"
+  },
   "wcPlaceholder": {
     "sf1Home": "프랑스 / 모로코",
     "sf1Away": "스페인 / 벨기에",

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { guardRoute } from "@/lib/api-guard";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/server/supabase-admin";
 
 // Lightweight endpoint — reads only from match_details (no API call, no quota used).
-// Called by MatchTabs every 60 s during live matches to pick up events the
-// cron has written without the client burning any API quota.
+// Uses supabaseAdmin so it works regardless of the anon RLS policy on match_details.
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -18,7 +17,7 @@ export async function GET(
     return NextResponse.json({ error: "Invalid match ID" }, { status: 400 });
   }
 
-  const { data } = await supabase
+  const { data } = await supabaseAdmin
     .from("match_details")
     .select("match_id, events, lineups, statistics, updated_at, venue_name, venue_city, referee")
     .eq("match_id", matchId)

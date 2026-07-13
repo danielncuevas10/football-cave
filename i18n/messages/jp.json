@@ -191,6 +191,20 @@
     "reject": "拒否する",
     "privacyPolicy": "プライバシーポリシー"
   },
+  "quickNav": {
+    "teams": "チーム",
+    "leagues": "リーグ",
+    "argentina": "アルゼンチン",
+    "nationalSpain": "スペイン",
+    "nationalFrance": "フランス",
+    "leagueEngland": "イングランド",
+    "leagueSpain": "スペイン",
+    "leagueFrance": "フランス",
+    "leagueGermany": "ドイツ",
+    "leagueItaly": "イタリア",
+    "leagueMexico": "メキシコ",
+    "leagueUSA": "アメリカ"
+  },
   "wcPlaceholder": {
     "sf1Home": "フランス / モロッコ",
     "sf1Away": "スペイン / ベルギー",

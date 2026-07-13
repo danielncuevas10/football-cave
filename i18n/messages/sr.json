@@ -191,6 +191,20 @@
     "reject": "Odbij",
     "privacyPolicy": "Politika privatnosti"
   },
+  "quickNav": {
+    "teams": "Timovi",
+    "leagues": "Lige",
+    "argentina": "Argentina",
+    "nationalSpain": "Španija",
+    "nationalFrance": "Francuska",
+    "leagueEngland": "Engleska",
+    "leagueSpain": "Španija",
+    "leagueFrance": "Francuska",
+    "leagueGermany": "Nemačka",
+    "leagueItaly": "Italija",
+    "leagueMexico": "Meksiko",
+    "leagueUSA": "SAD"
+  },
   "wcPlaceholder": {
     "sf1Home": "Francuska / Maroko",
     "sf1Away": "Španija / Belgija",

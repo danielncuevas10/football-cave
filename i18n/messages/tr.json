@@ -191,6 +191,20 @@
     "reject": "Reddet",
     "privacyPolicy": "Gizlilik Politikası"
   },
+  "quickNav": {
+    "teams": "Takımlar",
+    "leagues": "Ligler",
+    "argentina": "Arjantin",
+    "nationalSpain": "İspanya",
+    "nationalFrance": "Fransa",
+    "leagueEngland": "İngiltere",
+    "leagueSpain": "İspanya",
+    "leagueFrance": "Fransa",
+    "leagueGermany": "Almanya",
+    "leagueItaly": "İtalya",
+    "leagueMexico": "Meksika",
+    "leagueUSA": "ABD"
+  },
   "wcPlaceholder": {
     "sf1Home": "Fransa / Fas",
     "sf1Away": "İspanya / Belçika",

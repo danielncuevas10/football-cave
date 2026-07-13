@@ -191,6 +191,20 @@
     "reject": "Απόρριψη",
     "privacyPolicy": "Πολιτική Απορρήτου"
   },
+  "quickNav": {
+    "teams": "Ομάδες",
+    "leagues": "Πρωταθλήματα",
+    "argentina": "Αργεντινή",
+    "nationalSpain": "Ισπανία",
+    "nationalFrance": "Γαλλία",
+    "leagueEngland": "Αγγλία",
+    "leagueSpain": "Ισπανία",
+    "leagueFrance": "Γαλλία",
+    "leagueGermany": "Γερμανία",
+    "leagueItaly": "Ιταλία",
+    "leagueMexico": "Μεξικό",
+    "leagueUSA": "ΗΠΑ"
+  },
   "wcPlaceholder": {
     "sf1Home": "Γαλλία / Μαρόκο",
     "sf1Away": "Ισπανία / Βέλγιο",

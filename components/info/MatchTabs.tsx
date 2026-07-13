@@ -266,6 +266,41 @@ export default function MatchTabs({
     };
   }, [leagueId, standingsSeason]);
 
+  // Realtime: re-fetch events the moment the cron writes to match_details.
+  // Requires the match_details table to be enabled under Database → Replication
+  // in the Supabase dashboard, otherwise this subscription receives no events.
+  useEffect(() => {
+    if (!isLive) return;
+
+    const channel = supabase
+      .channel(`match-details-rt-${matchId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "match_details",
+          filter: `match_id=eq.${matchId}`,
+        },
+        async () => {
+          try {
+            const res = await fetch(`/api/match/${matchId}/events`);
+            if (res.ok) {
+              const data: DbMatchDetails | null = await res.json();
+              if (data) setLiveDetails(data);
+            }
+          } catch {
+            /* network hiccup — the 30 s fallback poll will catch it */
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [matchId, isLive]);
+
   // Uncapped per-minute ticker — resets to the latest DB value on every cron
   // update, then keeps ticking beyond 45/90 so added time shows automatically.
   useEffect(() => {
@@ -317,7 +352,7 @@ export default function MatchTabs({
       }
     };
     poll();
-    const id = setInterval(poll, 60_000);
+    const id = setInterval(poll, 30_000);
     return () => clearInterval(id);
   }, [matchId, isLive]);
 
@@ -435,7 +470,15 @@ export default function MatchTabs({
       "Red Card Upgrade": tEv("varRedCardUpgrade"),
       "Yellow Card Upgrade": tEv("varYellowCardUpgrade"),
     };
-    return map[detail] ?? detail;
+    if (map[detail]) return map[detail];
+    // Any "Goal Disallowed - <reason>" variant the API sends that isn't in the
+    // explicit map above (e.g. "Goal Disallowed - Foul") — show base label + reason.
+    if (detail.toLowerCase().startsWith("goal disallowed")) {
+      const sep = detail.indexOf(" - ");
+      const reason = sep !== -1 ? detail.slice(sep + 3) : "";
+      return reason ? `${tEv("varGoalDisallowed")} – ${reason}` : tEv("varGoalDisallowed");
+    }
+    return detail;
   };
 
   const tabs: { id: TabType; label: string }[] = [
@@ -620,15 +663,12 @@ export default function MatchTabs({
                         ev.detail === "Penalty cancelled");
                     if (isShootoutCallEvent) return null;
 
-                    // Drop VAR events whose detail is not in the meaningful set.
-                    // The API logs every interim referee/VAR decision live (e.g.
-                    // "Corner Cancelled") and often deletes them in the next update.
-                    // Only details that carry real information for the user are shown.
+                    // Drop VAR events whose detail is not meaningful.
+                    // The API logs interim decisions ("Corner Cancelled" etc.) that
+                    // are often deleted in the next update — only show decisions that
+                    // carry real information. Any "Goal Disallowed - <reason>" variant
+                    // is allowed via prefix so new foul types (e.g. "Foul") pass through.
                     const MEANINGFUL_VAR_DETAILS = new Set([
-                      "Goal Disallowed - handball",
-                      "Goal Disallowed - offside",
-                      "Goal Disallowed - Offside",
-                      "Goal Disallowed",
                       "Goal ok",
                       "Goal confirmed",
                       "Penalty confirmed",
@@ -637,7 +677,12 @@ export default function MatchTabs({
                       "Red Card Upgrade",
                       "Yellow Card Upgrade",
                     ]);
-                    if (isVar && !MEANINGFUL_VAR_DETAILS.has(ev.detail)) return null;
+                    if (isVar) {
+                      const meaningful =
+                        MEANINGFUL_VAR_DETAILS.has(ev.detail) ||
+                        ev.detail.toLowerCase().startsWith("goal disallowed");
+                      if (!meaningful) return null;
+                    }
 
                     // Drop events with unrecognized types that carry no player name —
                     // nothing meaningful can be shown and they'd fall into the catch-all

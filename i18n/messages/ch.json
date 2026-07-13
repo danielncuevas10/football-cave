@@ -191,6 +191,20 @@
     "reject": "拒绝",
     "privacyPolicy": "隐私政策"
   },
+  "quickNav": {
+    "teams": "球队",
+    "leagues": "联赛",
+    "argentina": "阿根廷",
+    "nationalSpain": "西班牙",
+    "nationalFrance": "法国",
+    "leagueEngland": "英格兰",
+    "leagueSpain": "西班牙",
+    "leagueFrance": "法国",
+    "leagueGermany": "德国",
+    "leagueItaly": "意大利",
+    "leagueMexico": "墨西哥",
+    "leagueUSA": "美国"
+  },
   "wcPlaceholder": {
     "sf1Home": "法国 / 摩洛哥",
     "sf1Away": "西班牙 / 比利时",

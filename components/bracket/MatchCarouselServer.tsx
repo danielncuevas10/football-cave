@@ -1,7 +1,7 @@
 import { supabaseAdmin } from "@/lib/server/supabase-admin";
 import type { DbMatch, MatchEvent, TeamLineup, TeamStatistics } from "@/types/sports";
 import MatchCarousel from "./MatchCarousel";
-import type { GoalsMap } from "./BracketPanelServer";
+import type { GoalsMap } from "@/types/sports";
 
 const FINISHED_STATUSES = ["FT", "AET", "PEN", "AWD", "WO"];
 

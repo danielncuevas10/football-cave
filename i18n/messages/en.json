@@ -191,6 +191,20 @@
     "reject": "Decline",
     "privacyPolicy": "Privacy Policy"
   },
+  "quickNav": {
+    "teams": "Teams",
+    "leagues": "Leagues",
+    "argentina": "Argentina",
+    "nationalSpain": "Spain",
+    "nationalFrance": "France",
+    "leagueEngland": "England",
+    "leagueSpain": "Spain",
+    "leagueFrance": "France",
+    "leagueGermany": "Germany",
+    "leagueItaly": "Italy",
+    "leagueMexico": "Mexico",
+    "leagueUSA": "USA"
+  },
   "wcPlaceholder": {
     "sf1Home": "France / Morocco",
     "sf1Away": "Spain / Belgium",
