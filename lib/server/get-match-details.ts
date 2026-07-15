@@ -65,7 +65,29 @@ export async function getMatchDetails(
       const shootoutComplete = knownStatus !== "PEN" || hasShootoutData(cached.events);
 
       if (goalsMatch && shootoutComplete) {
-        // (a) Cache is complete — zero API calls needed.
+        // (a) Cache is complete — but venue/referee may have been null when
+        // the row was first written (API omits them during live play). Fetch
+        // them once and persist so the next request is a true zero-API-call hit.
+        const missingVenue = !cached.venue_name && !cached.venue_city && !cached.referee;
+        if (missingVenue) {
+          const basicData = await footballApi.getMatchById(matchId);
+          const basicRow = basicData?.response?.[0];
+          const freshVenueName = basicRow?.fixture?.venue?.name ?? null;
+          const freshVenueCity = basicRow?.fixture?.venue?.city ?? null;
+          const freshReferee = basicRow?.fixture?.referee ?? null;
+          if (freshVenueName || freshVenueCity || freshReferee) {
+            await supabaseAdmin
+              .from("match_details")
+              .update({ venue_name: freshVenueName, venue_city: freshVenueCity, referee: freshReferee })
+              .eq("match_id", matchId);
+            return {
+              details: { ...cached, venue_name: freshVenueName, venue_city: freshVenueCity, referee: freshReferee },
+              venueName: freshVenueName,
+              venueCity: freshVenueCity,
+              referee: freshReferee,
+            };
+          }
+        }
         return {
           details: cached,
           venueName: cached.venue_name ?? null,
@@ -87,8 +109,8 @@ export async function getMatchDetails(
         };
       }
 
-      // (c) Try a targeted events-only refresh. No getMatchById needed since
-      // a finished match's score never changes — venue stays from cached row.
+      // (c) Try a targeted events-only refresh. The API response also carries
+      // venue/referee — prefer that over cached nulls so stale rows self-heal.
       const fresh = await footballApi.getMatchDetails(matchId);
       if (fresh) {
         const newRecord: Omit<DbMatchDetails, "updated_at"> = {
@@ -103,18 +125,18 @@ export async function getMatchDetails(
           })),
           lineups: fresh.lineups,
           statistics: fresh.statistics,
-          venue_name: cached.venue_name,
-          venue_city: cached.venue_city,
-          referee: cached.referee,
+          venue_name: fresh.fixture.venue?.name ?? cached.venue_name ?? null,
+          venue_city: fresh.fixture.venue?.city ?? cached.venue_city ?? null,
+          referee: fresh.fixture.referee ?? cached.referee ?? null,
         };
         await supabaseAdmin
           .from("match_details")
           .upsert(newRecord, { onConflict: "match_id" });
         return {
           details: newRecord as DbMatchDetails,
-          venueName: cached.venue_name ?? null,
-          venueCity: cached.venue_city ?? null,
-          referee: cached.referee ?? null,
+          venueName: newRecord.venue_name ?? null,
+          venueCity: newRecord.venue_city ?? null,
+          referee: newRecord.referee ?? null,
         };
       }
 

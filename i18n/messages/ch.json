@@ -16,6 +16,7 @@
     "venue": "场地",
     "referee": "裁判",
     "matches": "赛事",
+    "fixtures": "赛程",
     "groupStage": "小组赛",
     "topScorers": "射手榜",
     "noMatches": "暂无比赛",
@@ -104,7 +105,8 @@
     "outPlayer": "下场",
     "unknownPlayer": "未知",
     "penLabel": "点球",
-    "penaltyShootoutFinished": "点球大战结束"
+    "penaltyShootoutFinished": "点球大战结束",
+    "aggLabel": "总分"
   },
   "matchDetails": {
     "matchOverview": "比赛概览",
@@ -203,7 +205,8 @@
     "leagueGermany": "德国",
     "leagueItaly": "意大利",
     "leagueMexico": "墨西哥",
-    "leagueUSA": "美国"
+    "leagueUSA": "美国",
+    "leagueEurope": "欧洲"
   },
   "wcPlaceholder": {
     "sf1Home": "法国 / 摩洛哥",

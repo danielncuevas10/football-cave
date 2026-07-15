@@ -16,6 +16,7 @@
     "venue": "Stadion",
     "referee": "Sudija",
     "matches": "Utakmice",
+    "fixtures": "Raspored",
     "groupStage": "Grupna faza",
     "topScorers": "Strelci",
     "noMatches": "Nema utakmica",
@@ -104,7 +105,8 @@
     "outPlayer": "Izlazi",
     "unknownPlayer": "Nepoznat",
     "penLabel": "Pen",
-    "penaltyShootoutFinished": "Izvođenje penala završeno"
+    "penaltyShootoutFinished": "Izvođenje penala završeno",
+    "aggLabel": "Agg"
   },
   "matchDetails": {
     "matchOverview": "Pregled utakmice",
@@ -203,7 +205,8 @@
     "leagueGermany": "Nemačka",
     "leagueItaly": "Italija",
     "leagueMexico": "Meksiko",
-    "leagueUSA": "SAD"
+    "leagueUSA": "SAD",
+    "leagueEurope": "Evropa"
   },
   "wcPlaceholder": {
     "sf1Home": "Francuska / Maroko",

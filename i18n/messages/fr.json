@@ -16,6 +16,7 @@
     "venue": "Lieu",
     "referee": "Arbitre",
     "matches": "Matchs",
+    "fixtures": "Calendrier",
     "groupStage": "Phase de groupes",
     "topScorers": "Buteurs",
     "noMatches": "Aucun match",
@@ -104,7 +105,8 @@
     "outPlayer": "Sortant",
     "unknownPlayer": "Inconnu",
     "penLabel": "Tab",
-    "penaltyShootoutFinished": "Tirs au but terminés"
+    "penaltyShootoutFinished": "Tirs au but terminés",
+    "aggLabel": "Agg"
   },
   "matchDetails": {
     "matchOverview": "Résumé du match",
@@ -203,7 +205,8 @@
     "leagueGermany": "Allemagne",
     "leagueItaly": "Italie",
     "leagueMexico": "Mexique",
-    "leagueUSA": "États-Unis"
+    "leagueUSA": "États-Unis",
+    "leagueEurope": "Europe"
   },
   "wcPlaceholder": {
     "sf1Home": "France / Maroc",

@@ -71,6 +71,7 @@ export default function LeagueTabs({
   );
   const tTabs = useTranslations("matchTabs");
   const tBadge = useTranslations("liveBadge");
+  const tNav = useTranslations("quickNav");
   const { flag, country } = getLeagueCountry(leagueId);
 
   const tabs: { id: TabType; label: string }[] = leagueId === League.WorldCup
@@ -107,7 +108,15 @@ export default function LeagueTabs({
       <>
         <BackButton />
         <div className="flex items-center gap-3 p-4 bg-custom-gray rounded-xl border border-custom-gray-2">
-          {flag && (
+          {isUCL ? (
+            <Image
+              src="/images/champions.svg"
+              alt="Champions League"
+              width={32}
+              height={32}
+              className="object-contain shrink-0"
+            />
+          ) : flag ? (
             <Image
               src={flag}
               alt={country ?? leagueName}
@@ -115,14 +124,16 @@ export default function LeagueTabs({
               height={20}
               className="rounded-sm object-cover shrink-0"
             />
-          )}
+          ) : null}
           <div>
             <h1 className="text-xl font-extrabold tracking-tight">
               {leagueName}
             </h1>
-            {country && (
+            {isUCL ? (
+              <p className="text-xs text-gray-400 mt-0.5">{tNav("leagueEurope")}</p>
+            ) : country ? (
               <p className="text-xs text-gray-400 mt-0.5">{country}</p>
-            )}
+            ) : null}
           </div>
         </div>
       </>

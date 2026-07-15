@@ -8,6 +8,7 @@ import { getLocalizedTeamName, cleanLeagueName } from "@/lib/teamName";
 import { supabase } from "@/lib/supabase";
 import { useLiveMinute, formatMinute } from "@/hooks/useLiveMinute";
 import { getWcRoundKey } from "@/lib/wcRoundLabel";
+import { TWO_LEGGED_LEAGUES } from "@/lib/twoLeggedMatch";
 import type {
   DbMatch,
   DbMatchDetails,
@@ -169,6 +170,11 @@ export default function MatchScoreHeader({
   const tBadge = useTranslations("liveBadge");
   const locale = useLocale();
   const [match, setMatch] = useState(initialMatch);
+  const [firstLeg, setFirstLeg] = useState<{
+    home: number;
+    away: number;
+  } | null>(null);
+
   // Penalty score derived from match_details events (reliable for all past + live PEN matches)
   const [penScore, setPenScore] = useState<{
     home: number;
@@ -185,6 +191,26 @@ export default function MatchScoreHeader({
     }
     return null;
   });
+
+  useEffect(() => {
+    if (!match.round || !TWO_LEGGED_LEAGUES.has(match.league_id)) return;
+    supabase
+      .from("matches")
+      .select("home_score, away_score")
+      .eq("league_id", match.league_id)
+      .eq("round", match.round)
+      .eq("home_team", match.away_team)
+      .eq("away_team", match.home_team)
+      .lt("fixture_date", match.fixture_date)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.home_score != null && data?.away_score != null) {
+          // Swap perspective: 2nd-leg home was away in leg 1
+          setFirstLeg({ home: data.away_score, away: data.home_score });
+        }
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [match.id]);
 
   useEffect(() => {
     const channel = supabase
@@ -319,7 +345,7 @@ export default function MatchScoreHeader({
   const hasScore = displayHome !== null && displayAway !== null;
 
   return (
-    <div className="bg-custom-gray lg:rounded-xl overflow-hidden">
+    <div className="bg-custom-gray md:rounded-xl overflow-hidden">
       <div className="px-6 py-8">
         <div className="flex flex-col items-center gap-6 w-full">
           <div className="flex flex-col items-center gap-2 w-full">
@@ -420,8 +446,16 @@ export default function MatchScoreHeader({
                     </div>
                   )}
 
-                  <div className="flex items-center justify-center gap-1 flex-col text-center">
-                    <div className="text-xl font-bold font-mono py-2">
+                  <div className="relative flex items-center justify-center text-center min-h-20">
+                    {/* Agg — anchored above the score */}
+                    {firstLeg && hasScore && (
+                      <span className="absolute bottom-[calc(50%+1.4rem)] left-1/2 -translate-x-1/2 whitespace-nowrap text-gray-200 text-[10px] font-mono tabular-nums font-medium shrink-0 rounded-lg border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] bg-custom-gray-2 px-2 py-1">
+                        {tEv("aggLabel")}: {firstLeg.home + displayHome!}–{firstLeg.away + displayAway!}
+                      </span>
+                    )}
+
+                    {/* Score — true vertical center */}
+                    <div className="text-xl font-bold font-mono">
                       {isScheduled ? (
                         <span className="text-gray-300 text-sm font-medium font-sans">
                           {formatKickoff(match.fixture_date)}
@@ -431,24 +465,25 @@ export default function MatchScoreHeader({
                           {displayHome} – {displayAway}
                         </>
                       ) : (
-                        <span className="text-gray-300 text-sm font-sans">
-                          –
+                        <span className="text-gray-300 text-sm font-sans">–</span>
+                      )}
+                    </div>
+
+                    {/* Status + pen — anchored below the score */}
+                    <div className="absolute top-[calc(50%+1.4rem)] left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 whitespace-nowrap">
+                      {!match.is_live && FINISHED_STATUSES.includes(match.status) ? (
+                        <span className="text-gray-200 text-xs tracking-wider">
+                          {tEv("matchFinished")}
+                        </span>
+                      ) : (
+                        <StatusLabel match={match} />
+                      )}
+                      {showPenScore && (
+                        <span className="text-gray-300/70 text-[10px] font-mono tabular-nums">
+                          {tEv("penLabel")}: {penScore!.home}–{penScore!.away}
                         </span>
                       )}
                     </div>
-                    {!match.is_live &&
-                    FINISHED_STATUSES.includes(match.status) ? (
-                      <span className="text-gray-200 text-xs tracking-wider">
-                        {tEv("matchFinished")}
-                      </span>
-                    ) : (
-                      <StatusLabel match={match} />
-                    )}
-                    {showPenScore && (
-                      <span className="text-gray-300/70 text-[10px] font-mono tabular-nums">
-                        {tEv("penLabel")}: {penScore!.home}–{penScore!.away}
-                      </span>
-                    )}
                   </div>
 
                   {awayId ? (

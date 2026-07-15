@@ -3,9 +3,12 @@ import type { DbMatch, FixtureStatus } from "@/types/sports";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
+import { useState, useEffect } from "react";
 import { getLocalizedTeamName } from "@/lib/teamName";
 import { useLiveMinute, formatMinute } from "@/hooks/useLiveMinute";
 import { resolveFlag } from "@/lib/flagUrl";
+import { supabase } from "@/lib/supabase";
+import { TWO_LEGGED_LEAGUES } from "@/lib/twoLeggedMatch";
 
 function isFlag(logo: string | null): boolean {
   return !!logo && logo.includes("/flags/");
@@ -26,7 +29,8 @@ function formatKickoff(dateStr: string): string {
   });
 }
 
-const circleBase = "flex items-center justify-center w-8 h-8 rounded-full font-extrabold font-mono text-[10px] shrink-0";
+const circleBase =
+  "flex items-center justify-center w-8 h-8 rounded-full font-extrabold font-mono text-[10px] shrink-0";
 
 function StatusBadge({ match }: { match: DbMatch }) {
   const minute = useLiveMinute(match);
@@ -43,7 +47,9 @@ function StatusBadge({ match }: { match: DbMatch }) {
     case "ET":
       return (
         <div className={`${circleBase} bg-accent text-white`}>
-          <span className="animate-pulse">{formatMinute(minute, match.status)}</span>
+          <span className="animate-pulse">
+            {formatMinute(minute, match.status)}
+          </span>
         </div>
       );
     case "HT":
@@ -53,9 +59,44 @@ function StatusBadge({ match }: { match: DbMatch }) {
   }
 }
 
-export default function MatchCard({ match }: { match: DbMatch }) {
+export default function MatchCard({
+  match,
+  viewingTeamLogo,
+}: {
+  match: DbMatch;
+  viewingTeamLogo?: string;
+}) {
   const tEv = useTranslations("matchEvents");
   const locale = useLocale();
+
+  const isLive = match.is_live === true;
+  const [firstLegScore, setFirstLegScore] = useState<{
+    home: number;
+    away: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const isFinished = !match.is_live && FINISHED_STATUSES.includes(match.status);
+    if (isFinished || !match.round || !TWO_LEGGED_LEAGUES.has(match.league_id))
+      return;
+    supabase
+      .from("matches")
+      .select("home_score, away_score")
+      .eq("league_id", match.league_id)
+      .eq("round", match.round)
+      .eq("home_team", match.away_team)
+      .eq("away_team", match.home_team)
+      .lt("fixture_date", match.fixture_date)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.home_score != null && data?.away_score != null) {
+          // Swap perspective: 2nd-leg home team was the away team in leg 1
+          setFirstLegScore({ home: data.away_score, away: data.home_score });
+        }
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [match.id]);
+
   const kickoffPassed = new Date(match.fixture_date) < new Date();
   const isScheduled =
     (match.status === "NS" || match.status === "TBD") && !kickoffPassed;
@@ -102,13 +143,19 @@ export default function MatchCard({ match }: { match: DbMatch }) {
       href={`/match/${match.id}`}
       className="block hover:opacity-90 transition-opacity will-change-transform"
     >
-      {/* Fixed 4-column layout: [badge][home][score][away]
-          The badge column is always reserved so nothing shifts when live */}
-      <div className="bg-custom-gray-2 h-16 px-3 grid grid-cols-[2rem_1fr_auto_1fr] gap-2 items-center">
-        {/* Left badge — always occupies 2rem; empty when not live */}
-        <div className="flex items-center justify-center">
-          <StatusBadge match={match} />
-        </div>
+      <div
+        className={`bg-custom-gray-2 h-16 px-3 grid gap-2 items-center ${
+          viewingTeamLogo && isConfirmedFinished
+            ? "grid-cols-[1fr_auto_1fr]"
+            : "grid-cols-[2rem_1fr_auto_1fr_2rem]"
+        }`}
+      >
+        {/* Left badge — skipped in centered result mode */}
+        {!(viewingTeamLogo && isConfirmedFinished) && (
+          <div className="flex items-center justify-center">
+            <StatusBadge match={match} />
+          </div>
+        )}
 
         {/* Home team */}
         <div
@@ -159,18 +206,60 @@ export default function MatchCard({ match }: { match: DbMatch }) {
         {/* Center: score / kickoff / dash */}
         <div className="relative flex items-center justify-center px-2 min-w-14">
           {isScheduled ? (
-            <span className="text-gray-400 text-xs font-medium tabular-nums whitespace-nowrap">
-              {match.status === "TBD" ? "TBA" : formatKickoff(match.fixture_date)}
-            </span>
+            <div className="flex flex-col items-center gap-0 justify-center">
+              {firstLegScore && (
+                <span className="invisible text-[9px] font-mono" aria-hidden="true">·</span>
+              )}
+              <span className="text-gray-400 text-xs font-medium tabular-nums whitespace-nowrap">
+                {match.status === "TBD"
+                  ? "TBA"
+                  : formatKickoff(match.fixture_date)}
+              </span>
+              {firstLegScore && (
+                <span className="text-[9px] text-gray-400 font-mono tabular-nums whitespace-nowrap mt-0.5">
+                  ({firstLegScore.home}–{firstLegScore.away})
+                </span>
+              )}
+            </div>
+          ) : viewingTeamLogo && hasScore ? (
+            (() => {
+              const isHome = match.home_logo === viewingTeamLogo;
+              const teamScore = isHome ? match.home_score! : match.away_score!;
+              const oppScore = isHome ? match.away_score! : match.home_score!;
+              const bg =
+                teamScore > oppScore
+                  ? "rgb(52, 199, 89)"
+                  : teamScore < oppScore
+                  ? "rgb(201, 52, 52)"
+                  : "rgb(107, 114, 128)";
+              return (
+                <span
+                  className="font-mono text-[11px] text-white tabular-nums shrink-0 rounded-lg border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] px-2 py-0.5"
+                  style={{ backgroundColor: bg }}
+                >
+                  {teamScore}–{oppScore}
+                </span>
+              );
+            })()
           ) : match.home_score !== null && match.away_score !== null ? (
-            <div className="flex items-center gap-1.5 justify-center">
-              <span className="text-lg font-bold tabular-nums">
-                {match.home_score}
-              </span>
-              <span className="text-gray-400 font-bold text-sm">–</span>
-              <span className="text-lg font-bold tabular-nums">
-                {match.away_score}
-              </span>
+            <div className="flex flex-col items-center gap-0 justify-center">
+              {isLive && firstLegScore && (
+                <span className="invisible text-[9px] font-mono" aria-hidden="true">·</span>
+              )}
+              <div className="flex items-center gap-1.5 justify-center">
+                <span className="text-lg font-bold tabular-nums">
+                  {match.home_score}
+                </span>
+                <span className="text-gray-400 font-bold text-sm">–</span>
+                <span className="text-lg font-bold tabular-nums">
+                  {match.away_score}
+                </span>
+              </div>
+              {isLive && firstLegScore && (
+                <span className="text-[9px] text-gray-400 font-mono tabular-nums whitespace-nowrap mt-0.5">
+                  ({firstLegScore.home + match.home_score!}–{firstLegScore.away + match.away_score!})
+                </span>
+              )}
             </div>
           ) : (
             <span className="text-gray-300 text-sm font-medium">–</span>
@@ -232,6 +321,9 @@ export default function MatchCard({ match }: { match: DbMatch }) {
             {getLocalizedTeamName(match.away_team, locale)}
           </span>
         </div>
+
+        {/* Right spacer — mirrors the left status badge column to keep score centered */}
+        {!(viewingTeamLogo && isConfirmedFinished) && <div />}
       </div>
     </Link>
   );

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { LIVE_STATUSES } from "@/types/sports"
 import type { DbMatch } from "@/types/sports"
 
 export function useLiveScores() {
@@ -45,7 +44,7 @@ export function useLiveScores() {
             }
 
             if (exists) {
-              const stillLive = updated.is_live || LIVE_STATUSES.includes(updated.status)
+              const stillLive = updated.is_live === true
               if (!stillLive) {
                 return prev.filter(m => m.id !== updated.id)
               }

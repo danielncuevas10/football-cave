@@ -16,6 +16,7 @@
     "venue": "Στάδιο",
     "referee": "Διαιτητής",
     "matches": "Αγώνες",
+    "fixtures": "Πρόγραμμα",
     "groupStage": "Φάση ομίλων",
     "topScorers": "Σκόρερ",
     "noMatches": "Δεν βρέθηκαν αγώνες",
@@ -104,7 +105,8 @@
     "outPlayer": "Εξερχόμενος",
     "unknownPlayer": "Άγνωστος",
     "penLabel": "Pen",
-    "penaltyShootoutFinished": "Λήξη διαδικασίας πέναλτι"
+    "penaltyShootoutFinished": "Λήξη διαδικασίας πέναλτι",
+    "aggLabel": "Αθρ."
   },
   "matchDetails": {
     "matchOverview": "Επισκόπηση αγώνα",
@@ -203,7 +205,8 @@
     "leagueGermany": "Γερμανία",
     "leagueItaly": "Ιταλία",
     "leagueMexico": "Μεξικό",
-    "leagueUSA": "ΗΠΑ"
+    "leagueUSA": "ΗΠΑ",
+    "leagueEurope": "Ευρώπη"
   },
   "wcPlaceholder": {
     "sf1Home": "Γαλλία / Μαρόκο",

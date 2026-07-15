@@ -18,7 +18,14 @@ import { resolveFlag } from "@/lib/flagUrl";
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 const NATIONAL_TEAM_LEAGUES = [1, 4, 5, 6, 9, 10, 17, 25, 29, 30, 32, 34];
 
-type TabType = "matches" | "standings";
+type TabType = "overview" | "fixtures" | "standings";
+
+type LeagueGroup = {
+  leagueId: number;
+  leagueName: string | null;
+  leagueLogo: string | null;
+  matches: DbMatch[];
+};
 
 interface TeamTabsProps {
   teamId: number;
@@ -36,6 +43,42 @@ function formatMatchDate(dateStr: string): string {
     day: "numeric",
     month: "short",
   });
+}
+
+function getLeagueIcon(
+  leagueId: number | undefined
+): { src: string; isWc: boolean } | null {
+  switch (leagueId) {
+    case 1:
+      return { src: "/images/WC26Badge.svg", isWc: true };
+    case 2:
+      return { src: "/images/champions.svg", isWc: true };
+    case 39:
+      return { src: "/images/flags/gb-eng.svg", isWc: false };
+    case 140:
+      return { src: "/images/flags/es.svg", isWc: false };
+    case 78:
+      return { src: "/images/flags/de.svg", isWc: false };
+    case 61:
+      return { src: "/images/flags/fr.svg", isWc: false };
+    case 135:
+      return { src: "/images/flags/it.svg", isWc: false };
+    case 253:
+      return { src: "/images/flags/us.svg", isWc: false };
+    case 262:
+      return { src: "/images/flags/mx.svg", isWc: false };
+    default:
+      return null;
+  }
+}
+
+function getMatchdayLabel(round: string | null | undefined): string | null {
+  if (!round) return null;
+  const numMatch = round.match(/[-–]\s*(\d+)$/);
+  if (numMatch) return `Matchday ${numMatch[1]}`;
+  const dashIdx = round.indexOf(" - ");
+  if (dashIdx !== -1) return round.slice(dashIdx + 3);
+  return round;
 }
 
 function isFlag(logo: string | null): boolean {
@@ -84,7 +127,6 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
       className="block hover:opacity-90 transition-opacity"
     >
       <div className="relative bg-[#1a1a1a] rounded-xl overflow-hidden">
-        {/* Teams + score */}
         <div className="grid grid-cols-3 items-center gap-2 px-4 py-4">
           <div className="flex flex-col items-center gap-2">
             <TeamLogo logo={match.home_logo} />
@@ -94,11 +136,11 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
           </div>
           <div className="flex flex-col items-center justify-center gap-1">
             <div className="flex items-center justify-center gap-1.5">
-              <span className="text-2xl font-extrabold tabular-nums">
+              <span className="text-xl font-bold font-mono py-2">
                 {match.home_score ?? 0}
               </span>
               <span className="text-gray-600 font-bold text-sm">–</span>
-              <span className="text-2xl font-extrabold tabular-nums">
+              <span className="text-xl font-bold font-mono py-2">
                 {match.away_score ?? 0}
               </span>
             </div>
@@ -109,7 +151,9 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
                 }`}
               >
                 <span className={match.status !== "HT" ? "animate-pulse" : ""}>
-                  {match.status === "HT" ? "HT" : formatMinute(minute, match.status)}
+                  {match.status === "HT"
+                    ? "HT"
+                    : formatMinute(minute, match.status)}
                 </span>
               </div>
             )}
@@ -121,7 +165,6 @@ function LiveMatchBanner({ match }: { match: DbMatch }) {
             </span>
           </div>
         </div>
-
       </div>
     </Link>
   );
@@ -140,13 +183,11 @@ export default function TeamTabs({
   const tTabs = useTranslations("matchTabs");
   const tBadge = useTranslations("liveBadge");
   const locale = useLocale();
-  const [activeTab, setActiveTab] = useState<TabType>("matches");
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [matches, setMatches] = useState<DbMatch[]>(initialMatches);
 
-  // Subscribe to live updates for this team's matches from Supabase
   useEffect(() => {
     const matchIds = new Set(initialMatches.map((m) => m.id));
-
     const channel = supabase
       .channel(`team-matches-${teamId}`)
       .on<DbMatch>(
@@ -161,7 +202,6 @@ export default function TeamTabs({
         }
       )
       .subscribe();
-
     return () => {
       supabase.removeChannel(channel);
     };
@@ -171,7 +211,7 @@ export default function TeamTabs({
   const liveMatch =
     matches.find((m) => LIVE_STATUSES.includes(m.status)) ?? null;
 
-  // Last 5 finished matches, oldest → newest for left-to-right display
+  // Form dots — last 5 finished (oldest → newest for left-to-right)
   const last5 = matches
     .filter(
       (m) =>
@@ -197,7 +237,6 @@ export default function TeamTabs({
   const isWorldCup = leagueId === League.WorldCup;
   const hasStandings = standings.length > 0;
 
-  // For World Cup: only show the team's own group in the standings tab
   const teamGroupName = isWorldCup
     ? standings.find((s) => s.team_id === teamId)?.group_name ?? null
     : null;
@@ -205,8 +244,98 @@ export default function TeamTabs({
     ? standings.filter((s) => s.group_name === teamGroupName)
     : standings;
 
+  // ── League groups (shared across Overview + Fixtures panels) ──────────────
+  const groupMap = new Map<number, LeagueGroup>();
+  for (const m of matches) {
+    const existing = groupMap.get(m.league_id);
+    if (existing) {
+      existing.matches.push(m);
+    } else {
+      groupMap.set(m.league_id, {
+        leagueId: m.league_id,
+        leagueName: cleanLeagueName(m.league_name),
+        leagueLogo: m.league_logo,
+        matches: [m],
+      });
+    }
+  }
+  const groups = Array.from(groupMap.values()).sort((a, b) => {
+    if (a.leagueId === League.WorldCup) return -1;
+    if (b.leagueId === League.WorldCup) return 1;
+    if (a.leagueId === League.Friendly) return 1;
+    if (b.leagueId === League.Friendly) return -1;
+    return 0;
+  });
+
+  const wcGroup = groups.find((g) => g.leagueId === League.WorldCup);
+  const wcUpcoming = (wcGroup?.matches ?? [])
+    .filter(
+      (m) =>
+        !FINISHED_STATUSES.includes(m.status) &&
+        !LIVE_STATUSES.includes(m.status)
+    )
+    .sort(
+      (a, b) =>
+        new Date(a.fixture_date).getTime() - new Date(b.fixture_date).getTime()
+    );
+  const nextWcMatch = wcUpcoming[0] ?? null;
+
+  const nextClubMatch =
+    groups
+      .filter(
+        (g) => g.leagueId !== League.WorldCup && g.leagueId !== League.Friendly
+      )
+      .flatMap((g) => g.matches)
+      .filter(
+        (m) =>
+          !FINISHED_STATUSES.includes(m.status) &&
+          !LIVE_STATUSES.includes(m.status)
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.fixture_date).getTime() -
+          new Date(b.fixture_date).getTime()
+      )[0] ?? null;
+
+  // ── Overview: last ≤5 finished matches grouped by league ─────────────────
+  const last5Finished = matches
+    .filter((m) => FINISHED_STATUSES.includes(m.status))
+    .sort(
+      (a, b) =>
+        new Date(b.fixture_date).getTime() - new Date(a.fixture_date).getTime()
+    )
+    .slice(0, 5);
+  const overviewGroupMap = new Map<number, LeagueGroup>();
+  for (const m of last5Finished) {
+    const existing = overviewGroupMap.get(m.league_id);
+    if (existing) {
+      existing.matches.push(m);
+    } else {
+      overviewGroupMap.set(m.league_id, {
+        leagueId: m.league_id,
+        leagueName: cleanLeagueName(m.league_name),
+        leagueLogo: m.league_logo,
+        matches: [m],
+      });
+    }
+  }
+  const overviewGroups = Array.from(overviewGroupMap.values());
+
+  const allUpcoming = groups
+    .flatMap((g) => g.matches)
+    .filter(
+      (m) =>
+        !FINISHED_STATUSES.includes(m.status) &&
+        !LIVE_STATUSES.includes(m.status)
+    )
+    .sort(
+      (a, b) =>
+        new Date(a.fixture_date).getTime() - new Date(b.fixture_date).getTime()
+    );
+
   const tabs: { id: TabType; label: string }[] = [
-    { id: "matches", label: tTabs("matches") },
+    { id: "overview", label: tTabs("overview") },
+    { id: "fixtures", label: tTabs("fixtures") },
     ...(hasStandings
       ? [
           {
@@ -217,16 +346,196 @@ export default function TeamTabs({
       : []),
   ];
 
+  const nextMatchCards = (
+    <>
+      {liveMatch && <LiveMatchBanner match={liveMatch} />}
+
+      {/* WC next match card */}
+      {nextWcMatch && !liveMatch && (
+        <Link
+          href={`/match/${nextWcMatch.id}`}
+          className="block hover:opacity-90 transition-opacity"
+        >
+          <div className="bg-custom-gray rounded-xl overflow-hidden border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+            <div className="flex items-center px-4 gap-3 py-4">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <img
+                  src="/images/WC26Badge.svg"
+                  alt=""
+                  className="w-5 h-5 object-contain shrink-0"
+                />
+                <span className="text-[11px] font-medium text-white tracking-wider truncate">
+                  {tBadge("worldCup")}
+                </span>
+              </div>
+              <div className="flex flex-col items-end gap-0.5 shrink-0">
+                {(() => {
+                  const key = getWcRoundKey(nextWcMatch.round);
+                  return key ? (
+                    <span className="text-[11px] text-gray-200 font-bold tracking-wide">
+                      {tTabs(key)}
+                    </span>
+                  ) : null;
+                })()}
+                <span className="text-[10px] text-gray-400 tracking-wide">
+                  {formatMatchDate(nextWcMatch.fixture_date)}
+                </span>
+              </div>
+            </div>
+            <div className="px-4 py-2">
+              <p className="text-[10px] text-gray-200 tracking-widest">
+                {t("nextMatch")}
+              </p>
+            </div>
+            <div className="grid grid-cols-3 items-center gap-2 px-4 py-4">
+              <div className="flex flex-col items-center gap-2">
+                {nextWcMatch.home_logo && (
+                  <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
+                    <Image
+                      src={nextWcMatch.home_logo}
+                      alt=""
+                      width={64}
+                      height={40}
+                      className="w-full h-full object-cover will-change-transform scale-[1.15]"
+                    />
+                  </div>
+                )}
+                <span className="text-xs text-center font-medium leading-tight text-gray-200 line-clamp-2">
+                  {getLocalizedTeamName(nextWcMatch.home_team, locale)}
+                </span>
+              </div>
+              <div className="flex flex-col items-center gap-1 text-center">
+                <span className="text-white text-base font-bold font-mono">
+                  {new Date(nextWcMatch.fixture_date).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                {nextWcMatch.away_logo && (
+                  <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
+                    <Image
+                      src={nextWcMatch.away_logo}
+                      alt=""
+                      width={64}
+                      height={40}
+                      className="w-full h-full object-cover will-change-transform scale-[1.15]"
+                    />
+                  </div>
+                )}
+                <span className="text-xs text-center font-medium leading-tight text-gray-200 line-clamp-2">
+                  {getLocalizedTeamName(nextWcMatch.away_team, locale)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </Link>
+      )}
+
+      {/* Club next match card */}
+      {nextClubMatch && !liveMatch && !nextWcMatch && (
+        <Link
+          href={`/match/${nextClubMatch.id}`}
+          className="block hover:opacity-90 transition-opacity"
+        >
+          <div className="bg-custom-gray rounded-xl overflow-hidden border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+            <div className="flex items-center px-4 gap-3 py-2 border-b border-[#38383A]">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                {(() => {
+                  const icon = getLeagueIcon(nextClubMatch.league_id);
+                  if (!icon) return null;
+                  return icon.isWc ? (
+                    <img
+                      src={icon.src}
+                      alt=""
+                      className="w-5 h-5 object-contain shrink-0"
+                    />
+                  ) : (
+                    <img
+                      src={icon.src}
+                      alt=""
+                      className="w-5 h-3.5 rounded-sm object-cover shrink-0"
+                    />
+                  );
+                })()}
+                <span className="text-[11px] font-medium text-white tracking-wider truncate">
+                  {cleanLeagueName(nextClubMatch.league_name)}
+                </span>
+              </div>
+              <div className="flex flex-col items-end gap-0.5 shrink-0">
+                {getMatchdayLabel(nextClubMatch.round) && (
+                  <span className="text-[11px] text-gray-200 font-medium tracking-wide">
+                    {getMatchdayLabel(nextClubMatch.round)}
+                  </span>
+                )}
+                <span className="text-[10px] text-gray-400 tracking-wide">
+                  {formatMatchDate(nextClubMatch.fixture_date)}
+                </span>
+              </div>
+            </div>
+            <div className="px-4 py-2">
+              <p className="text-[10px] text-gray-200 tracking-widest">
+                {t("nextMatch")}
+              </p>
+            </div>
+            <div className="grid grid-cols-3 items-center gap-2 px-4 py-4">
+              <div className="flex flex-col items-center gap-2">
+                {nextClubMatch.home_logo && (
+                  <Image
+                    src={nextClubMatch.home_logo}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="w-10 h-10 object-contain"
+                  />
+                )}
+                <span className="text-xs text-center font-medium leading-tight text-gray-200 line-clamp-2">
+                  {getLocalizedTeamName(nextClubMatch.home_team, locale)}
+                </span>
+              </div>
+              <div className="flex flex-col items-center gap-1 text-center">
+                <span className="text-white text-base font-medium text-[14px]">
+                  {new Date(nextClubMatch.fixture_date).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                {nextClubMatch.away_logo && (
+                  <Image
+                    src={nextClubMatch.away_logo}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="w-10 h-10 object-contain"
+                  />
+                )}
+                <span className="text-xs text-center font-medium leading-tight text-gray-200 line-clamp-2">
+                  {getLocalizedTeamName(nextClubMatch.away_team, locale)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </Link>
+      )}
+    </>
+  );
+
   return (
     <div className="w-full text-white">
-      {/* Banner — full width, no rounding, no side margins */}
-      <div className="flex items-center gap-4 px-6 py-15 bg-custom-gray w-full">
+      {/* Banner */}
+      <div className="flex items-center gap-4 px-5 py-5 bg-custom-gray rounded-xl mx-4 lg:mx-6 lg:mt-6">
         {(() => {
-          const isNational = leagueId !== null && NATIONAL_TEAM_LEAGUES.includes(leagueId);
+          const isNational =
+            leagueId !== null && NATIONAL_TEAM_LEAGUES.includes(leagueId);
           return (
             <div
               className={`w-20 h-12 overflow-hidden shrink-0 block relative${
-                isNational ? " border border-gray-300 rounded-tr-lg rounded-bl-lg" : ""
+                isNational
+                  ? " border border-gray-300 rounded-tr-lg rounded-bl-lg"
+                  : ""
               }`}
             >
               <Image
@@ -234,7 +543,11 @@ export default function TeamTabs({
                 alt=""
                 width={96}
                 height={48}
-                className={`w-full h-full ${isNational ? "object-cover will-change-transform scale-[1.15]" : "object-contain"}`}
+                className={`w-full h-full ${
+                  isNational
+                    ? "object-cover will-change-transform scale-[1.15]"
+                    : "object-contain"
+                }`}
               />
             </div>
           );
@@ -243,13 +556,11 @@ export default function TeamTabs({
           <h1 className="text-xl font-extrabold tracking-tight truncate">
             {getLocalizedTeamName(teamName, locale)}
           </h1>
-
           {last5.length > 0 && (
             <p className="text-[10px] text-gray-200 font-light tracking-widest">
               {t("lastMatches")}:
             </p>
           )}
-
           {last5.length > 0 && (
             <div className="flex gap-2">
               {last5.map((result, i) => (
@@ -278,7 +589,6 @@ export default function TeamTabs({
               ))}
             </div>
           )}
-
           {managerName && (
             <p className="text-[12px] text-gray-200 font-light tracking-wide truncate">
               <span className="text-gray-200">{t("manager")}: </span>
@@ -288,127 +598,80 @@ export default function TeamTabs({
         </div>
       </div>
 
-      <div className="space-y-6 px-4 mt-6">
-        {/* Tab navigation */}
-        {tabs.length > 1 && (
-          <div className="flex overflow-hidden">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 text-center py-4 text-xs font-light tracking-wider border-b transition-all duration-200 ${
-                    isActive
-                      ? "text-white"
-                      : "border-transparent text-gray-200 hover:text-white hover:bg-custom-gray/50"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Panels — same grid-overlap trick to avoid layout shift */}
-        <div className="grid w-full">
-          <div
-            className={`col-start-1 row-start-1 w-full ${
-              activeTab === "matches" ? "" : "h-0 overflow-hidden"
-            }`}
-          >
-            {(() => {
-              // Group by league_id
-              type LeagueGroup = {
-                leagueId: number;
-                leagueName: string | null;
-                leagueLogo: string | null;
-                matches: DbMatch[];
-              };
-              const groupMap = new Map<number, LeagueGroup>();
-              for (const m of matches) {
-                const existing = groupMap.get(m.league_id);
-                if (existing) {
-                  existing.matches.push(m);
-                } else {
-                  groupMap.set(m.league_id, {
-                    leagueId: m.league_id,
-                    leagueName: cleanLeagueName(m.league_name),
-                    leagueLogo: m.league_logo,
-                    matches: [m],
-                  });
-                }
-              }
-
-              // World Cup first, Friendlies last, others in between
-              const groups = Array.from(groupMap.values()).sort((a, b) => {
-                if (a.leagueId === League.WorldCup) return -1;
-                if (b.leagueId === League.WorldCup) return 1;
-                if (a.leagueId === League.Friendly) return 1;
-                if (b.leagueId === League.Friendly) return -1;
-                return 0;
-              });
-
-              if (groups.length === 0) {
+      <div className="mt-6 lg:grid lg:grid-cols-[7fr_3fr] lg:gap-6 lg:px-6 lg:items-start">
+        <div className="min-w-0 space-y-6 px-4 lg:px-0">
+          {/* Tab navigation */}
+          {tabs.length > 1 && (
+            <div className="flex overflow-hidden">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
                 return (
-                  <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rounded-xl">
-                    {tTabs("noMatches")}
-                  </div>
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex-1 text-center py-4 text-xs font-light tracking-wider border-b transition-all duration-200 ${
+                      isActive
+                        ? "text-white"
+                        : "border-transparent text-gray-200 hover:text-white hover:bg-custom-gray/50"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
                 );
-              }
+              })}
+            </div>
+          )}
 
-              // WC-specific data — extracted so we can render the badge section
-              // and the "Next Match" card separately from the rest of the groups.
-              const wcGroup = groups.find(
-                (g) => g.leagueId === League.WorldCup
-              );
-              const wcUpcoming = (wcGroup?.matches ?? [])
-                .filter(
-                  (m) =>
-                    !FINISHED_STATUSES.includes(m.status) &&
-                    !LIVE_STATUSES.includes(m.status)
-                )
-                .sort(
-                  (a, b) =>
-                    new Date(a.fixture_date).getTime() -
-                    new Date(b.fixture_date).getTime()
-                );
-              const wcFinished = (wcGroup?.matches ?? [])
-                .filter((m) => FINISHED_STATUSES.includes(m.status))
-                .sort(
-                  (a, b) =>
-                    new Date(a.fixture_date).getTime() -
-                    new Date(b.fixture_date).getTime()
-                );
-              const nextWcMatch = wcUpcoming[0] ?? null;
-
-              return (
-                <div className="space-y-6">
-                  {/* ── Live match banner — shown when team is currently playing ── */}
+          {/* Panels */}
+          <div className="grid w-full">
+            {/* ── OVERVIEW: last ≤5 finished matches ── */}
+            <div
+              className={`col-start-1 row-start-1 w-full ${
+                activeTab === "overview" ? "" : "h-0 overflow-hidden"
+              }`}
+            >
+              <div className="space-y-6">
+                <div className="lg:hidden space-y-6">
                   {liveMatch && <LiveMatchBanner match={liveMatch} />}
 
-                  {/* ── Prominent Next Match card (WC teams only, not shown when live) ── */}
+                  {/* WC next match card */}
                   {nextWcMatch && !liveMatch && (
                     <Link
                       href={`/match/${nextWcMatch.id}`}
                       className="block hover:opacity-90 transition-opacity"
                     >
-                      <div className="bg-custom-gray-2 rounded-xl overflow-hidden px-6 py-6">
-                        <div className="flex flex-col items-center gap-1 mb-4">
-                          <p className="text-[10px] text-gray-200 tracking-widest text-center">
+                      <div className="bg-custom-gray rounded-xl overflow-hidden border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+                        <div className="flex items-center px-4 gap-3 py-4">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <img
+                              src="/images/WC26Badge.svg"
+                              alt=""
+                              className="w-5 h-5 object-contain shrink-0"
+                            />
+                            <span className="text-[11px] font-medium text-white tracking-wider truncate">
+                              {tBadge("worldCup")}
+                            </span>
+                          </div>
+                          <div className="flex flex-col items-end gap-0.5 shrink-0">
+                            {(() => {
+                              const key = getWcRoundKey(nextWcMatch.round);
+                              return key ? (
+                                <span className="text-[11px] text-gray-200 font-bold tracking-wide">
+                                  {tTabs(key)}
+                                </span>
+                              ) : null;
+                            })()}
+                            <span className="text-[10px] text-gray-400 tracking-wide">
+                              {formatMatchDate(nextWcMatch.fixture_date)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="px-4 py-2">
+                          <p className="text-[10px] text-gray-200 tracking-widest">
                             {t("nextMatch")}
                           </p>
-                          {(() => {
-                            const key = getWcRoundKey(nextWcMatch.round);
-                            return key ? (
-                              <span className="text-[10px] text-gray-400 font-light tracking-wide">
-                                {tTabs(key)}
-                              </span>
-                            ) : null;
-                          })()}
                         </div>
-                        <div className="grid grid-cols-3 items-center gap-2">
+                        <div className="grid grid-cols-3 items-center gap-2 px-4 py-4">
                           <div className="flex flex-col items-center gap-2">
                             {nextWcMatch.home_logo && (
                               <div className="w-12 h-8 overflow-hidden shrink-0 block relative border border-gray-300 rounded-tr-lg rounded-bl-lg">
@@ -417,7 +680,7 @@ export default function TeamTabs({
                                   alt=""
                                   width={64}
                                   height={40}
-                                  className="w-full h-full object-cover  will-change-transform scale-[1.15]"
+                                  className="w-full h-full object-cover will-change-transform scale-[1.15]"
                                 />
                               </div>
                             )}
@@ -429,10 +692,7 @@ export default function TeamTabs({
                             </span>
                           </div>
                           <div className="flex flex-col items-center gap-1 text-center">
-                            <span className="text-gray-200 text-[10px] tracking-wide">
-                              {formatMatchDate(nextWcMatch.fixture_date)}
-                            </span>
-                            <span className="text-white text-base font-bold">
+                            <span className="text-white text-base font-bold font-mono">
                               {new Date(
                                 nextWcMatch.fixture_date
                               ).toLocaleTimeString([], {
@@ -449,7 +709,7 @@ export default function TeamTabs({
                                   alt=""
                                   width={64}
                                   height={40}
-                                  className="w-full h-full object-cover  will-change-transform scale-[1.15]"
+                                  className="w-full h-full object-cover will-change-transform scale-[1.15]"
                                 />
                               </div>
                             )}
@@ -465,20 +725,140 @@ export default function TeamTabs({
                     </Link>
                   )}
 
-                  {/* ── WC badge + all WC matches (upcoming then played) ── */}
-                  {wcGroup && (
-                    <div className="bg-custom-gray rounded-xl overflow-hidden">
-                      <div className="relative">
-                        <img
-                          src="/images/WC26200nd.svg"
-                          alt="FIFA World Cup 2026"
-                          className="w-full h-auto object-cover"
-                        />
-                        <span className="absolute inset-0 flex items-center justify-center text-black text-[11px] lg:text-[18px] font-sans font-medium tracking-[0.5em] uppercase tracking-wide pointer-events-none">
-                          {tBadge("worldCup")}
+                  {/* Club next match card */}
+                  {nextClubMatch && !liveMatch && !nextWcMatch && (
+                    <Link
+                      href={`/match/${nextClubMatch.id}`}
+                      className="block hover:opacity-90 transition-opacity"
+                    >
+                      <div className="bg-custom-gray rounded-xl overflow-hidden border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+                        <div className="flex items-center px-4 gap-3 py-2 border-b border-[#38383A]">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {(() => {
+                              const icon = getLeagueIcon(
+                                nextClubMatch.league_id
+                              );
+                              if (!icon) return null;
+                              return icon.isWc ? (
+                                <img
+                                  src={icon.src}
+                                  alt=""
+                                  className="w-5 h-5 object-contain shrink-0"
+                                />
+                              ) : (
+                                <img
+                                  src={icon.src}
+                                  alt=""
+                                  className="w-5 h-3.5 rounded-sm object-cover shrink-0"
+                                />
+                              );
+                            })()}
+                            <span className="text-[11px] font-medium text-white tracking-wider truncate">
+                              {cleanLeagueName(nextClubMatch.league_name)}
+                            </span>
+                          </div>
+                          <div className="flex flex-col items-end gap-0.5 shrink-0">
+                            {getMatchdayLabel(nextClubMatch.round) && (
+                              <span className="text-[11px] text-gray-200 font-medium tracking-wide">
+                                {getMatchdayLabel(nextClubMatch.round)}
+                              </span>
+                            )}
+                            <span className="text-[10px] text-gray-400 tracking-wide">
+                              {formatMatchDate(nextClubMatch.fixture_date)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="px-4 py-2">
+                          <p className="text-[10px] text-gray-200 tracking-widest">
+                            {t("nextMatch")}
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-3 items-center gap-2 px-4 py-4">
+                          <div className="flex flex-col items-center gap-2">
+                            {nextClubMatch.home_logo && (
+                              <Image
+                                src={nextClubMatch.home_logo}
+                                alt=""
+                                width={48}
+                                height={48}
+                                className="w-10 h-10 object-contain"
+                              />
+                            )}
+                            <span className="text-xs text-center font-medium leading-tight text-gray-200 line-clamp-2">
+                              {getLocalizedTeamName(
+                                nextClubMatch.home_team,
+                                locale
+                              )}
+                            </span>
+                          </div>
+                          <div className="flex flex-col items-center gap-1 text-center">
+                            <span className="text-white text-base font-medium text-[14px]">
+                              {new Date(
+                                nextClubMatch.fixture_date
+                              ).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+                          <div className="flex flex-col items-center gap-2">
+                            {nextClubMatch.away_logo && (
+                              <Image
+                                src={nextClubMatch.away_logo}
+                                alt=""
+                                width={48}
+                                height={48}
+                                className="w-10 h-10 object-contain"
+                              />
+                            )}
+                            <span className="text-xs text-center font-medium leading-tight text-gray-200 line-clamp-2">
+                              {getLocalizedTeamName(
+                                nextClubMatch.away_team,
+                                locale
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  )}
+                </div>
+
+                {overviewGroups.length === 0 &&
+                !nextWcMatch &&
+                !nextClubMatch ? (
+                  <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rounded-xl">
+                    {tTabs("noMatches")}
+                  </div>
+                ) : (
+                  overviewGroups.map((group) => (
+                    <div
+                      key={group.leagueId}
+                      className="bg-custom-gray rounded-xl overflow-hidden"
+                    >
+                      <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
+                        {(() => {
+                          const icon = getLeagueIcon(group.leagueId);
+                          if (!icon) return null;
+                          return icon.isWc ? (
+                            <img
+                              src={icon.src}
+                              alt=""
+                              className="w-5 h-5 object-contain shrink-0"
+                            />
+                          ) : (
+                            <img
+                              src={icon.src}
+                              alt=""
+                              className="w-5 h-3.5 rounded-sm object-cover shrink-0"
+                            />
+                          );
+                        })()}
+                        <span className="text-xs font-medium text-gray-300 tracking-wide">
+                          {group.leagueName ?? "Competition"}
                         </span>
                       </div>
-                      {[...wcUpcoming.slice(1), ...wcFinished].map((m) => (
+                      {group.matches.map((m) => (
                         <div
                           key={m.id}
                           className="border-t border-custom-gray/40 first:border-0"
@@ -488,156 +868,70 @@ export default function TeamTabs({
                               {formatMatchDate(m.fixture_date)}
                             </span>
                           </div>
-                          <MatchCard match={m} />
+                          <MatchCard match={m} viewingTeamLogo={teamLogoUrl} />
                         </div>
                       ))}
                     </div>
-                  )}
+                  ))
+                )}
+              </div>
+            </div>
 
-                  {/* ── Other leagues (not WC, not Friendly) — unchanged logic ── */}
-                  {groups
-                    .filter(
-                      (g) =>
-                        g.leagueId !== League.WorldCup &&
-                        g.leagueId !== League.Friendly
-                    )
-                    .map((group) => {
-                      const upcoming = group.matches
-                        .filter((m) => !FINISHED_STATUSES.includes(m.status))
-                        .sort(
-                          (a, b) =>
-                            new Date(a.fixture_date).getTime() -
-                            new Date(b.fixture_date).getTime()
-                        );
-                      const finished = group.matches
-                        .filter((m) => FINISHED_STATUSES.includes(m.status))
-                        .sort(
-                          (a, b) =>
-                            new Date(a.fixture_date).getTime() -
-                            new Date(b.fixture_date).getTime()
-                        );
-
-                      return (
-                        <div key={group.leagueId} className="space-y-4">
-                          {(upcoming.length > 0 || finished.length === 0) && (
-                            <div className="bg-custom-gray rounded-xl overflow-hidden">
-                              <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
-                                <span className="text-xs font-medium text-gray-300 tracking-wide">
-                                  {group.leagueName ?? "Competition"}
-                                </span>
-                              </div>
-                              {upcoming.map((m) => (
-                                <div
-                                  key={m.id}
-                                  className="border-t border-custom-gray/40 first:border-0"
-                                >
-                                  <div className="px-4 py-1 bg-custom-gray">
-                                    <span className="text-[10px] text-gray-300 tracking-widest">
-                                      {formatMatchDate(m.fixture_date)}
-                                    </span>
-                                  </div>
-                                  <MatchCard match={m} />
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          {finished.length > 0 && (
-                            <div className="space-y-2">
-                              <p className="text-[11px] font-light tracking-widest text-gray-300 uppercase px-1">
-                                {t("pastMatches")}
-                              </p>
-                              <div className="bg-custom-gray rounded-xl overflow-hidden">
-                                <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
-                                  <span className="text-xs font-medium text-gray-300 tracking-wide">
-                                    {group.leagueName ?? "Competition"}
-                                  </span>
-                                </div>
-                                {finished.map((m) => (
-                                  <div
-                                    key={m.id}
-                                    className="border-t border-custom-gray/40 first:border-0"
-                                  >
-                                    <div className="px-4 py-1 bg-custom-gray">
-                                      <span className="text-[10px] text-gray-300 tracking-widest">
-                                        {formatMatchDate(m.fixture_date)}
-                                      </span>
-                                    </div>
-                                    <MatchCard match={m} />
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-
-                  {/* ── Friendlies — unchanged ── */}
-                  {groups
-                    .filter((g) => g.leagueId === League.Friendly)
-                    .map((group) => {
-                      const upcoming = group.matches
-                        .filter((m) => !FINISHED_STATUSES.includes(m.status))
-                        .sort(
-                          (a, b) =>
-                            new Date(a.fixture_date).getTime() -
-                            new Date(b.fixture_date).getTime()
-                        );
-                      const finished = group.matches
-                        .filter((m) => FINISHED_STATUSES.includes(m.status))
-                        .sort(
-                          (a, b) =>
-                            new Date(a.fixture_date).getTime() -
-                            new Date(b.fixture_date).getTime()
-                        );
-                      const friendlyMatches = [
-                        ...finished.slice(-3),
-                        ...upcoming,
-                      ];
-                      return (
-                        <div
-                          key={group.leagueId}
-                          className="bg-custom-gray rounded-xl overflow-hidden"
-                        >
-                          <div className="flex items-center gap-3 px-4 py-3 border-b border-custom-gray-2/40">
-                            <span className="text-xs font-medium text-gray-300 tracking-wide">
-                              {group.leagueName ?? "Friendlies"}
-                            </span>
-                          </div>
-                          {friendlyMatches.map((m) => (
-                            <div
-                              key={m.id}
-                              className="border-t border-custom-gray/40 first:border-0"
-                            >
-                              <div className="px-4 py-1 bg-custom-gray">
-                                <span className="text-[10px] text-gray-300 tracking-widest">
-                                  {formatMatchDate(m.fixture_date)}
-                                </span>
-                              </div>
-                              <MatchCard match={m} />
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })}
-                </div>
-              );
-            })()}
-          </div>
-
-          {hasStandings && (
+            {/* ── FIXTURES: next match card + all upcoming ── */}
             <div
               className={`col-start-1 row-start-1 w-full ${
-                activeTab === "standings" ? "" : "h-0 overflow-hidden"
+                activeTab === "fixtures" ? "" : "h-0 overflow-hidden"
               }`}
             >
-              {isWorldCup ? (
-                <WorldCupGroups standings={wcGroupStandings} />
-              ) : (
-                <StandingsTable standings={standings} />
-              )}
+              <div className="space-y-6">
+                <div className="lg:hidden">
+                  {liveMatch && <LiveMatchBanner match={liveMatch} />}
+                </div>
+
+                {allUpcoming.length === 0 && !liveMatch ? (
+                  <div className="p-8 text-center text-gray-300 text-sm border border-custom-gray rounded-xl">
+                    {tTabs("noMatches")}
+                  </div>
+                ) : (
+                  <div className="bg-custom-gray-2 rounded-xl overflow-hidden">
+                    {allUpcoming.map((m, i) => (
+                      <div
+                        key={m.id}
+                        className={i > 0 ? "border-t border-[#38383A]" : ""}
+                      >
+                        <div className="px-3 pt-1">
+                          <span className="text-[10px] text-gray-400 tracking-widest">
+                            {formatMatchDate(m.fixture_date)}
+                          </span>
+                        </div>
+                        <MatchCard match={m} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+
+            {/* ── STANDINGS ── */}
+            {hasStandings && (
+              <div
+                className={`col-start-1 row-start-1 w-full ${
+                  activeTab === "standings" ? "" : "h-0 overflow-hidden"
+                }`}
+              >
+                {isWorldCup ? (
+                  <WorldCupGroups standings={wcGroupStandings} />
+                ) : (
+                  <StandingsTable standings={standings} />
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Next match – desktop sidebar */}
+        <div className="hidden lg:flex lg:flex-col lg:gap-6">
+          {nextMatchCards}
         </div>
       </div>
     </div>

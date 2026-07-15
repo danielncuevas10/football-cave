@@ -136,7 +136,7 @@ export default async function MatchDetailsPage({
   }
 
   return (
-    <main className="max-w-3xl bg-background mx-auto py-4 text-white space-y-6">
+    <main className="max-w-3xl lg:max-w-6xl bg-background mx-auto py-4 text-white space-y-6">
       <div className="flex justify-start px-4">
         <BackButton />
       </div>

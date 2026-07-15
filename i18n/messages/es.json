@@ -16,6 +16,7 @@
     "venue": "Sede",
     "referee": "Árbitro",
     "matches": "Partidos",
+    "fixtures": "Calendario",
     "groupStage": "Fase de grupos",
     "topScorers": "Goleadores",
     "noMatches": "Sin partidos",
@@ -104,7 +105,8 @@
     "outPlayer": "Sale",
     "unknownPlayer": "Desconocido",
     "penLabel": "Pen",
-    "penaltyShootoutFinished": "Tanda de penaltis finalizada"
+    "penaltyShootoutFinished": "Tanda de penaltis finalizada",
+    "aggLabel": "Global"
   },
   "matchDetails": {
     "matchOverview": "Resumen del partido",
@@ -203,7 +205,8 @@
     "leagueGermany": "Alemania",
     "leagueItaly": "Italia",
     "leagueMexico": "México",
-    "leagueUSA": "EE.UU."
+    "leagueUSA": "EE.UU.",
+    "leagueEurope": "Europa"
   },
   "wcPlaceholder": {
     "sf1Home": "Francia / Marruecos",

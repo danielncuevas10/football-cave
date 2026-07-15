@@ -24,12 +24,18 @@ const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
 
 function getLeagueFlag(leagueId: number): string | null {
   switch (leagueId) {
-    case 39:  return "/images/flags/gb-eng.svg";
-    case 140: return "/images/flags/es.svg";
-    case 135: return "/images/flags/it.svg";
-    case 253: return "/images/flags/us.svg";
-    case 262: return "/images/flags/mx.svg";
-    default:  return null;
+    case 39:
+      return "/images/flags/gb-eng.svg";
+    case 140:
+      return "/images/flags/es.svg";
+    case 135:
+      return "/images/flags/it.svg";
+    case 253:
+      return "/images/flags/us.svg";
+    case 262:
+      return "/images/flags/mx.svg";
+    default:
+      return null;
   }
 }
 
@@ -476,13 +482,21 @@ export default function MatchTabs({
     if (detail.toLowerCase().startsWith("goal disallowed")) {
       const sep = detail.indexOf(" - ");
       const reason = sep !== -1 ? detail.slice(sep + 3) : "";
-      return reason ? `${tEv("varGoalDisallowed")} – ${reason}` : tEv("varGoalDisallowed");
+      return reason
+        ? `${tEv("varGoalDisallowed")} – ${reason}`
+        : tEv("varGoalDisallowed");
     }
     return detail;
   };
 
   const tabs: { id: TabType; label: string }[] = [
-    { id: "events", label: (status === "NS" || status === "TBD") ? tTabs("overview") : tTabs("events") },
+    {
+      id: "events",
+      label:
+        status === "NS" || status === "TBD"
+          ? tTabs("overview")
+          : tTabs("events"),
+    },
     { id: "details", label: tTabs("stats") },
     { id: "lineups", label: tTabs("lineups") },
     ...(!isFriendly
@@ -590,7 +604,7 @@ export default function MatchTabs({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className="w-1/4 text-center py-2 text-xs font-light tracking-wider border-b transition-colors whitespace-nowrap border-transparent text-gray-200 hover:text-white hover:bg-custom-gray/50"
+              className="w-1/4 text-center py-2 text-xs font-light tracking-wider border-b transition-colors whitespace-nowrap border-transparent text-gray-200 hover:text-white hover:bg-custom-gray/50 hover:rounded-t-xl active:cursor-pointer"
               style={{
                 borderBottomColor: isActive ? "#ffffff" : "transparent",
                 color: isActive ? "#ffffff" : "",
@@ -608,548 +622,567 @@ export default function MatchTabs({
             activeTab === "events" ? "" : "h-0 overflow-hidden"
           }`}
         >
-          <div className="w-full space-y-2">
-            {liveDetails?.events && liveDetails.events.length > 0 ? (
+          {(status === "NS" || status === "TBD") ? (
+            <div className="space-y-2">
+              <PredictionWidget
+                matchId={matchId}
+                leagueId={leagueId}
+                homeTeam={homeTeamName ?? ""}
+                awayTeam={awayTeamName ?? ""}
+                homeLogo={homeLogo ?? null}
+                awayLogo={awayLogo ?? null}
+                isKnockout={isKnockout}
+              />
+              <TeamLastMatches
+                homeLogoUrl={homeLogo ?? null}
+                awayLogoUrl={awayLogo ?? null}
+                homeTeamName={homeTeamName ?? ""}
+                awayTeamName={awayTeamName ?? ""}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col lg:grid lg:grid-cols-[7fr_3fr] gap-4 items-start">
+              <div className="w-full space-y-2 min-w-0">
+                {liveDetails?.events && liveDetails.events.length > 0 ? (
               <div className="bg-custom-gray rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
                 <div className=" divide-y divide-custom-gray/30">
                   {[...liveDetails.events]
                     .sort(
                       (a, b) =>
-                        a.time.elapsed * 1000 + (a.time.extra ?? 999) -
+                        a.time.elapsed * 1000 +
+                        (a.time.extra ?? 999) -
                         (b.time.elapsed * 1000 + (b.time.extra ?? 999))
                     )
                     .map((ev: MatchEvent, index: number) => {
-                    const isOwnGoal =
-                      ev.type === "Goal" && ev.detail === "Own Goal";
-                    const eventFromHome = homeTeamId
-                      ? ev.team.id === homeTeamId
-                      : false;
-                    // Own goals benefit the opposing team — show them on that side
-                    const isHomeEvent = isOwnGoal
-                      ? !eventFromHome
-                      : eventFromHome;
-                    const isSubstitution = ev.type === "subst";
-                    const isPenaltyGoal =
-                      ev.type === "Goal" && ev.detail === "Penalty";
-                    const isMissedPenalty =
-                      ev.type === "Goal" && ev.detail === "Missed Penalty";
-                    const isShootoutEvent =
-                      isPenStatus &&
-                      (isPenaltyGoal || isMissedPenalty) &&
-                      ev.time.elapsed >= penaltyShootoutThreshold &&
-                      (hasNonPenaltyETEvents ||
-                        ev.time.elapsed > penaltyShootoutThreshold ||
-                        !ev.time.extra);
-                    const isPenaltyResult = ev.type === "penaltyResult";
-                    const isVar = ev.type === "Var";
-                    const isRegularGoal =
-                      ev.type === "Goal" &&
-                      ev.detail !== "Penalty" &&
-                      ev.detail !== "Own Goal" &&
-                      ev.detail !== "Missed Penalty";
+                      const isOwnGoal =
+                        ev.type === "Goal" && ev.detail === "Own Goal";
+                      const eventFromHome = homeTeamId
+                        ? ev.team.id === homeTeamId
+                        : false;
+                      // Own goals benefit the opposing team — show them on that side
+                      const isHomeEvent = isOwnGoal
+                        ? !eventFromHome
+                        : eventFromHome;
+                      const isSubstitution = ev.type === "subst";
+                      const isPenaltyGoal =
+                        ev.type === "Goal" && ev.detail === "Penalty";
+                      const isMissedPenalty =
+                        ev.type === "Goal" && ev.detail === "Missed Penalty";
+                      const isShootoutEvent =
+                        isPenStatus &&
+                        (isPenaltyGoal || isMissedPenalty) &&
+                        ev.time.elapsed >= penaltyShootoutThreshold &&
+                        (hasNonPenaltyETEvents ||
+                          ev.time.elapsed > penaltyShootoutThreshold ||
+                          !ev.time.extra);
+                      const isPenaltyResult = ev.type === "penaltyResult";
+                      const isVar = ev.type === "Var";
+                      const isRegularGoal =
+                        ev.type === "Goal" &&
+                        ev.detail !== "Penalty" &&
+                        ev.detail !== "Own Goal" &&
+                        ev.detail !== "Missed Penalty";
 
-                    // Any penalty-call event (awarded/confirmed/cancelled) that
-                    // belongs to the shootout phase should be hidden from the
-                    // regular timeline — regardless of event type, because some
-                    // API responses emit these as non-Var events during shootouts.
-                    const isShootoutCallEvent =
-                      isPenStatus &&
-                      ev.time.elapsed >= penaltyShootoutThreshold &&
-                      (hasNonPenaltyETEvents ||
-                        ev.time.elapsed > penaltyShootoutThreshold ||
-                        !ev.time.extra) &&
-                      (ev.detail === "Penalty awarded" ||
-                        ev.detail === "Penalty confirmed" ||
-                        ev.detail === "Penalty cancelled");
-                    if (isShootoutCallEvent) return null;
+                      // Any penalty-call event (awarded/confirmed/cancelled) that
+                      // belongs to the shootout phase should be hidden from the
+                      // regular timeline — regardless of event type, because some
+                      // API responses emit these as non-Var events during shootouts.
+                      const isShootoutCallEvent =
+                        isPenStatus &&
+                        ev.time.elapsed >= penaltyShootoutThreshold &&
+                        (hasNonPenaltyETEvents ||
+                          ev.time.elapsed > penaltyShootoutThreshold ||
+                          !ev.time.extra) &&
+                        (ev.detail === "Penalty awarded" ||
+                          ev.detail === "Penalty confirmed" ||
+                          ev.detail === "Penalty cancelled");
+                      if (isShootoutCallEvent) return null;
 
-                    // Drop VAR events whose detail is not meaningful.
-                    // The API logs interim decisions ("Corner Cancelled" etc.) that
-                    // are often deleted in the next update — only show decisions that
-                    // carry real information. Any "Goal Disallowed - <reason>" variant
-                    // is allowed via prefix so new foul types (e.g. "Foul") pass through.
-                    const MEANINGFUL_VAR_DETAILS = new Set([
-                      "Goal ok",
-                      "Goal confirmed",
-                      "Penalty confirmed",
-                      "Penalty awarded",
-                      "Penalty cancelled",
-                      "Red Card Upgrade",
-                      "Yellow Card Upgrade",
-                    ]);
-                    if (isVar) {
-                      const meaningful =
-                        MEANINGFUL_VAR_DETAILS.has(ev.detail) ||
-                        ev.detail.toLowerCase().startsWith("goal disallowed");
-                      if (!meaningful) return null;
-                    }
+                      // Drop VAR events whose detail is not meaningful.
+                      // The API logs interim decisions ("Corner Cancelled" etc.) that
+                      // are often deleted in the next update — only show decisions that
+                      // carry real information. Any "Goal Disallowed - <reason>" variant
+                      // is allowed via prefix so new foul types (e.g. "Foul") pass through.
+                      const MEANINGFUL_VAR_DETAILS = new Set([
+                        "Goal ok",
+                        "Goal confirmed",
+                        "Penalty confirmed",
+                        "Penalty awarded",
+                        "Penalty cancelled",
+                        "Red Card Upgrade",
+                        "Yellow Card Upgrade",
+                      ]);
+                      if (isVar) {
+                        const meaningful =
+                          MEANINGFUL_VAR_DETAILS.has(ev.detail) ||
+                          ev.detail.toLowerCase().startsWith("goal disallowed");
+                        if (!meaningful) return null;
+                      }
 
-                    // Drop events with unrecognized types that carry no player name —
-                    // nothing meaningful can be shown and they'd fall into the catch-all
-                    // with "unknown" text.
-                    const isKnownType =
-                      isOwnGoal ||
-                      isPenaltyGoal ||
-                      isMissedPenalty ||
-                      isRegularGoal ||
-                      isSubstitution ||
-                      isVar ||
-                      isPenaltyResult ||
-                      isShootoutEvent;
-                    if (!isKnownType && !ev.player.name) return null;
+                      // Drop events with unrecognized types that carry no player name —
+                      // nothing meaningful can be shown and they'd fall into the catch-all
+                      // with "unknown" text.
+                      const isKnownType =
+                        isOwnGoal ||
+                        isPenaltyGoal ||
+                        isMissedPenalty ||
+                        isRegularGoal ||
+                        isSubstitution ||
+                        isVar ||
+                        isPenaltyResult ||
+                        isShootoutEvent;
+                      if (!isKnownType && !ev.player.name) return null;
 
-                    const showStart = !renderedStartDivider;
-                    if (showStart) renderedStartDivider = true;
+                      const showStart = !renderedStartDivider;
+                      if (showStart) renderedStartDivider = true;
 
-                    const showFirstHalfAddedTime =
-                      !renderedFirstHalfAddedTime &&
-                      firstHalfAdded > 0 &&
-                      ev.time.elapsed === 45 &&
-                      (ev.time.extra ?? 0) > 0;
-                    if (showFirstHalfAddedTime)
-                      renderedFirstHalfAddedTime = true;
+                      const showFirstHalfAddedTime =
+                        !renderedFirstHalfAddedTime &&
+                        firstHalfAdded > 0 &&
+                        ev.time.elapsed === 45 &&
+                        (ev.time.extra ?? 0) > 0;
+                      if (showFirstHalfAddedTime)
+                        renderedFirstHalfAddedTime = true;
 
-                    const showSecondHalfAddedTime =
-                      !renderedSecondHalfAddedTime &&
-                      secondHalfAdded > 0 &&
-                      ev.time.elapsed === 90 &&
-                      (ev.time.extra ?? 0) > 0;
-                    if (showSecondHalfAddedTime)
-                      renderedSecondHalfAddedTime = true;
+                      const showSecondHalfAddedTime =
+                        !renderedSecondHalfAddedTime &&
+                        secondHalfAdded > 0 &&
+                        ev.time.elapsed === 90 &&
+                        (ev.time.extra ?? 0) > 0;
+                      if (showSecondHalfAddedTime)
+                        renderedSecondHalfAddedTime = true;
 
-                    // Also trigger for substitutions at elapsed=45 with no extra when the
-                    // first half is over — the API commonly reports HT subs or early 2H
-                    // subs with elapsed=45 before correcting to the real minute.
-                    const showHalfTimeBreak =
-                      !renderedHalfTimeDivider &&
-                      (ev.time.elapsed > 45 ||
-                        (ev.time.elapsed === 45 &&
-                          !ev.time.extra &&
-                          ev.type === "subst" &&
-                          status !== "1H" &&
-                          status !== "NS" &&
-                          status !== "TBD")) &&
-                      !isPenaltyResult;
-                    if (showHalfTimeBreak) renderedHalfTimeDivider = true;
+                      // Also trigger for substitutions at elapsed=45 with no extra when the
+                      // first half is over — the API commonly reports HT subs or early 2H
+                      // subs with elapsed=45 before correcting to the real minute.
+                      const showHalfTimeBreak =
+                        !renderedHalfTimeDivider &&
+                        (ev.time.elapsed > 45 ||
+                          (ev.time.elapsed === 45 &&
+                            !ev.time.extra &&
+                            ev.type === "subst" &&
+                            status !== "1H")) &&
+                        !isPenaltyResult;
+                      if (showHalfTimeBreak) renderedHalfTimeDivider = true;
 
-                    // Extra Time Chronology Triggers
-                    const showRegularTimeEnd =
-                      !renderedRegularTimeEndDivider &&
-                      matchHadExtraTime &&
-                      ev.time.elapsed > 90 &&
-                      !isShootoutEvent &&
-                      !isPenaltyResult;
-                    if (showRegularTimeEnd)
-                      renderedRegularTimeEndDivider = true;
+                      // Extra Time Chronology Triggers
+                      const showRegularTimeEnd =
+                        !renderedRegularTimeEndDivider &&
+                        matchHadExtraTime &&
+                        ev.time.elapsed > 90 &&
+                        !isShootoutEvent &&
+                        !isPenaltyResult;
+                      if (showRegularTimeEnd)
+                        renderedRegularTimeEndDivider = true;
 
-                    const showEtStart =
-                      !renderedEtStartDivider &&
-                      matchHadExtraTime &&
-                      ev.time.elapsed > 90 &&
-                      !isShootoutEvent &&
-                      !isPenaltyResult;
-                    if (showEtStart) renderedEtStartDivider = true;
+                      const showEtStart =
+                        !renderedEtStartDivider &&
+                        matchHadExtraTime &&
+                        ev.time.elapsed > 90 &&
+                        !isShootoutEvent &&
+                        !isPenaltyResult;
+                      if (showEtStart) renderedEtStartDivider = true;
 
-                    const showEtHalfTime =
-                      !renderedEtHalfTimeDivider &&
-                      matchHadExtraTime &&
-                      ev.time.elapsed > 105 &&
-                      !isShootoutEvent &&
-                      !isPenaltyResult;
-                    if (showEtHalfTime) renderedEtHalfTimeDivider = true;
+                      const showEtHalfTime =
+                        !renderedEtHalfTimeDivider &&
+                        matchHadExtraTime &&
+                        ev.time.elapsed > 105 &&
+                        !isShootoutEvent &&
+                        !isPenaltyResult;
+                      if (showEtHalfTime) renderedEtHalfTimeDivider = true;
 
-                    const showEt2ndHalf =
-                      !renderedEt2ndHalfDivider &&
-                      matchHadExtraTime &&
-                      ev.time.elapsed > 105 &&
-                      !isShootoutEvent &&
-                      !isPenaltyResult;
-                    if (showEt2ndHalf) renderedEt2ndHalfDivider = true;
+                      const showEt2ndHalf =
+                        !renderedEt2ndHalfDivider &&
+                        matchHadExtraTime &&
+                        ev.time.elapsed > 105 &&
+                        !isShootoutEvent &&
+                        !isPenaltyResult;
+                      if (showEt2ndHalf) renderedEt2ndHalfDivider = true;
 
-                    return (
-                      <Fragment key={index}>
-                        {/* Start Section Banner */}
-                        {showStart && (
-                          <div className="bg-custom-gray-2 flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray rounded-t-xl">
-                            <img
-                              src="/images/specs/clock.svg"
-                              alt=""
-                              className="w-3.5 h-3.5 object-contain"
-                            />
-                            <span>{tEv("matchStarted")}</span>
-                          </div>
-                        )}
-
-                        {/* First-half added time indicator */}
-                        {showFirstHalfAddedTime && (
-                          <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
-                            <img
-                              src="/images/specs/clock.svg"
-                              alt=""
-                              className="w-3 h-3 object-contain opacity-60"
-                            />
-                            <span>
-                              +{firstHalfAdded} {tEv("minAdded")}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Second-half added time indicator */}
-                        {showSecondHalfAddedTime && (
-                          <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
-                            <img
-                              src="/images/specs/clock.svg"
-                              alt=""
-                              className="w-3 h-3 object-contain opacity-60"
-                            />
-                            <span>
-                              +{secondHalfAdded} {tEv("minAdded")}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Spacer when no events occurred in the first half */}
-                        {showStart && showHalfTimeBreak && (
-                          <div className="py-5 text-center text-[11px] text-gray-600 tracking-wider">
-                            {tEv("noNotableActions")}
-                          </div>
-                        )}
-
-                        {/* Half Time Break Banner */}
-                        {showHalfTimeBreak && (
-                          <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest border-y border-custom-gray">
-                            <div className="flex items-center gap-2">
+                      return (
+                        <Fragment key={index}>
+                          {/* Start Section Banner */}
+                          {showStart && (
+                            <div className="bg-custom-gray-2 flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest border-b border-custom-gray rounded-t-xl">
                               <img
                                 src="/images/specs/clock.svg"
                                 alt=""
                                 className="w-3.5 h-3.5 object-contain"
                               />
-                              <span>{tEv("halfTimeBreak")}</span>
+                              <span>{tEv("matchStarted")}</span>
                             </div>
-                            <span className="font-mono text-sm font-bold text-gray-200 mt-0.5">
-                              {getScoreAtMinute(45)}
-                            </span>
-                          </div>
-                        )}
+                          )}
 
-                        {/* Second Half Starts Banner */}
-                        {showHalfTimeBreak && !isConfirmedFinished && (
-                          <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
-                            <img
-                              src="/images/specs/final.svg"
-                              alt=""
-                              className="w-3 h-3 object-contain opacity-60"
-                            />
-                            <span>{tEv("secondHalfStarts")}</span>
-                          </div>
-                        )}
+                          {/* First-half added time indicator */}
+                          {showFirstHalfAddedTime && (
+                            <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
+                              <img
+                                src="/images/specs/clock.svg"
+                                alt=""
+                                className="w-3 h-3 object-contain opacity-60"
+                              />
+                              <span>
+                                +{firstHalfAdded} {tEv("minAdded")}
+                              </span>
+                            </div>
+                          )}
 
-                        {/* Regular Time Finished Banner */}
-                        {showRegularTimeEnd && (
-                          <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
-                            <div className="flex items-center gap-2">
+                          {/* Second-half added time indicator */}
+                          {showSecondHalfAddedTime && (
+                            <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
+                              <img
+                                src="/images/specs/clock.svg"
+                                alt=""
+                                className="w-3 h-3 object-contain opacity-60"
+                              />
+                              <span>
+                                +{secondHalfAdded} {tEv("minAdded")}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Spacer when no events occurred in the first half */}
+                          {showStart && showHalfTimeBreak && (
+                            <div className="py-5 text-center text-[11px] text-gray-600 tracking-wider">
+                              {tEv("noNotableActions")}
+                            </div>
+                          )}
+
+                          {/* Half Time Break Banner */}
+                          {showHalfTimeBreak && (
+                            <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest border-y border-custom-gray">
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src="/images/specs/clock.svg"
+                                  alt=""
+                                  className="w-3.5 h-3.5 object-contain"
+                                />
+                                <span>{tEv("halfTimeBreak")}</span>
+                              </div>
+                              <span className="font-mono text-sm font-bold text-gray-200 mt-0.5">
+                                {getScoreAtMinute(45)}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Second Half Starts Banner */}
+                          {showHalfTimeBreak && !isConfirmedFinished && (
+                            <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
                               <img
                                 src="/images/specs/final.svg"
                                 alt=""
-                                className="w-3.5 h-3.5 object-contain"
+                                className="w-3 h-3 object-contain opacity-60"
                               />
-                              <span>{tEv("regularTimeFinished")}</span>
+                              <span>{tEv("secondHalfStarts")}</span>
                             </div>
-                            <span className="font-mono text-sm font-bold text-gray-200 mt-0.5">
-                              {getScoreAtMinute(90)}
-                            </span>
-                          </div>
-                        )}
+                          )}
 
-                        {/* Extra Time 1st Half Banner */}
-                        {showEtStart && !isConfirmedFinished && (
-                          <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
-                            <img
-                              src="/images/specs/final.svg"
-                              alt=""
-                              className="w-3 h-3 object-contain opacity-60"
-                            />
-                            <span>{tEv("firstHalfExtraTimeStarts")}</span>
-                          </div>
-                        )}
+                          {/* Regular Time Finished Banner */}
+                          {showRegularTimeEnd && (
+                            <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src="/images/specs/final.svg"
+                                  alt=""
+                                  className="w-3.5 h-3.5 object-contain"
+                                />
+                                <span>{tEv("regularTimeFinished")}</span>
+                              </div>
+                              <span className="font-mono text-sm font-bold text-gray-200 mt-0.5">
+                                {getScoreAtMinute(90)}
+                              </span>
+                            </div>
+                          )}
 
-                        {/* Extra Time Intermission Break Banner */}
-                        {showEtHalfTime && (
-                          <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
-                            <div className="flex items-center gap-2">
+                          {/* Extra Time 1st Half Banner */}
+                          {showEtStart && !isConfirmedFinished && (
+                            <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
                               <img
-                                src="/images/specs/clock.svg"
+                                src="/images/specs/final.svg"
                                 alt=""
-                                className="w-3.5 h-3.5 object-contain"
+                                className="w-3 h-3 object-contain opacity-60"
                               />
-                              <span>{tEv("extraTimeHalfTime")}</span>
+                              <span>{tEv("firstHalfExtraTimeStarts")}</span>
                             </div>
-                            <span className="font-mono text-sm font-bold text-gray-200 mt-0.5">
-                              {getScoreAtMinute(105)}
-                            </span>
-                          </div>
-                        )}
+                          )}
 
-                        {/* Extra Time 2nd Half Banner */}
-                        {showEt2ndHalf && !isConfirmedFinished && (
-                          <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
-                            <img
-                              src="/images/specs/final.svg"
-                              alt=""
-                              className="w-3 h-3 object-contain opacity-60"
-                            />
-                            <span>{tEv("secondHalfExtraTimeStarts")}</span>
-                          </div>
-                        )}
+                          {/* Extra Time Intermission Break Banner */}
+                          {showEtHalfTime && (
+                            <div className="bg-custom-gray-2 flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-light text-white tracking-widest">
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src="/images/specs/clock.svg"
+                                  alt=""
+                                  className="w-3.5 h-3.5 object-contain"
+                                />
+                                <span>{tEv("extraTimeHalfTime")}</span>
+                              </div>
+                              <span className="font-mono text-sm font-bold text-gray-200 mt-0.5">
+                                {getScoreAtMinute(105)}
+                              </span>
+                            </div>
+                          )}
 
-                        {/* Synthetic penalty-awarded row — shown before in-game penalty
+                          {/* Extra Time 2nd Half Banner */}
+                          {showEt2ndHalf && !isConfirmedFinished && (
+                            <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-medium text-gray-300 tracking-widest border-b border-custom-gray/40">
+                              <img
+                                src="/images/specs/final.svg"
+                                alt=""
+                                className="w-3 h-3 object-contain opacity-60"
+                              />
+                              <span>{tEv("secondHalfExtraTimeStarts")}</span>
+                            </div>
+                          )}
+
+                          {/* Synthetic penalty-awarded row — shown before in-game penalty
                             attempts only (not shootout kicks or result events) */}
-                        {!isShootoutEvent &&
-                          !isPenaltyResult &&
-                          (isPenaltyGoal || isMissedPenalty) && (
-                            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-2 px-4 border-b border-custom-gray/40">
+                          {!isShootoutEvent &&
+                            !isPenaltyResult &&
+                            (isPenaltyGoal || isMissedPenalty) && (
+                              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-2 px-4 border-b border-custom-gray/40">
+                                <div className="w-full min-w-0">
+                                  {isHomeEvent && (
+                                    <div className="flex items-center justify-between w-full gap-2.5">
+                                      <span className="text-[11px] text-gray-200 font-medium truncate">
+                                        {tEv("penaltyAwarded")}
+                                      </span>
+                                      <span className="flex items-center justify-center w-6 h-6 rounded-full shrink-0">
+                                        <img
+                                          src="/images/specs/final.svg"
+                                          alt=""
+                                          className="w-4 h-4 object-contain"
+                                        />
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="px-2.5 py-1 text-gray-200 font-bold font-mono text-xs text-center min-w-10.5">
+                                  {ev.time.extra
+                                    ? `${ev.time.elapsed}+`
+                                    : ev.time.elapsed}
+                                  ′
+                                </div>
+                                <div className="w-full min-w-0">
+                                  {!isHomeEvent && (
+                                    <div className="flex items-center justify-between w-full gap-2.5">
+                                      <span className="flex items-center justify-center w-6 h-6 rounded-full shrink-0">
+                                        <img
+                                          src="/images/specs/final.svg"
+                                          alt=""
+                                          className="w-4 h-4 object-contain"
+                                        />
+                                      </span>
+                                      <span className="text-[10px] text-gray-200 font-medium truncate">
+                                        {tEv("penaltyAwarded")}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                          {isPenaltyResult ? null : isShootoutEvent ? (
+                            /* Compact row for penalty shootout kicks — live only; finished matches render below "Match Finished" */
+                            isConfirmedFinished ? null : (
+                              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 py-2.5 px-4">
+                                <div className="w-full min-w-0">
+                                  {isHomeEvent && (
+                                    <div className="flex items-center justify-end gap-2 w-full">
+                                      {ev.player.name && (
+                                        <span className="text-[11px] text-gray-200 font-medium truncate">
+                                          {ev.player.name}
+                                        </span>
+                                      )}
+                                      <img
+                                        src={
+                                          isMissedPenalty
+                                            ? "/images/specs/missed-penalty.svg"
+                                            : "/images/specs/ball.svg"
+                                        }
+                                        alt=""
+                                        className="w-6 h-6 object-contain shrink-0"
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="w-2 shrink-0" />
+                                <div className="w-full min-w-0">
+                                  {!isHomeEvent && (
+                                    <div className="flex items-center gap-2 w-full">
+                                      <img
+                                        src={
+                                          isMissedPenalty
+                                            ? "/images/specs/missed-penalty.svg"
+                                            : "/images/specs/ball.svg"
+                                        }
+                                        alt=""
+                                        className="w-6 h-6 object-contain shrink-0"
+                                      />
+                                      {ev.player.name && (
+                                        <span className="text-[11px] text-gray-200 font-medium truncate">
+                                          {ev.player.name}
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          ) : (
+                            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-3 px-4 text-sm w-full">
+                              {/* Left Side: Home Team Incidents */}
                               <div className="w-full min-w-0">
                                 {isHomeEvent && (
                                   <div className="flex items-center justify-between w-full gap-2.5">
-                                    <span className="text-[11px] text-gray-200 font-medium truncate">
-                                      {tEv("penaltyAwarded")}
-                                    </span>
-                                    <span className="flex items-center justify-center w-6 h-6 rounded-full shrink-0">
-                                      <img
-                                        src="/images/specs/final.svg"
-                                        alt=""
-                                        className="w-4 h-4 object-contain"
-                                      />
-                                    </span>
+                                    <div className="flex items-center gap-2 min-w-0 text-left">
+                                      {isSubstitution ? (
+                                        <div className="flex flex-col text-xs min-w-0">
+                                          <span className="text-accent font-medium truncate">
+                                            {ev.assist?.name || tEv("inPlayer")}
+                                          </span>
+                                          <span className="text-[#C93434] font-medium truncate">
+                                            {ev.player.name || tEv("outPlayer")}
+                                          </span>
+                                        </div>
+                                      ) : isVar ? (
+                                        <div className="flex flex-col gap-0.5 min-w-0">
+                                          {ev.player.name && (
+                                            <span className="text-[11px] text-gray-200 font-medium truncate">
+                                              {ev.player.name}
+                                            </span>
+                                          )}
+                                          <span className="text-[9px] text-gray-300 leading-tight">
+                                            {getVarDetail(ev.detail)}
+                                          </span>
+                                        </div>
+                                      ) : isOwnGoal ||
+                                        isPenaltyGoal ||
+                                        isMissedPenalty ||
+                                        isRegularGoal ? (
+                                        <div className="flex flex-col gap-0.5 min-w-0">
+                                          {ev.player.name && (
+                                            <span className="text-[11px] text-gray-200 font-medium truncate">
+                                              {ev.player.name}
+                                            </span>
+                                          )}
+                                          <span className="text-[9px] text-gray-300 truncate">
+                                            {isOwnGoal
+                                              ? tEv("ownGoal")
+                                              : isPenaltyGoal
+                                              ? tEv("penaltyGoal")
+                                              : isMissedPenalty
+                                              ? tEv("missedPenalty")
+                                              : tEv("goal")}
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-1.5 min-w-0">
+                                          {ev.player.name && (
+                                            <span className="text-gray-200 font-medium truncate">
+                                              {ev.player.name}
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    <div className="flex items-center shrink-0 min-w-7">
+                                      <span className="flex items-center justify-center w-6 h-6 rounded-full ">
+                                        <img
+                                          src={getEventIcon(ev.type, ev.detail)}
+                                          alt=""
+                                          className={`w-5.5 h-5.5 object-contain${
+                                            isSubstitution ? " rotate-180" : ""
+                                          }`}
+                                        />
+                                      </span>
+                                    </div>
                                   </div>
                                 )}
                               </div>
+
+                              {/* Center Column: Time Indicator */}
                               <div className="px-2.5 py-1 text-gray-200 font-bold font-mono text-xs text-center min-w-10.5">
                                 {ev.time.extra
                                   ? `${ev.time.elapsed}+`
                                   : ev.time.elapsed}
                                 ′
                               </div>
+
+                              {/* Right Side: Away Team Incidents */}
                               <div className="w-full min-w-0">
                                 {!isHomeEvent && (
                                   <div className="flex items-center justify-between w-full gap-2.5">
-                                    <span className="flex items-center justify-center w-6 h-6 rounded-full shrink-0">
-                                      <img
-                                        src="/images/specs/final.svg"
-                                        alt=""
-                                        className="w-4 h-4 object-contain"
-                                      />
-                                    </span>
-                                    <span className="text-[10px] text-gray-200 font-medium truncate">
-                                      {tEv("penaltyAwarded")}
-                                    </span>
+                                    <div className="flex flex-col items-center shrink-0 gap-0.5 min-w-7">
+                                      <span className="flex items-center justify-center w-6 h-6 rounded-full">
+                                        <img
+                                          src={getEventIcon(ev.type, ev.detail)}
+                                          alt=""
+                                          className="w-5.5 h-5.5 object-contain"
+                                        />
+                                      </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 min-w-0 text-right justify-end w-full">
+                                      {isSubstitution ? (
+                                        <div className="flex flex-col text-xs text-right items-end min-w-0">
+                                          <span className="text-accent font-medium truncate">
+                                            {ev.assist?.name || tEv("inPlayer")}
+                                          </span>
+                                          <span className="text-[#C93434] font-medium truncate">
+                                            {ev.player.name || tEv("outPlayer")}
+                                          </span>
+                                        </div>
+                                      ) : isVar ? (
+                                        <div className="flex flex-col gap-0.5 min-w-0 items-end">
+                                          {ev.player.name && (
+                                            <span className="text-[11px] text-gray-200 font-medium truncate">
+                                              {ev.player.name}
+                                            </span>
+                                          )}
+                                          <span className="text-[9px] text-gray-300 text-right leading-tight">
+                                            {getVarDetail(ev.detail)}
+                                          </span>
+                                        </div>
+                                      ) : isOwnGoal ||
+                                        isPenaltyGoal ||
+                                        isMissedPenalty ||
+                                        isRegularGoal ? (
+                                        <div className="flex flex-col gap-0.5 min-w-0 items-end">
+                                          {ev.player.name && (
+                                            <span className="text-[11px] text-gray-200 font-medium truncate">
+                                              {ev.player.name}
+                                            </span>
+                                          )}
+                                          <span className="text-[9px] text-gray-300 truncate">
+                                            {isOwnGoal
+                                              ? tEv("ownGoal")
+                                              : isPenaltyGoal
+                                              ? tEv("penaltyGoal")
+                                              : isMissedPenalty
+                                              ? tEv("missedPenalty")
+                                              : tEv("goal")}
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-1.5 min-w-0 justify-end">
+                                          {ev.player.name && (
+                                            <span className="text-gray-200 font-medium truncate">
+                                              {ev.player.name}
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
                                 )}
                               </div>
                             </div>
                           )}
-
-                        {isPenaltyResult ? null : isShootoutEvent ? (
-                          /* Compact row for penalty shootout kicks — live only; finished matches render below "Match Finished" */
-                          isConfirmedFinished ? null : (
-                            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 py-2.5 px-4">
-                              <div className="w-full min-w-0">
-                                {isHomeEvent && (
-                                  <div className="flex items-center justify-end gap-2 w-full">
-                                    {ev.player.name && (
-                                      <span className="text-[11px] text-gray-200 font-medium truncate">
-                                        {ev.player.name}
-                                      </span>
-                                    )}
-                                    <img
-                                      src={
-                                        isMissedPenalty
-                                          ? "/images/specs/missed-penalty.svg"
-                                          : "/images/specs/ball.svg"
-                                      }
-                                      alt=""
-                                      className="w-6 h-6 object-contain shrink-0"
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                              <div className="w-2 shrink-0" />
-                              <div className="w-full min-w-0">
-                                {!isHomeEvent && (
-                                  <div className="flex items-center gap-2 w-full">
-                                    <img
-                                      src={
-                                        isMissedPenalty
-                                          ? "/images/specs/missed-penalty.svg"
-                                          : "/images/specs/ball.svg"
-                                      }
-                                      alt=""
-                                      className="w-6 h-6 object-contain shrink-0"
-                                    />
-                                    {ev.player.name && (
-                                      <span className="text-[11px] text-gray-200 font-medium truncate">
-                                        {ev.player.name}
-                                      </span>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )
-                        ) : (
-                          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-3 px-4 text-sm w-full">
-                            {/* Left Side: Home Team Incidents */}
-                            <div className="w-full min-w-0">
-                              {isHomeEvent && (
-                                <div className="flex items-center justify-between w-full gap-2.5">
-                                  <div className="flex items-center gap-2 min-w-0 text-left">
-                                    {isSubstitution ? (
-                                      <div className="flex flex-col text-xs min-w-0">
-                                        <span className="text-accent font-medium truncate">
-                                          {ev.assist?.name || tEv("inPlayer")}
-                                        </span>
-                                        <span className="text-[#C93434] font-medium truncate">
-                                          {ev.player.name || tEv("outPlayer")}
-                                        </span>
-                                      </div>
-                                    ) : isVar ? (
-                                      <div className="flex flex-col gap-0.5 min-w-0">
-                                        {ev.player.name && (
-                                          <span className="text-[11px] text-gray-200 font-medium truncate">
-                                            {ev.player.name}
-                                          </span>
-                                        )}
-                                        <span className="text-[9px] text-gray-300 leading-tight">
-                                          {getVarDetail(ev.detail)}
-                                        </span>
-                                      </div>
-                                    ) : isOwnGoal ||
-                                      isPenaltyGoal ||
-                                      isMissedPenalty ||
-                                      isRegularGoal ? (
-                                      <div className="flex flex-col gap-0.5 min-w-0">
-                                        {ev.player.name && (
-                                          <span className="text-[11px] text-gray-200 font-medium truncate">
-                                            {ev.player.name}
-                                          </span>
-                                        )}
-                                        <span className="text-[9px] text-gray-300 truncate">
-                                          {isOwnGoal
-                                            ? tEv("ownGoal")
-                                            : isPenaltyGoal
-                                            ? tEv("penaltyGoal")
-                                            : isMissedPenalty
-                                            ? tEv("missedPenalty")
-                                            : tEv("goal")}
-                                        </span>
-                                      </div>
-                                    ) : (
-                                      <div className="flex items-center gap-1.5 min-w-0">
-                                        {ev.player.name && (
-                                          <span className="text-gray-200 font-medium truncate">
-                                            {ev.player.name}
-                                          </span>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  <div className="flex items-center shrink-0 min-w-7">
-                                    <span className="flex items-center justify-center w-6 h-6 rounded-full ">
-                                      <img
-                                        src={getEventIcon(ev.type, ev.detail)}
-                                        alt=""
-                                        className={`w-5.5 h-5.5 object-contain${
-                                          isSubstitution ? " rotate-180" : ""
-                                        }`}
-                                      />
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Center Column: Time Indicator */}
-                            <div className="px-2.5 py-1 text-gray-200 font-bold font-mono text-xs text-center min-w-10.5">
-                              {ev.time.extra
-                                ? `${ev.time.elapsed}+`
-                                : ev.time.elapsed}
-                              ′
-                            </div>
-
-                            {/* Right Side: Away Team Incidents */}
-                            <div className="w-full min-w-0">
-                              {!isHomeEvent && (
-                                <div className="flex items-center justify-between w-full gap-2.5">
-                                  <div className="flex flex-col items-center shrink-0 gap-0.5 min-w-7">
-                                    <span className="flex items-center justify-center w-6 h-6 rounded-full">
-                                      <img
-                                        src={getEventIcon(ev.type, ev.detail)}
-                                        alt=""
-                                        className="w-5.5 h-5.5 object-contain"
-                                      />
-                                    </span>
-                                  </div>
-
-                                  <div className="flex items-center gap-2 min-w-0 text-right justify-end w-full">
-                                    {isSubstitution ? (
-                                      <div className="flex flex-col text-xs text-right items-end min-w-0">
-                                        <span className="text-accent font-medium truncate">
-                                          {ev.assist?.name || tEv("inPlayer")}
-                                        </span>
-                                        <span className="text-[#C93434] font-medium truncate">
-                                          {ev.player.name || tEv("outPlayer")}
-                                        </span>
-                                      </div>
-                                    ) : isVar ? (
-                                      <div className="flex flex-col gap-0.5 min-w-0 items-end">
-                                        {ev.player.name && (
-                                          <span className="text-[11px] text-gray-200 font-medium truncate">
-                                            {ev.player.name}
-                                          </span>
-                                        )}
-                                        <span className="text-[9px] text-gray-300 text-right leading-tight">
-                                          {getVarDetail(ev.detail)}
-                                        </span>
-                                      </div>
-                                    ) : isOwnGoal ||
-                                      isPenaltyGoal ||
-                                      isMissedPenalty ||
-                                      isRegularGoal ? (
-                                      <div className="flex flex-col gap-0.5 min-w-0 items-end">
-                                        {ev.player.name && (
-                                          <span className="text-[11px] text-gray-200 font-medium truncate">
-                                            {ev.player.name}
-                                          </span>
-                                        )}
-                                        <span className="text-[9px] text-gray-300 truncate">
-                                          {isOwnGoal
-                                            ? tEv("ownGoal")
-                                            : isPenaltyGoal
-                                            ? tEv("penaltyGoal")
-                                            : isMissedPenalty
-                                            ? tEv("missedPenalty")
-                                            : tEv("goal")}
-                                        </span>
-                                      </div>
-                                    ) : (
-                                      <div className="flex items-center gap-1.5 min-w-0 justify-end">
-                                        {ev.player.name && (
-                                          <span className="text-gray-200 font-medium truncate">
-                                            {ev.player.name}
-                                          </span>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </Fragment>
-                    );
-                  })}
+                        </Fragment>
+                      );
+                    })}
 
                   {/* Live first-half added time — no event has happened yet in added time */}
                   {liveFirstHalfExtra > 0 &&
@@ -1368,24 +1401,6 @@ export default function MatchTabs({
                   </span>
                 </div>
               </div>
-            ) : status === "NS" || status === "TBD" ? (
-              <div className="space-y-2">
-                <PredictionWidget
-                  matchId={matchId}
-                  leagueId={leagueId}
-                  homeTeam={homeTeamName ?? ""}
-                  awayTeam={awayTeamName ?? ""}
-                  homeLogo={homeLogo ?? null}
-                  awayLogo={awayLogo ?? null}
-                  isKnockout={isKnockout}
-                />
-                <TeamLastMatches
-                  homeLogoUrl={homeLogo ?? null}
-                  awayLogoUrl={awayLogo ?? null}
-                  homeTeamName={homeTeamName ?? ""}
-                  awayTeamName={awayTeamName ?? ""}
-                />
-              </div>
             ) : (
               <div className="bg-custom-gray rounded-[14px] border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
                 <div className="bg-custom-gray-2 flex items-center justify-center gap-2 py-4 text-[11px] font-light text-white tracking-widest">
@@ -1518,7 +1533,8 @@ export default function MatchTabs({
                               </div>
                             )}
                             <span className="text-[11px] text-gray-400">
-                              {flagCode ? "- " : ""}{refCountry}
+                              {flagCode ? "- " : ""}
+                              {refCountry}
                             </span>
                           </div>
                         )}
@@ -1527,7 +1543,17 @@ export default function MatchTabs({
                   </div>
                 );
               })()}
-          </div>
+              </div>
+              <div className="w-full">
+                <TeamLastMatches
+                  homeLogoUrl={homeLogo ?? null}
+                  awayLogoUrl={awayLogo ?? null}
+                  homeTeamName={homeTeamName ?? ""}
+                  awayTeamName={awayTeamName ?? ""}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div
@@ -1602,7 +1628,11 @@ export default function MatchTabs({
                   {(() => {
                     const flag = getLeagueFlag(leagueId);
                     return flag ? (
-                      <img src={flag} alt="" className="w-5 h-3.5 object-cover rounded-xs shrink-0" />
+                      <img
+                        src={flag}
+                        alt=""
+                        className="w-5 h-3.5 object-cover rounded-xs shrink-0"
+                      />
                     ) : null;
                   })()}
                   <h1 className="text-xl font-extrabold tracking-tight">
@@ -1635,7 +1665,9 @@ export default function MatchTabs({
             ) : (
               <StandingsTable
                 standings={localStandings}
-                highlightNames={[homeTeamName ?? "", awayTeamName ?? ""].filter(Boolean)}
+                highlightNames={[homeTeamName ?? "", awayTeamName ?? ""].filter(
+                  Boolean
+                )}
               />
             )}
           </div>

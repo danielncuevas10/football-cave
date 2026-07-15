@@ -16,6 +16,7 @@
     "venue": "경기장",
     "referee": "심판",
     "matches": "경기",
+    "fixtures": "일정",
     "groupStage": "조별 리그",
     "topScorers": "득점 순위",
     "noMatches": "경기 없음",
@@ -104,7 +105,8 @@
     "outPlayer": "교체 아웃",
     "unknownPlayer": "알 수 없음",
     "penLabel": "PK",
-    "penaltyShootoutFinished": "승부차기 종료"
+    "penaltyShootoutFinished": "승부차기 종료",
+    "aggLabel": "합산"
   },
   "matchDetails": {
     "matchOverview": "경기 개요",
@@ -203,7 +205,8 @@
     "leagueGermany": "독일",
     "leagueItaly": "이탈리아",
     "leagueMexico": "멕시코",
-    "leagueUSA": "미국"
+    "leagueUSA": "미국",
+    "leagueEurope": "유럽"
   },
   "wcPlaceholder": {
     "sf1Home": "프랑스 / 모로코",

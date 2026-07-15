@@ -11,7 +11,7 @@ const receiver = new Receiver({
   nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
 })
 
-const TRACKED_LEAGUES = [2, 39, 140, 78, 61, 135, 36, 10]
+const TRACKED_LEAGUES = [1, 2, 39, 140, 78, 61, 135, 36, 10]
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
@@ -42,15 +42,22 @@ export async function POST(req: NextRequest) {
   // ──────────────────────────────────────────────────────────────────────────
 
   const fresh = await footballApi.liveMatches()
-  const liveMatches = (fresh?.response ?? []).filter(
+
+  // API error — don't touch is_live state to avoid false "all ended" signals
+  if (fresh === null) {
+    return NextResponse.json({ error: "API unavailable", skipped: true })
+  }
+
+  const liveMatches = fresh.response.filter(
     m => TRACKED_LEAGUES.includes(m.league.id)
   )
 
   if (liveMatches.length === 0) {
     await supabaseAdmin
       .from("matches")
-      .update({ is_live: false })
+      .update({ is_live: false, status: "FT", elapsed: null, updated_at: new Date().toISOString() })
       .in("league_id", TRACKED_LEAGUES)
+      .eq("is_live", true)
 
     return NextResponse.json({ updated: 0, skipped: true })
   }
@@ -154,10 +161,10 @@ export async function POST(req: NextRequest) {
   }
   // ──────────────────────────────────────────────────────────────────────────
 
-  // Un-mark matches that were live but no longer appear in the live feed
+  // Matches that were live but dropped from the feed — mark as finished
   await supabaseAdmin
     .from("matches")
-    .update({ is_live: false })
+    .update({ is_live: false, status: "FT", elapsed: null, updated_at: new Date().toISOString() })
     .in("league_id", TRACKED_LEAGUES)
     .not("id", "in", `(${liveMatchIds.join(",")})`)
     .eq("is_live", true)

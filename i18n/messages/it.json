@@ -16,6 +16,7 @@
     "venue": "Stadio",
     "referee": "Arbitro",
     "matches": "Partite",
+    "fixtures": "Calendario",
     "groupStage": "Fase a gironi",
     "topScorers": "Capocannonieri",
     "noMatches": "Nessuna partita trovata",
@@ -104,7 +105,8 @@
     "inPlayer": "Entra",
     "outPlayer": "Esce",
     "unknownPlayer": "Sconosciuto",
-    "penaltyShootoutFinished": "Rigori terminati"
+    "penaltyShootoutFinished": "Rigori terminati",
+    "aggLabel": "Agg"
   },
   "matchDetails": {
     "matchOverview": "Panoramica della partita",
@@ -203,7 +205,8 @@
     "leagueGermany": "Germania",
     "leagueItaly": "Italia",
     "leagueMexico": "Messico",
-    "leagueUSA": "USA"
+    "leagueUSA": "USA",
+    "leagueEurope": "Europa"
   },
   "wcPlaceholder": {
     "sf1Home": "Francia / Marocco",

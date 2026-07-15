@@ -39,6 +39,14 @@ function getZoneBorder(team: DbStanding, groupTeams: DbStanding[]): string {
       if (rank > total - 3) return "border-l-[3px] border-l-[#FF0000]";
       return "";
 
+    case League.Ligue1:
+      if (rank <= 4) return "border-l-[3px] border-l-[#00088E]";
+      if (rank === 5) return "border-l-[3px] border-l-[#EB6A0A]";
+      if (rank === 6) return "border-l-[3px] border-l-[#228B22]";
+      if (rank === 16) return "border-l-[3px] border-l-amber-500";
+      if (rank >= 17) return "border-l-[3px] border-l-[#FF0000]";
+      return "";
+
     case League.MLS:
       // Top 9 per conference qualify for the MLS Cup Playoffs
       if (rank <= 9) return "border-l-[3px] border-l-emerald-500";
@@ -71,6 +79,13 @@ const ZONE_LEGENDS: Partial<Record<number, { color: string; labelKey: string }[]
     { color: "#00088E", labelKey: "zoneChampionsLeague" },
     { color: "#EB6A0A", labelKey: "zoneEuropaLeague" },
     { color: "#228B22", labelKey: "zoneConferenceLeague" },
+    { color: "#FF0000", labelKey: "zoneRelegation" },
+  ],
+  [League.Ligue1]: [
+    { color: "#00088E", labelKey: "zoneChampionsLeague" },
+    { color: "#EB6A0A", labelKey: "zoneEuropaLeague" },
+    { color: "#228B22", labelKey: "zoneConferenceLeague" },
+    { color: "#f59e0b", labelKey: "zonePlayOff" },
     { color: "#FF0000", labelKey: "zoneRelegation" },
   ],
   [League.MLS]: [{ color: "#10b981", labelKey: "zonePlayoffs" }],

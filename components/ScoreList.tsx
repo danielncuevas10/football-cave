@@ -7,7 +7,6 @@ import { supabase } from "@/lib/supabase";
 import MatchCard from "./MatchCard";
 import WcPlaceholderCard from "./WcPlaceholderCard";
 import type { DbMatch } from "@/types/sports";
-import { LIVE_STATUSES } from "@/types/sports";
 import Link from "next/link";
 import { getWcRoundKey } from "@/lib/wcRoundLabel";
 import { cleanLeagueName } from "@/lib/teamName";
@@ -95,6 +94,8 @@ function getLeagueIcon(
   switch (leagueId) {
     case 1:
       return { src: "/images/WC26Badge.svg", isWc: true };
+    case 2:
+      return { src: "/images/champions.svg", isWc: true };
     case 39:
       return { src: "/images/flags/gb-eng.svg", isWc: false };
     case 140:
@@ -387,10 +388,7 @@ export default function ScoreList({ initialMatches }: Props) {
     return d !== 0 ? d : a.id - b.id;
   });
 
-  // A match is live if the DB says so OR if its status is an active live status.
-  // This catches matches where is_live was not written correctly by the cron.
-  const isMatchLive = (m: DbMatch) =>
-    m.is_live || LIVE_STATUSES.includes(m.status);
+  const isMatchLive = (m: DbMatch) => m.is_live === true;
 
   // Filter ALL matches down to the selected calendar day.
   // Exception: live matches that kicked off before midnight always surface on

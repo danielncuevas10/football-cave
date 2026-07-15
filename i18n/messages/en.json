@@ -16,6 +16,7 @@
     "venue": "Venue",
     "referee": "Referee",
     "matches": "Matches",
+    "fixtures": "Fixtures",
     "groupStage": "Group Stage",
     "topScorers": "Top Scorers",
     "noMatches": "No matches found",
@@ -104,7 +105,8 @@
     "inPlayer": "In",
     "outPlayer": "Out",
     "unknownPlayer": "Unknown",
-    "penaltyShootoutFinished": "Penalty Shootout Finished"
+    "penaltyShootoutFinished": "Penalty Shootout Finished",
+    "aggLabel": "Agg"
   },
   "matchDetails": {
     "matchOverview": "Match Overview",
@@ -203,7 +205,8 @@
     "leagueGermany": "Germany",
     "leagueItaly": "Italy",
     "leagueMexico": "Mexico",
-    "leagueUSA": "USA"
+    "leagueUSA": "USA",
+    "leagueEurope": "Europe"
   },
   "wcPlaceholder": {
     "sf1Home": "France / Morocco",

@@ -18,7 +18,10 @@ export default async function TeamPage({ params }: PageProps) {
 
   const teamLogoUrl = `https://media.api-sports.io/football/teams/${teamId}.png`;
 
-  const [homeResult, awayResult, standingResult] = await Promise.all([
+  // Cup competitions (CL, EL, Conference League, etc.) — prefer domestic over these
+  const CUP_LEAGUE_IDS = new Set([2, 3, 848]);
+
+  const [homeResult, awayResult, allTeamStandingsResult] = await Promise.all([
     supabase
       .from("matches")
       .select("*")
@@ -32,9 +35,7 @@ export default async function TeamPage({ params }: PageProps) {
     supabase
       .from("standings")
       .select("*")
-      .eq("team_id", teamId)
-      .limit(1)
-      .maybeSingle(),
+      .eq("team_id", teamId),
   ]);
 
   // Merge and deduplicate by match id
@@ -53,7 +54,12 @@ export default async function TeamPage({ params }: PageProps) {
       return true;
     });
 
-  const teamStanding = standingResult.data ?? null;
+  const allTeamStandings = allTeamStandingsResult.data ?? [];
+  // Prefer domestic league standings; fall back to first available
+  const teamStanding =
+    allTeamStandings.find((s) => !CUP_LEAGUE_IDS.has(s.league_id)) ??
+    allTeamStandings[0] ??
+    null;
 
   const teamName = (() => {
     const first = matches[0];

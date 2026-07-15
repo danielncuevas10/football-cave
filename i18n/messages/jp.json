@@ -16,6 +16,7 @@
     "venue": "会場",
     "referee": "審判",
     "matches": "試合",
+    "fixtures": "日程",
     "groupStage": "グループステージ",
     "topScorers": "得点ランク",
     "noMatches": "試合なし",
@@ -104,7 +105,8 @@
     "outPlayer": "交代退場",
     "unknownPlayer": "不明",
     "penLabel": "PK",
-    "penaltyShootoutFinished": "PK戦終了"
+    "penaltyShootoutFinished": "PK戦終了",
+    "aggLabel": "合計"
   },
   "matchDetails": {
     "matchOverview": "試合概要",
@@ -203,7 +205,8 @@
     "leagueGermany": "ドイツ",
     "leagueItaly": "イタリア",
     "leagueMexico": "メキシコ",
-    "leagueUSA": "アメリカ"
+    "leagueUSA": "アメリカ",
+    "leagueEurope": "ヨーロッパ"
   },
   "wcPlaceholder": {
     "sf1Home": "フランス / モロッコ",

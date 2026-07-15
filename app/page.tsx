@@ -41,7 +41,7 @@ export default async function HomePage() {
       <div className="bg-background text-white px-6">
         <div className="flex max-w-7xl lg:max-w-360 mx-auto">
           {/* Desktop left sidebar: teams & leagues quick-nav */}
-          <aside className="hidden lg:flex flex-col w-[30%] shrink-0 pr-6">
+          <aside className="hidden lg:flex flex-col w-[20%] shrink-0 pr-6">
             <div className="sticky top-22 pt-6 pb-6">
               <QuickNav />
             </div>

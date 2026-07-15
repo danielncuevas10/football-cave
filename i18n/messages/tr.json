@@ -16,6 +16,7 @@
     "venue": "Mekan",
     "referee": "Hakem",
     "matches": "Maçlar",
+    "fixtures": "Fikstür",
     "groupStage": "Grup Aşaması",
     "topScorers": "Gol Krallığı",
     "noMatches": "Maç bulunamadı",
@@ -104,7 +105,8 @@
     "outPlayer": "Çıkan",
     "unknownPlayer": "Bilinmiyor",
     "penLabel": "Pen",
-    "penaltyShootoutFinished": "Penaltı atışları bitti"
+    "penaltyShootoutFinished": "Penaltı atışları bitti",
+    "aggLabel": "Agg"
   },
   "matchDetails": {
     "matchOverview": "Maç Özeti",
@@ -203,7 +205,8 @@
     "leagueGermany": "Almanya",
     "leagueItaly": "İtalya",
     "leagueMexico": "Meksika",
-    "leagueUSA": "ABD"
+    "leagueUSA": "ABD",
+    "leagueEurope": "Avrupa"
   },
   "wcPlaceholder": {
     "sf1Home": "Fransa / Fas",
