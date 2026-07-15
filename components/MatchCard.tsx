@@ -34,6 +34,7 @@ const circleBase =
 
 function StatusBadge({ match }: { match: DbMatch }) {
   const minute = useLiveMinute(match);
+  const tEv = useTranslations("matchEvents");
 
   if (match.status === "NS" || match.status === "TBD") return null;
 
@@ -45,6 +46,7 @@ function StatusBadge({ match }: { match: DbMatch }) {
     case "1H":
     case "2H":
     case "ET":
+    case "LIVE":
       return (
         <div className={`${circleBase} bg-accent text-white`}>
           <span className="animate-pulse">
@@ -54,6 +56,10 @@ function StatusBadge({ match }: { match: DbMatch }) {
       );
     case "HT":
       return <div className={`${circleBase} bg-gray-600 text-white`}>HT</div>;
+    case "BT":
+      return <div className={`${circleBase} bg-gray-600 text-white`}>{tEv("extraTimeBadge")}</div>;
+    case "P":
+      return <div className={`${circleBase} bg-accent text-white`}>PEN</div>;
     default:
       return null;
   }
@@ -260,6 +266,12 @@ export default function MatchCard({
                   ({firstLegScore.home + match.home_score!}–{firstLegScore.away + match.away_score!})
                 </span>
               )}
+            </div>
+          ) : isLive ? (
+            <div className="flex items-center gap-1.5 justify-center">
+              <span className="text-lg font-bold tabular-nums">0</span>
+              <span className="text-gray-400 font-bold text-sm">–</span>
+              <span className="text-lg font-bold tabular-nums">0</span>
             </div>
           ) : (
             <span className="text-gray-300 text-sm font-medium">–</span>

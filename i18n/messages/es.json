@@ -79,6 +79,7 @@
     "matchFinished": "Terminado",
     "halfTime": "Descanso",
     "halfTimeBadge": "MT",
+    "extraTimeBadge": "TE",
     "regularTimeFinished": "Tiempo reglamentario finalizado",
     "extraTimeStartsSoon": "La prórroga comienza pronto",
     "firstHalfExtraTimeStarts": "Primera parte de la prórroga",

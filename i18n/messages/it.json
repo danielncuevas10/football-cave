@@ -79,6 +79,7 @@
     "matchFinished": "Terminata",
     "halfTime": "Intervallo",
     "halfTimeBadge": "HT",
+    "extraTimeBadge": "TS",
     "regularTimeFinished": "Tempo regolamentare terminato",
     "extraTimeStartsSoon": "Inizio imminente dei tempi supplementari",
     "firstHalfExtraTimeStarts": "Inizio 1° tempo supplementare",

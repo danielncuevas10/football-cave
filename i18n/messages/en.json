@@ -79,6 +79,7 @@
     "matchFinished": "Finished",
     "halfTime": "Half Time",
     "halfTimeBadge": "HT",
+    "extraTimeBadge": "AET",
     "regularTimeFinished": "Regular Time Finished",
     "extraTimeStartsSoon": "Extra Time Starts Soon",
     "firstHalfExtraTimeStarts": "Extra time 1H starts",

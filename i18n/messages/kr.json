@@ -79,6 +79,7 @@
     "matchFinished": "종료",
     "halfTime": "하프타임",
     "halfTimeBadge": "HT",
+    "extraTimeBadge": "연장",
     "regularTimeFinished": "정규 시간 종료",
     "extraTimeStartsSoon": "연장전 곧 시작",
     "firstHalfExtraTimeStarts": "연장 전반전 시작",
