@@ -197,6 +197,11 @@ export default function LeagueTabs({
             isWorldCup={leagueId === League.WorldCup}
             leagueId={leagueId}
             season={season}
+            teamLogos={Object.fromEntries(
+              standings
+                .filter((s) => s.team_logo)
+                .map((s) => [s.team_name, s.team_logo])
+            )}
           />
         </div>
 

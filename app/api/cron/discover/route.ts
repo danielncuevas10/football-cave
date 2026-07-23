@@ -8,6 +8,7 @@ import { standardizeRound } from "@/lib/sync/standardizeRound"
 import { TRACKED_LEAGUE_IDS } from "@/lib/server/tracked-leagues"
 import { LIVE_STATUSES } from "@/types/sports"
 import type { DbMatch } from "@/types/sports"
+import { preserveDeadStatuses } from "@/lib/server/preserve-dead-status"
 
 const receiver = new Receiver({
   currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
@@ -37,6 +38,12 @@ export async function POST(req: NextRequest) {
   let saved = 0
   const errors: string[] = []
 
+  // Fetch all currently live matches once across all leagues. The API-Football
+  // `last` parameter only returns *finished* matches, so live-to-finished
+  // transitions fall through the cracks without this call. Fetching once here
+  // and filtering per league below avoids N extra API calls inside the loop.
+  const liveAll = await footballApi.liveMatches()
+
   for (const leagueId of TRACKED_LEAGUE_IDS) {
     // Liga MX needs more history: 9 matches/matchday × 2 matchdays = 18, plus
     // the full Liguilla (~20 matches). 40 covers both without over-fetching.
@@ -50,10 +57,15 @@ export async function POST(req: NextRequest) {
       footballApi.fixturesByLeague({ league: leagueId, season, status: "TBD" }),
     ])
 
+    const liveForLeague = (liveAll?.response ?? []).filter(
+      (m) => m.league.id === leagueId
+    )
+
     const combined = [
       ...(upcoming?.response ?? []),
       ...(recent?.response ?? []),
       ...(tbd?.response ?? []),
+      ...liveForLeague,
     ]
 
     if (!combined.length) continue
@@ -87,9 +99,11 @@ export async function POST(req: NextRequest) {
       is_live:      LIVE_STATUSES.includes(m.fixture.status.short as DbMatch["status"]),
     }))
 
+    const safeRows = await preserveDeadStatuses(rows)
+
     const { error } = await supabaseAdmin
       .from("matches")
-      .upsert(rows, { onConflict: "id" })
+      .upsert(safeRows, { onConflict: "id" })
 
     if (error) {
       console.error(`Discovery upsert failed for league ${leagueId}:`, error.message)

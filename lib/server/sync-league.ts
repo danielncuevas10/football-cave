@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/server/supabase-admin";
 import { footballApi } from "@/lib/server/football-api";
 import { redis } from "@/lib/ratelimit";
 import type { DbStanding, DbTopScorer } from "@/types/sports";
+import { League } from "@/types/sports";
 
 // Prevents duplicate Football API calls when concurrent requests (page renders
 // or cron runs) try to sync the same league simultaneously. The lock expires
@@ -198,10 +199,37 @@ export async function syncStandingsForLeague(leagueId: number, season: number): 
 // Build top scorers from events+lineups already stored in match_details.
 // Always up-to-date — doesn't depend on the slow /players/topscorers API endpoint.
 export async function syncScorersFromEvents(leagueId: number, season: number): Promise<void> {
+  // Liga MX runs two half-year tournaments: Clausura (Jan–Jun) and Apertura (Jul–Dec).
+  // Show only the current tournament's scorers, not the full calendar year.
+  // MLS and European leagues use a single continuous season window.
+  let seasonStart: string;
+  let seasonEnd: string;
+  if (leagueId === League.LigaMX) {
+    const currentMonth = new Date().getMonth(); // 0-indexed
+    if (currentMonth >= 6) {
+      // July–December → Apertura
+      seasonStart = `${season}-07-01`;
+      seasonEnd   = `${season}-12-31`;
+    } else {
+      // January–June → Clausura
+      seasonStart = `${season}-01-01`;
+      seasonEnd   = `${season}-06-30`;
+    }
+  } else if (leagueId === League.MLS) {
+    seasonStart = `${season}-01-01`;
+    seasonEnd   = `${season}-12-31`;
+  } else {
+    // European leagues: season starts in August of `season` year
+    seasonStart = `${season}-08-01`;
+    seasonEnd   = `${season + 1}-07-31`;
+  }
+
   const { data: matches } = await supabaseAdmin
     .from("matches")
     .select("id")
     .eq("league_id", leagueId)
+    .gte("fixture_date", seasonStart)
+    .lte("fixture_date", seasonEnd)
     .or("status.in.(FT,AET,PEN),is_live.eq.true");
 
   if (!matches?.length) return;
@@ -262,6 +290,16 @@ export async function syncScorersFromEvents(leagueId: number, season: number): P
   const scorers = Array.from(playerMap.entries()).filter(([, d]) => d.goals > 0);
   if (!scorers.length) return;
 
+  // For Liga MX, wipe existing rows before reinserting so scorers from the
+  // previous tournament (e.g. Clausura) don't persist into the new one (Apertura).
+  if (leagueId === League.LigaMX) {
+    await supabaseAdmin
+      .from("top_scorers")
+      .delete()
+      .eq("league_id", leagueId)
+      .eq("season", season);
+  }
+
   // Preserve existing player_photo values
   const { data: existing } = await supabaseAdmin
     .from("top_scorers")
@@ -291,6 +329,11 @@ export async function syncScorersFromEvents(leagueId: number, season: number): P
 }
 
 export async function syncScorersForLeague(leagueId: number, season: number): Promise<void> {
+  // Liga MX has two tournaments per year (Clausura + Apertura). The API's
+  // top-scorers endpoint aggregates across both, so it would overwrite the
+  // tournament-scoped data built by syncScorersFromEvents. Skip it entirely.
+  if (leagueId === League.LigaMX) return;
+
   await withSyncLock(`sync:scorers:${leagueId}:${season}`, 120, async () => {
     const freshScorers = await footballApi.topScorers(leagueId, season);
     if (!freshScorers?.response?.length) return;
@@ -410,4 +453,85 @@ export async function getOrSyncLeagueData(leagueId: number, season: number) {
   }
 
   return { standings: finalStandings, scorers: finalScorers };
+}
+
+/**
+ * Returns the correct API-Football season year for a given league.
+ * Liga MX and MLS use calendar-year seasons; European leagues start in August.
+ */
+export function getSeasonForLeague(leagueId: number): number {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  if (leagueId === League.MLS || leagueId === League.LigaMX) return year;
+  return month < 7 ? year - 1 : year;
+}
+
+const LIGA_MX_EXCLUDED_TERMS = ["mazatl"];
+
+/**
+ * Applies the standard Liga MX supplement (historical teams + match-derived teams)
+ * and exclusion filter to a base set of standings rows.
+ */
+export async function buildLigaMXStandings(
+  baseStandings: DbStanding[],
+  season: number,
+  matches: { home_team: string; away_team: string; home_logo?: string | null; away_logo?: string | null }[] = []
+): Promise<DbStanding[]> {
+  const seenIds = new Set<number>(baseStandings.map((s) => s.team_id));
+  const seenNames = new Set<string>(baseStandings.map((s) => s.team_name.toLowerCase()));
+
+  const { data: historicalTeams } = await supabase
+    .from("standings")
+    .select("team_id, team_name, team_logo, league_id")
+    .eq("league_id", League.LigaMX)
+    .order("season", { ascending: false })
+    .order("rank", { ascending: true });
+
+  type HistTeam = Pick<DbStanding, "team_id" | "team_name" | "team_logo" | "league_id">;
+  const fromHistory = ((historicalTeams as HistTeam[] | null) ?? []).filter((t) => {
+    const lower = t.team_name.toLowerCase();
+    if (seenIds.has(t.team_id) || seenNames.has(lower)) return false;
+    seenIds.add(t.team_id);
+    seenNames.add(lower);
+    return true;
+  });
+
+  const matchTeamMap = new Map<string, { name: string; logo: string | null }>();
+  for (const m of matches) {
+    const hl = m.home_team.toLowerCase();
+    const al = m.away_team.toLowerCase();
+    if (!seenNames.has(hl)) { matchTeamMap.set(hl, { name: m.home_team, logo: m.home_logo ?? null }); seenNames.add(hl); }
+    if (!seenNames.has(al)) { matchTeamMap.set(al, { name: m.away_team, logo: m.away_logo ?? null }); seenNames.add(al); }
+  }
+
+  const allMissing: { team_id: number; team_name: string; team_logo: string }[] = [
+    ...fromHistory.map((t) => ({ team_id: t.team_id, team_name: t.team_name, team_logo: t.team_logo ?? "" })),
+    ...Array.from(matchTeamMap.values()).map((t, i) => ({ team_id: -(i + 1), team_name: t.name, team_logo: t.logo ?? "" })),
+  ].sort((a, b) => a.team_name.localeCompare(b.team_name));
+
+  const now = new Date().toISOString();
+  const supplement: DbStanding[] = allMissing.map((t, i) => ({
+    team_id: t.team_id,
+    team_name: t.team_name,
+    team_logo: t.team_logo,
+    league_id: League.LigaMX,
+    season,
+    rank: baseStandings.length + i + 1,
+    points: 0, played: 0, won: 0, drawn: 0, lost: 0,
+    goals_for: 0, goals_against: 0,
+    updated_at: now,
+    group_name: null,
+  }));
+
+  let result: DbStanding[];
+  if (baseStandings.length === 0) {
+    result = supplement.map((t, i) => ({ ...t, rank: i + 1 }));
+  } else if (supplement.length > 0) {
+    result = [...baseStandings, ...supplement];
+  } else {
+    result = baseStandings;
+  }
+
+  return result.filter((s) => !LIGA_MX_EXCLUDED_TERMS.some((term) => s.team_name.toLowerCase().includes(term)));
 }

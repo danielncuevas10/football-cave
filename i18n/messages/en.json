@@ -107,7 +107,9 @@
     "outPlayer": "Out",
     "unknownPlayer": "Unknown",
     "penaltyShootoutFinished": "Penalty Shootout Finished",
-    "aggLabel": "Agg"
+    "aggLabel": "Agg",
+    "postponed": "Postponed",
+    "cancelled": "Cancelled"
   },
   "matchDetails": {
     "matchOverview": "Match Overview",

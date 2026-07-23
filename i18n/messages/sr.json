@@ -107,7 +107,9 @@
     "unknownPlayer": "Nepoznat",
     "penLabel": "Pen",
     "penaltyShootoutFinished": "Izvođenje penala završeno",
-    "aggLabel": "Agg"
+    "aggLabel": "Agg",
+    "postponed": "Odloženo",
+    "cancelled": "Otkazano"
   },
   "matchDetails": {
     "matchOverview": "Pregled utakmice",

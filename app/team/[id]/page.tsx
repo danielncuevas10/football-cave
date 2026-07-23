@@ -6,6 +6,8 @@ import BackButton from "@/components/ui/BackButton";
 import TeamTabs from "@/components/info/TeamTabs";
 import { getMatchDetails } from "@/lib/server/get-match-details";
 import type { DbMatch } from "@/types/sports";
+import { League } from "@/types/sports";
+import { getSeasonForLeague, buildLigaMXStandings, syncStandingsForLeague } from "@/lib/server/sync-league";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -70,13 +72,37 @@ export default async function TeamPage({ params }: PageProps) {
   // Full league standings so the table shows all teams in context
   let standings = [];
   if (teamStanding) {
-    const { data } = await supabase
+    const leagueId = teamStanding.league_id;
+    // Use the authoritative season for the league (same logic as the league page)
+    const season = getSeasonForLeague(leagueId);
+
+    const { data: rawStandings } = await supabase
       .from("standings")
       .select("*")
-      .eq("league_id", teamStanding.league_id)
-      .eq("season", teamStanding.season)
+      .eq("league_id", leagueId)
+      .eq("season", season)
       .order("rank", { ascending: true });
-    standings = data ?? [];
+    standings = rawStandings ?? [];
+
+    // Sync if stale (mirrors league page behaviour)
+    const STALE_AFTER_MS = 30 * 60 * 1000;
+    if (standings.length > 0) {
+      const latestUpdate = Math.max(...standings.map((s) => new Date(s.updated_at).getTime()));
+      if (Date.now() - latestUpdate > STALE_AFTER_MS) {
+        await syncStandingsForLeague(leagueId, season);
+        const { data: fresh } = await supabase
+          .from("standings")
+          .select("*")
+          .eq("league_id", leagueId)
+          .eq("season", season)
+          .order("rank", { ascending: true });
+        if (fresh?.length) standings = fresh;
+      }
+    }
+
+    if (leagueId === League.LigaMX) {
+      standings = await buildLigaMXStandings(standings, season);
+    }
   }
 
   if (!matches.length && !standings.length) notFound();

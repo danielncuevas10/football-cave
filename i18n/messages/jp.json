@@ -107,7 +107,9 @@
     "unknownPlayer": "不明",
     "penLabel": "PK",
     "penaltyShootoutFinished": "PK戦終了",
-    "aggLabel": "合計"
+    "aggLabel": "合計",
+    "postponed": "延期",
+    "cancelled": "中止"
   },
   "matchDetails": {
     "matchOverview": "試合概要",

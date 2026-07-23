@@ -868,7 +868,7 @@ export default function TeamTabs({
                               {formatMatchDate(m.fixture_date)}
                             </span>
                           </div>
-                          <MatchCard match={m} viewingTeamLogo={teamLogoUrl} />
+                          <MatchCard match={m} viewingTeamLogo={teamLogoUrl} showRound />
                         </div>
                       ))}
                     </div>
@@ -904,7 +904,7 @@ export default function TeamTabs({
                             {formatMatchDate(m.fixture_date)}
                           </span>
                         </div>
-                        <MatchCard match={m} />
+                        <MatchCard match={m} showRound />
                       </div>
                     ))}
                   </div>

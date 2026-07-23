@@ -107,7 +107,9 @@
     "outPlayer": "Esce",
     "unknownPlayer": "Sconosciuto",
     "penaltyShootoutFinished": "Rigori terminati",
-    "aggLabel": "Agg"
+    "aggLabel": "Agg",
+    "postponed": "Rinviato",
+    "cancelled": "Cancellato"
   },
   "matchDetails": {
     "matchOverview": "Panoramica della partita",

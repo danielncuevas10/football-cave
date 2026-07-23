@@ -6,18 +6,13 @@ import { supabaseAdmin } from "@/lib/server/supabase-admin";
 import { notFound } from "next/navigation";
 import MatchTabs from "@/components/info/MatchTabs";
 import MatchScoreHeader from "@/components/info/MatchScoreHeader";
-import { getOrSyncLeagueData } from "@/lib/server/sync-league";
+import { getOrSyncLeagueData, getSeasonForLeague, buildLigaMXStandings } from "@/lib/server/sync-league";
 import { getMatchDetails } from "@/lib/server/get-match-details";
 import BackButton from "@/components/ui/BackButton";
 import { League } from "@/types/sports";
 import { cleanLeagueName } from "@/lib/teamName";
 import type { DbMatch } from "@/types/sports";
 
-function getCurrentSeason(leagueId: number): number {
-  const now = new Date();
-  if (leagueId === League.WorldCup) return now.getFullYear();
-  return now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
-}
 
 function MatchTabsSkeleton() {
   return (
@@ -47,7 +42,7 @@ async function MatchContent({
   matchId: number;
   initialMatch: DbMatch;
 }) {
-  const currentSeason = getCurrentSeason(initialMatch.league_id);
+  const currentSeason = getSeasonForLeague(initialMatch.league_id);
 
   const standingsQuery =
     initialMatch.league_id === League.WorldCup
@@ -78,7 +73,10 @@ async function MatchContent({
     ),
   ]);
 
-  const standings = standingsResult.data ?? [];
+  let standings = standingsResult.data ?? [];
+  if (initialMatch.league_id === League.LigaMX) {
+    standings = await buildLigaMXStandings(standings, currentSeason);
+  }
 
   // Re-read the match after getMatchDetails so any score it wrote back
   // to the matches table (cron sync lag fix) is reflected on first render.

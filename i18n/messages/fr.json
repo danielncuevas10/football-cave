@@ -107,7 +107,9 @@
     "unknownPlayer": "Inconnu",
     "penLabel": "Tab",
     "penaltyShootoutFinished": "Tirs au but terminés",
-    "aggLabel": "Agg"
+    "aggLabel": "Agg",
+    "postponed": "Reporté",
+    "cancelled": "Annulé"
   },
   "matchDetails": {
     "matchOverview": "Résumé du match",

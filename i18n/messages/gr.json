@@ -107,7 +107,9 @@
     "unknownPlayer": "Άγνωστος",
     "penLabel": "Pen",
     "penaltyShootoutFinished": "Λήξη διαδικασίας πέναλτι",
-    "aggLabel": "Αθρ."
+    "aggLabel": "Αθρ.",
+    "postponed": "Αναβλήθηκε",
+    "cancelled": "Ακυρώθηκε"
   },
   "matchDetails": {
     "matchOverview": "Επισκόπηση αγώνα",

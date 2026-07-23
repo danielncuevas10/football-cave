@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { DbMatchDetails, FixtureStatus, TeamLineup } from "@/types/sports";
 
-const NOT_STARTED: FixtureStatus[] = ["NS", "TBD"];
+const NOT_STARTED: FixtureStatus[] = ["NS", "TBD", "PST", "CANC", "SUSP", "ABD"];
 
 interface DetailsProps {
   details: DbMatchDetails | null;

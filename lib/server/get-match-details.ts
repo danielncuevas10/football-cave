@@ -3,6 +3,8 @@ import { footballApi } from "@/lib/server/football-api";
 import type { DbMatchDetails } from "@/types/sports";
 
 const FINISHED_STATUSES = ["FT", "AET", "PEN", "AWD", "WO"];
+const DEAD_STATUSES = ["PST", "CANC", "SUSP", "ABD"];
+const OVERRIDABLE_API_STATUSES = ["NS", "TBD"];
 const CACHE_TTL_MS = 60_000;
 // How long to wait before retrying a finished match whose API data is still
 // incomplete (API itself missing goals). Prevents burning quota on every ISR cycle.
@@ -177,13 +179,30 @@ export async function getMatchDetails(
   const referee = basicRow?.fixture?.referee ?? null;
 
   if (basicRow) {
-    const isNowFinished = FINISHED_STATUSES.includes(basicRow.fixture.status.short);
+    const apiStatus = basicRow.fixture.status.short;
+    const isNowFinished = FINISHED_STATUSES.includes(apiStatus);
+
+    // If the API still says NS/TBD, check whether the DB already has a dead
+    // status (PST/CANC/SUSP/ABD) set manually. If so, preserve it — the API
+    // lags behind and would otherwise silently undo the correction.
+    let preserveStatus = false;
+    if (OVERRIDABLE_API_STATUSES.includes(apiStatus)) {
+      const { data: current } = await supabaseAdmin
+        .from("matches")
+        .select("status")
+        .eq("id", matchId)
+        .single();
+      if (current && DEAD_STATUSES.includes(current.status)) {
+        preserveStatus = true;
+      }
+    }
+
     await supabaseAdmin
       .from("matches")
       .update({
         home_score: basicRow.goals.home,
         away_score: basicRow.goals.away,
-        status: basicRow.fixture.status.short,
+        ...(preserveStatus ? {} : { status: apiStatus }),
         elapsed: basicRow.fixture.status.elapsed,
         ...(isNowFinished ? { is_live: false } : {}),
         updated_at: new Date().toISOString(),

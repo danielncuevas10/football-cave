@@ -107,7 +107,9 @@
     "unknownPlayer": "未知",
     "penLabel": "点球",
     "penaltyShootoutFinished": "点球大战结束",
-    "aggLabel": "总分"
+    "aggLabel": "总分",
+    "postponed": "延期",
+    "cancelled": "取消"
   },
   "matchDetails": {
     "matchOverview": "比赛概览",

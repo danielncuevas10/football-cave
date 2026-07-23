@@ -53,8 +53,7 @@ function getZoneBorder(team: DbStanding, groupTeams: DbStanding[]): string {
       return "";
 
     case League.LigaMX:
-      if (rank <= 6) return "border-l-[3px] border-l-emerald-500";
-      if (rank <= 10) return "border-l-[3px] border-l-[#EB6A0A]";
+      if (rank <= 8) return "border-l-[3px] border-l-emerald-500";
       return "";
 
     default:
@@ -90,8 +89,7 @@ const ZONE_LEGENDS: Partial<Record<number, { color: string; labelKey: string }[]
   ],
   [League.MLS]: [{ color: "#10b981", labelKey: "zonePlayoffs" }],
   [League.LigaMX]: [
-    { color: "#10b981", labelKey: "zoneQuarterfinals" },
-    { color: "#EB6A0A", labelKey: "zonePlayIn" },
+    { color: "#10b981", labelKey: "zonePlayoffs" },
   ],
 };
 

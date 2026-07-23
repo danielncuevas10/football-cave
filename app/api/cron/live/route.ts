@@ -5,13 +5,12 @@ import { footballApi } from "@/lib/server/football-api"
 import { standardizeRound } from "@/lib/sync/standardizeRound"
 import { LIVE_STATUSES } from "@/types/sports"
 import type { DbMatch } from "@/types/sports"
+import { TRACKED_LEAGUE_IDS } from "@/lib/server/tracked-leagues"
 
 const receiver = new Receiver({
   currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
   nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
 })
-
-const TRACKED_LEAGUES = [1, 2, 39, 140, 78, 61, 135, 36, 10]
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
@@ -49,14 +48,14 @@ export async function POST(req: NextRequest) {
   }
 
   const liveMatches = fresh.response.filter(
-    m => TRACKED_LEAGUES.includes(m.league.id)
+    m => TRACKED_LEAGUE_IDS.includes(m.league.id)
   )
 
   if (liveMatches.length === 0) {
     await supabaseAdmin
       .from("matches")
       .update({ is_live: false, status: "FT", elapsed: null, updated_at: new Date().toISOString() })
-      .in("league_id", TRACKED_LEAGUES)
+      .in("league_id", TRACKED_LEAGUE_IDS)
       .eq("is_live", true)
 
     return NextResponse.json({ updated: 0, skipped: true })
@@ -165,7 +164,7 @@ export async function POST(req: NextRequest) {
   await supabaseAdmin
     .from("matches")
     .update({ is_live: false, status: "FT", elapsed: null, updated_at: new Date().toISOString() })
-    .in("league_id", TRACKED_LEAGUES)
+    .in("league_id", TRACKED_LEAGUE_IDS)
     .not("id", "in", `(${liveMatchIds.join(",")})`)
     .eq("is_live", true)
 

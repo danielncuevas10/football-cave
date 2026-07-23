@@ -15,32 +15,16 @@ import {
   syncStandingsForLeague,
   syncScorersForLeague,
   syncScorersFromEvents,
+  getSeasonForLeague,
+  buildLigaMXStandings,
 } from "@/lib/server/sync-league";
 import { League } from "@/types/sports";
-import type { DbStanding } from "@/types/sports";
 import { isTournamentLeague } from "@/lib/tournament/isTournamentLeague";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-/**
- * Returns the correct API-Football season year for a given league.
- * - MLS and Liga MX use calendar-year seasons (2026 = the 2026 season).
- * - European / international leagues start in late summer; before August
- *   the active season belongs to the previous year (e.g. July 2026 → 2025).
- */
-function getSeasonForLeague(leagueId: number): number {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth(); // 0 = Jan … 11 = Dec
-
-  if (leagueId === League.MLS || leagueId === League.LigaMX) {
-    return year; // calendar-year format
-  }
-  // European / international: season starts August, so Jul and earlier → year-1
-  return month < 7 ? year - 1 : year;
-}
 
 function getLeagueMeta(id: number): { name: string; logo: string } {
   switch (id) {
@@ -364,59 +348,9 @@ export default async function LeaguePage({ params }: PageProps) {
     });
   }
 
-  // ── LigaMX: supplement from historical data + matches ─────────────────────
-  if ([League.LigaMX].includes(leagueId)) {
-    const existingIds = new Set(standings.map(s => s.team_id));
-    const seenNames = new Set(standings.map(s => s.team_name.toLowerCase()));
-    const seenIds = new Set<number>(existingIds);
-
-    const { data: historicalTeams } = await supabase
-      .from("standings")
-      .select("team_id, team_name, team_logo, league_id")
-      .eq("league_id", leagueId)
-      .order("season", { ascending: false })
-      .order("rank", { ascending: true });
-
-    const fromHistory = (historicalTeams as Pick<DbStanding, "team_id" | "team_name" | "team_logo" | "league_id">[] | null ?? [])
-      .filter(t => {
-        if (seenIds.has(t.team_id) || seenNames.has(t.team_name.toLowerCase())) return false;
-        seenIds.add(t.team_id);
-        seenNames.add(t.team_name.toLowerCase());
-        return true;
-      });
-
-    const matchTeamMap = new Map<string, { name: string; logo: string | null }>();
-    for (const m of (matchesResult.data ?? [])) {
-      const hl = m.home_team.toLowerCase();
-      const al = m.away_team.toLowerCase();
-      if (!seenNames.has(hl)) { matchTeamMap.set(hl, { name: m.home_team, logo: m.home_logo }); seenNames.add(hl); }
-      if (!seenNames.has(al)) { matchTeamMap.set(al, { name: m.away_team, logo: m.away_logo }); seenNames.add(al); }
-    }
-    const fromMatches = Array.from(matchTeamMap.values());
-
-    const allMissing: { team_id: number; team_name: string; team_logo: string }[] = [
-      ...fromHistory.map(t => ({ team_id: t.team_id, team_name: t.team_name, team_logo: t.team_logo ?? "" })),
-      ...fromMatches.map((t, i) => ({ team_id: -(i + 1), team_name: t.name, team_logo: t.logo ?? "" })),
-    ].sort((a, b) => a.team_name.localeCompare(b.team_name));
-
-    const supplement: DbStanding[] = allMissing.map((t, i) => ({
-      team_id: t.team_id,
-      team_name: t.team_name,
-      team_logo: t.team_logo,
-      league_id: leagueId,
-      season: nowYear,
-      rank: standings.length + i + 1,
-      points: 0, played: 0, won: 0, drawn: 0, lost: 0,
-      goals_for: 0, goals_against: 0,
-      updated_at: now.toISOString(),
-      group_name: null,
-    }));
-
-    if (standings.length === 0) {
-      standings = supplement.map((t, i) => ({ ...t, rank: i + 1 }));
-    } else if (supplement.length > 0) {
-      standings = [...standings, ...supplement];
-    }
+  // ── LigaMX: supplement + exclusions via shared helper ────────────────────
+  if (leagueId === League.LigaMX) {
+    standings = await buildLigaMXStandings(standings, syncSeason, matchesResult.data ?? []);
   }
 
   // Season passed to the client so TopScorers doesn't re-hydrate with stale DB data.

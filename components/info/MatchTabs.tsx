@@ -21,6 +21,7 @@ import Link from "next/link";
 import PredictionWidget from "@/components/PredictionWidget";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
+const DEAD_STATUSES: FixtureStatus[] = ["PST", "CANC", "SUSP", "ABD"];
 
 function getLeagueFlag(leagueId: number): string | null {
   switch (leagueId) {
@@ -493,7 +494,7 @@ export default function MatchTabs({
     {
       id: "events",
       label:
-        status === "NS" || status === "TBD"
+        status === "NS" || status === "TBD" || DEAD_STATUSES.includes(status)
           ? tTabs("overview")
           : tTabs("events"),
     },
@@ -622,7 +623,7 @@ export default function MatchTabs({
             activeTab === "events" ? "" : "h-0 overflow-hidden"
           }`}
         >
-          {(status === "NS" || status === "TBD") ? (
+          {(status === "NS" || status === "TBD" || DEAD_STATUSES.includes(status)) ? (
             <div className="space-y-2">
               <PredictionWidget
                 matchId={matchId}
@@ -1563,7 +1564,7 @@ export default function MatchTabs({
         >
           <div className="overflow-hidden">
             {(() => {
-              const isScheduled = status === "NS" || status === "TBD";
+              const isScheduled = status === "NS" || status === "TBD" || DEAD_STATUSES.includes(status);
               const hasStats = (liveDetails?.statistics?.length ?? 0) >= 2;
               if (isScheduled) {
                 return (

@@ -107,7 +107,9 @@
     "unknownPlayer": "Bilinmiyor",
     "penLabel": "Pen",
     "penaltyShootoutFinished": "Penaltı atışları bitti",
-    "aggLabel": "Agg"
+    "aggLabel": "Agg",
+    "postponed": "Ertelendi",
+    "cancelled": "İptal Edildi"
   },
   "matchDetails": {
     "matchOverview": "Maç Özeti",

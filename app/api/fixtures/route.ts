@@ -6,6 +6,7 @@ import { supabaseAdmin } from "@/lib/server/supabase-admin"
 import { footballApi } from "@/lib/server/football-api"
 import { LIVE_STATUSES } from "@/types/sports"
 import type { DbMatch } from "@/types/sports"
+import { preserveDeadStatuses } from "@/lib/server/preserve-dead-status"
 
 const CACHE_TTL_MINUTES = 5
 
@@ -76,9 +77,11 @@ export async function GET(req: NextRequest) {
     is_live:      LIVE_STATUSES.includes(m.fixture.status.short as any),
   }))
 
+  const safeRows = await preserveDeadStatuses(rows)
+
   await supabaseAdmin
     .from("matches")
-    .upsert(rows, { onConflict: "id" })
+    .upsert(safeRows, { onConflict: "id" })
 
     
 

@@ -107,7 +107,9 @@
     "unknownPlayer": "Desconocido",
     "penLabel": "Pen",
     "penaltyShootoutFinished": "Tanda de penaltis finalizada",
-    "aggLabel": "Global"
+    "aggLabel": "Global",
+    "postponed": "Aplazado",
+    "cancelled": "Cancelado"
   },
   "matchDetails": {
     "matchOverview": "Resumen del partido",

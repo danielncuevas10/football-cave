@@ -9,6 +9,7 @@ import { useLiveMinute, formatMinute } from "@/hooks/useLiveMinute";
 import { resolveFlag } from "@/lib/flagUrl";
 import { supabase } from "@/lib/supabase";
 import { TWO_LEGGED_LEAGUES } from "@/lib/twoLeggedMatch";
+import { parseRound } from "@/lib/parseRound";
 
 function isFlag(logo: string | null): boolean {
   return !!logo && logo.includes("/flags/");
@@ -20,6 +21,7 @@ function isNationalTeamMatch(leagueId: number): boolean {
 }
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
+const DEAD_STATUSES: FixtureStatus[] = ["PST", "CANC", "SUSP", "ABD"];
 
 function formatKickoff(dateStr: string): string {
   return new Date(dateStr).toLocaleTimeString([], {
@@ -30,13 +32,17 @@ function formatKickoff(dateStr: string): string {
 }
 
 const circleBase =
-  "flex items-center justify-center w-8 h-8 rounded-full font-extrabold font-mono text-[10px] shrink-0";
+  "flex items-center justify-center w-5 h-5 lg:w-8 lg:h-8 rounded-full font-extrabold font-mono text-[7px] lg:text-[11px] shrink-0";
 
 function StatusBadge({ match }: { match: DbMatch }) {
   const minute = useLiveMinute(match);
   const tEv = useTranslations("matchEvents");
 
   if (match.status === "NS" || match.status === "TBD") return null;
+
+  if (DEAD_STATUSES.includes(match.status)) {
+    return <div className={`${circleBase} bg-gray-600 text-white opacity-40`}>–</div>;
+  }
 
   if (FINISHED_STATUSES.includes(match.status)) {
     return <div className={`${circleBase} bg-gray-600 text-white`}>FT</div>;
@@ -57,7 +63,11 @@ function StatusBadge({ match }: { match: DbMatch }) {
     case "HT":
       return <div className={`${circleBase} bg-gray-600 text-white`}>HT</div>;
     case "BT":
-      return <div className={`${circleBase} bg-gray-600 text-white`}>{tEv("extraTimeBadge")}</div>;
+      return (
+        <div className={`${circleBase} bg-gray-600 text-white`}>
+          {tEv("extraTimeBadge")}
+        </div>
+      );
     case "P":
       return <div className={`${circleBase} bg-accent text-white`}>PEN</div>;
     default:
@@ -68,12 +78,17 @@ function StatusBadge({ match }: { match: DbMatch }) {
 export default function MatchCard({
   match,
   viewingTeamLogo,
+  showRound,
 }: {
   match: DbMatch;
   viewingTeamLogo?: string;
+  showRound?: boolean;
 }) {
   const tEv = useTranslations("matchEvents");
+  const tDetails = useTranslations("matchDetails");
   const locale = useLocale();
+
+  const roundLabel = showRound ? parseRound(match.round, tDetails) : null;
 
   const isLive = match.is_live === true;
   const [firstLegScore, setFirstLegScore] = useState<{
@@ -82,7 +97,8 @@ export default function MatchCard({
   } | null>(null);
 
   useEffect(() => {
-    const isFinished = !match.is_live && FINISHED_STATUSES.includes(match.status);
+    const isFinished =
+      !match.is_live && FINISHED_STATUSES.includes(match.status);
     if (isFinished || !match.round || !TWO_LEGGED_LEAGUES.has(match.league_id))
       return;
     supabase
@@ -108,6 +124,7 @@ export default function MatchCard({
     (match.status === "NS" || match.status === "TBD") && !kickoffPassed;
   const isConfirmedFinished =
     !match.is_live && FINISHED_STATUSES.includes(match.status);
+  const isDead = DEAD_STATUSES.includes(match.status);
 
   const hasScore =
     isConfirmedFinished &&
@@ -150,12 +167,17 @@ export default function MatchCard({
       className="block hover:opacity-90 transition-opacity will-change-transform"
     >
       <div
-        className={`bg-custom-gray-2 h-16 px-3 grid gap-2 items-center ${
+        className={`relative bg-custom-gray-2 h-16 px-3 grid gap-2 items-center ${
           viewingTeamLogo && isConfirmedFinished
             ? "grid-cols-[1fr_auto_1fr]"
             : "grid-cols-[2rem_1fr_auto_1fr_2rem]"
         }`}
       >
+        {roundLabel && (
+          <span className="absolute top-1 right-2 text-[9px] text-gray-200 leading-none pointer-events-none">
+            {roundLabel}
+          </span>
+        )}
         {/* Left badge — skipped in centered result mode */}
         {!(viewingTeamLogo && isConfirmedFinished) && (
           <div className="flex items-center justify-center">
@@ -170,8 +192,8 @@ export default function MatchCard({
           }`}
         >
           <span
-            className={`text-xs lg:text-md font-medium text-right leading-tight line-clamp-2${
-              homeIsLoser ? " line-through opacity-50" : ""
+            className={`text-[11px] lg:text-md font-medium text-right leading-tight line-clamp-2${
+              homeIsLoser || isDead ? " line-through opacity-50" : ""
             }`}
           >
             {getLocalizedTeamName(match.home_team, locale)}
@@ -204,17 +226,26 @@ export default function MatchCard({
                 alt=""
                 width={48}
                 height={48}
-                className="w-6 h-6 object-contain rounded-sm"
+                className="w-5 h-5 lg:w-6 lg:h-6 object-contain rounded-sm"
               />
             ))}
         </div>
 
         {/* Center: score / kickoff / dash */}
         <div className="relative flex items-center justify-center px-2 min-w-14">
-          {isScheduled ? (
+          {isDead ? (
+            <span className="text-[9px] text-gray-400 font-medium text-center leading-tight">
+              {match.status === "PST" ? tEv("postponed") : tEv("cancelled")}
+            </span>
+          ) : isScheduled ? (
             <div className="flex flex-col items-center gap-0 justify-center">
               {firstLegScore && (
-                <span className="invisible text-[9px] font-mono" aria-hidden="true">·</span>
+                <span
+                  className="invisible text-[9px] font-mono"
+                  aria-hidden="true"
+                >
+                  ·
+                </span>
               )}
               <span className="text-gray-400 text-xs font-medium tabular-nums whitespace-nowrap">
                 {match.status === "TBD"
@@ -250,7 +281,12 @@ export default function MatchCard({
           ) : match.home_score !== null && match.away_score !== null ? (
             <div className="flex flex-col items-center gap-0 justify-center">
               {isLive && firstLegScore && (
-                <span className="invisible text-[9px] font-mono" aria-hidden="true">·</span>
+                <span
+                  className="invisible text-[9px] font-mono"
+                  aria-hidden="true"
+                >
+                  ·
+                </span>
               )}
               <div className="flex items-center gap-1.5 justify-center">
                 <span className="text-lg font-bold tabular-nums">
@@ -263,7 +299,8 @@ export default function MatchCard({
               </div>
               {isLive && firstLegScore && (
                 <span className="text-[9px] text-gray-400 font-mono tabular-nums whitespace-nowrap mt-0.5">
-                  ({firstLegScore.home + match.home_score!}–{firstLegScore.away + match.away_score!})
+                  ({firstLegScore.home + match.home_score!}–
+                  {firstLegScore.away + match.away_score!})
                 </span>
               )}
             </div>
@@ -322,12 +359,12 @@ export default function MatchCard({
                 alt=""
                 width={48}
                 height={48}
-                className="w-6 h-6 object-contain rounded-sm"
+                className="w-5 h-5 lg:w-6 lg:h-6 object-contain rounded-sm"
               />
             ))}
           <span
-            className={`text-xs lg:text-md font-medium text-left leading-tight line-clamp-2${
-              awayIsLoser ? " line-through opacity-50" : ""
+            className={`text-[11px] lg:text-md font-medium text-left leading-tight line-clamp-2${
+              awayIsLoser || isDead ? " line-through opacity-50" : ""
             }`}
           >
             {getLocalizedTeamName(match.away_team, locale)}

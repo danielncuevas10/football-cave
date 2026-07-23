@@ -8,40 +8,109 @@ import { supabase } from "@/lib/supabase";
 // ─── Country localisation ─────────────────────────────────────────────────────
 
 const APP_TO_BCP47: Record<string, string> = {
-  ch: "zh", gr: "el", jp: "ja", kr: "ko",
+  ch: "zh",
+  gr: "el",
+  jp: "ja",
+  kr: "ko",
 };
 
 const COUNTRY_ISO: Record<string, string> = {
-  Germany: "DE", Brazil: "BR", France: "FR", Argentina: "AR",
-  Hungary: "HU", Portugal: "PT", Netherlands: "NL", Italy: "IT",
-  Uruguay: "UY", Spain: "ES", Mexico: "MX", "United States": "US",
-  USA: "US", Canada: "CA", Belgium: "BE", Croatia: "HR", Serbia: "RS",
-  Switzerland: "CH", Denmark: "DK", Morocco: "MA", Senegal: "SN",
-  Ghana: "GH", Cameroon: "CM", Nigeria: "NG", "South Korea": "KR",
-  Korea: "KR", Japan: "JP", Australia: "AU", "Saudi Arabia": "SA",
-  Iran: "IR", Ecuador: "EC", Colombia: "CO", Chile: "CL", Peru: "PE",
-  Venezuela: "VE", Bolivia: "BO", Paraguay: "PY", Turkey: "TR",
-  Poland: "PL", "Czech Republic": "CZ", Czechia: "CZ", Austria: "AT",
-  Ukraine: "UA", Romania: "RO", "Costa Rica": "CR", Panama: "PA",
-  Honduras: "HN", Jamaica: "JM", "New Zealand": "NZ", Algeria: "DZ",
-  Egypt: "EG", Tunisia: "TN", "Côte d'Ivoire": "CI", Mali: "ML",
-  Qatar: "QA", "United Arab Emirates": "AE", Iraq: "IQ", Slovakia: "SK",
-  Greece: "GR", Sweden: "SE", Norway: "NO", Russia: "RU",
-  Indonesia: "ID", Thailand: "TH", China: "CN", Scotland: "GB",
-  Wales: "GB", "United Kingdom": "GB",
+  Germany: "DE",
+  Brazil: "BR",
+  France: "FR",
+  Argentina: "AR",
+  Hungary: "HU",
+  Portugal: "PT",
+  Netherlands: "NL",
+  Italy: "IT",
+  Uruguay: "UY",
+  Spain: "ES",
+  Mexico: "MX",
+  "United States": "US",
+  USA: "US",
+  Canada: "CA",
+  Belgium: "BE",
+  Croatia: "HR",
+  Serbia: "RS",
+  Switzerland: "CH",
+  Denmark: "DK",
+  Morocco: "MA",
+  Senegal: "SN",
+  Ghana: "GH",
+  Cameroon: "CM",
+  Nigeria: "NG",
+  "South Korea": "KR",
+  Korea: "KR",
+  Japan: "JP",
+  Australia: "AU",
+  "Saudi Arabia": "SA",
+  Iran: "IR",
+  Ecuador: "EC",
+  Colombia: "CO",
+  Chile: "CL",
+  Peru: "PE",
+  Venezuela: "VE",
+  Bolivia: "BO",
+  Paraguay: "PY",
+  Turkey: "TR",
+  Poland: "PL",
+  "Czech Republic": "CZ",
+  Czechia: "CZ",
+  Austria: "AT",
+  Ukraine: "UA",
+  Romania: "RO",
+  "Costa Rica": "CR",
+  Panama: "PA",
+  Honduras: "HN",
+  Jamaica: "JM",
+  "New Zealand": "NZ",
+  Algeria: "DZ",
+  Egypt: "EG",
+  Tunisia: "TN",
+  "Côte d'Ivoire": "CI",
+  Mali: "ML",
+  Qatar: "QA",
+  "United Arab Emirates": "AE",
+  Iraq: "IQ",
+  Slovakia: "SK",
+  Greece: "GR",
+  Sweden: "SE",
+  Norway: "NO",
+  Russia: "RU",
+  Indonesia: "ID",
+  Thailand: "TH",
+  China: "CN",
+  Scotland: "GB",
+  Wales: "GB",
+  "United Kingdom": "GB",
 };
 
 const COUNTRY_OVERRIDES: Record<string, Partial<Record<string, string>>> = {
   England: {
-    en: "England", es: "Inglaterra", fr: "Angleterre", pt: "Inglaterra",
-    tr: "İngiltere", bs: "Engleska", sr: "Engleska",
-    ch: "英格兰", gr: "Αγγλία", jp: "イングランド", kr: "잉글랜드",
+    en: "England",
+    es: "Inglaterra",
+    fr: "Angleterre",
+    pt: "Inglaterra",
+    tr: "İngiltere",
+    bs: "Engleska",
+    sr: "Engleska",
+    ch: "英格兰",
+    gr: "Αγγλία",
+    jp: "イングランド",
+    kr: "잉글랜드",
   },
   "West Germany": {
-    en: "West Germany", es: "Alemania Occidental",
-    fr: "Allemagne de l'Ouest", pt: "Alemanha Ocidental",
-    tr: "Batı Almanya", bs: "Zapadna Njemačka", sr: "Zapadna Nemačka",
-    ch: "西德", gr: "Δυτική Γερμανία", jp: "西ドイツ", kr: "서독",
+    en: "West Germany",
+    es: "Alemania Occidental",
+    fr: "Allemagne de l'Ouest",
+    pt: "Alemanha Ocidental",
+    tr: "Batı Almanya",
+    bs: "Zapadna Njemačka",
+    sr: "Zapadna Nemačka",
+    ch: "西德",
+    gr: "Δυτική Γερμανία",
+    jp: "西ドイツ",
+    kr: "서독",
   },
 };
 
@@ -65,6 +134,7 @@ interface Props {
   channelId?: string;
   leagueId?: number;
   season?: number;
+  teamLogos?: Record<string, string>;
 }
 
 // ─── All-time WC data ────────────────────────────────────────────────────────
@@ -196,13 +266,19 @@ function ArrowSame() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-function getPlayerPhoto(player: DbTopScorer): string {
+function getPlayerPhoto(
+  player: DbTopScorer,
+  teamLogos: Record<string, string> = {}
+): string {
   if (player.player_photo) return player.player_photo;
   if (
     player.player_name.toLowerCase().includes("ronaldo") &&
     (player.team_name ?? "").toLowerCase().includes("portugal")
   ) {
     return "/players/ronaldo.svg";
+  }
+  if (player.team_name && teamLogos[player.team_name]) {
+    return teamLogos[player.team_name];
   }
   return "/images/placeholderPlayer.svg";
 }
@@ -214,6 +290,7 @@ export default function TopScorers({
   channelId = "top-scorers-live",
   leagueId: leagueIdProp,
   season,
+  teamLogos = {},
 }: Props) {
   const t = useTranslations("matchTabs");
   const tDetails = useTranslations("matchDetails");
@@ -529,10 +606,10 @@ export default function TopScorers({
                     <td className="px-2 py-3">
                       <div className="flex items-center gap-2">
                         <Image
-                          src={getPlayerPhoto(player)}
+                          src={getPlayerPhoto(player, teamLogos)}
                           alt={player.player_name}
-                          width={35}
-                          height={35}
+                          width={25}
+                          height={25}
                           className="object-contain rounded-full bg-gray-800 shrink-0"
                         />
                         <div className="flex flex-col min-w-0">
@@ -540,7 +617,10 @@ export default function TopScorers({
                             {player.player_name}
                           </span>
                           <span className="text-xs text-gray-200/40 font-light truncate mt-0.5">
-                            {localizeCountryName(player.team_name ?? "", locale)}
+                            {localizeCountryName(
+                              player.team_name ?? "",
+                              locale
+                            )}
                           </span>
                         </div>
                       </div>

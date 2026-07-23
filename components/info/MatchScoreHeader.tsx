@@ -17,6 +17,7 @@ import type {
 } from "@/types/sports";
 
 const FINISHED_STATUSES: FixtureStatus[] = ["FT", "AET", "PEN", "AWD", "WO"];
+const DEAD_STATUSES: FixtureStatus[] = ["PST", "CANC", "SUSP", "ABD"];
 
 // Hardcoded venue data for WC 2026 knockout matches.
 // The API often omits venue for future/unplayed matches; this fills the gap.
@@ -139,6 +140,8 @@ function StatusLabel({
     );
 
   if (status === "NS" || status === "TBD") return null;
+
+  if (DEAD_STATUSES.includes(status)) return null;
 
   return <span className="text-gray-200 text-xs tracking-wider">{status}</span>;
 }
@@ -296,6 +299,7 @@ export default function MatchScoreHeader({
     return () => clearInterval(id);
   }, [match.id, match.status, match.home_logo]);
 
+  const isDead = DEAD_STATUSES.includes(match.status);
   const kickoffPassed = new Date(match.fixture_date) < new Date();
   const isScheduled =
     (match.status === "NS" || match.status === "TBD") && !kickoffPassed;
@@ -393,10 +397,10 @@ export default function MatchScoreHeader({
               const baseTeamClass =
                 "flex items-center gap-3 flex-col transition-opacity";
               const homeClass = `${baseTeamClass}${
-                homeIsLoser ? " opacity-50" : " hover:opacity-80"
+                homeIsLoser || isDead ? " opacity-50" : " hover:opacity-80"
               }`;
               const awayClass = `${baseTeamClass}${
-                awayIsLoser ? " opacity-50" : " hover:opacity-80"
+                awayIsLoser || isDead ? " opacity-50" : " hover:opacity-80"
               }`;
               const isNational = isNationalTeamMatch(match.league_id);
               const flagClass = isNational
@@ -421,7 +425,7 @@ export default function MatchScoreHeader({
 
                       <span
                         className={`text-center text-sm leading-tight line-clamp-2${
-                          homeIsLoser ? " line-through" : ""
+                          homeIsLoser || isDead ? " line-through" : ""
                         }`}
                       >
                         {getLocalizedTeamName(match.home_team, locale)}
@@ -438,7 +442,7 @@ export default function MatchScoreHeader({
                       />
                       <span
                         className={`text-center text-sm leading-tight line-clamp-2${
-                          homeIsLoser ? " line-through" : ""
+                          homeIsLoser || isDead ? " line-through" : ""
                         }`}
                       >
                         {getLocalizedTeamName(match.home_team, locale)}
@@ -456,7 +460,11 @@ export default function MatchScoreHeader({
 
                     {/* Score — true vertical center */}
                     <div className="text-xl font-bold font-mono">
-                      {isScheduled ? (
+                      {isDead ? (
+                        <span className="text-gray-400 text-xs font-medium font-sans">
+                          {match.status === "PST" ? tEv("postponed") : tEv("cancelled")}
+                        </span>
+                      ) : isScheduled ? (
                         <span className="text-gray-300 text-sm font-medium font-sans">
                           {formatKickoff(match.fixture_date)}
                         </span>
@@ -499,7 +507,7 @@ export default function MatchScoreHeader({
                       </div>
                       <span
                         className={`text-center text-sm leading-tight line-clamp-2${
-                          awayIsLoser ? " line-through" : ""
+                          awayIsLoser || isDead ? " line-through" : ""
                         }`}
                       >
                         {getLocalizedTeamName(match.away_team, locale)}
@@ -516,7 +524,7 @@ export default function MatchScoreHeader({
                       />
                       <span
                         className={`text-center text-sm leading-tight line-clamp-2${
-                          awayIsLoser ? " line-through" : ""
+                          awayIsLoser || isDead ? " line-through" : ""
                         }`}
                       >
                         {getLocalizedTeamName(match.away_team, locale)}
