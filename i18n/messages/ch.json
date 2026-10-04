@@ -69,7 +69,9 @@
     "zoneQuarterfinals": "四分之一决赛",
     "zonePlayIn": "附加赛",
     "zoneDirectQualification": "直接晋级",
-    "zonePlayOff": "资格赛"
+    "zonePlayOff": "资格赛",
+    "leagueNations": "国家联赛",
+    "leagueFriendly": "友谊赛"
   },
   "matchEvents": {
     "matchStarted": "比赛开始",

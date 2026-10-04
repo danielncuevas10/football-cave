@@ -11,8 +11,8 @@ import Link from "next/link";
 import { getWcRoundKey } from "@/lib/wcRoundLabel";
 import { cleanLeagueName } from "@/lib/teamName";
 
-// Ordered list: World Cup → UCL → La Liga → Premier League → Bundesliga → Ligue 1 → Serie A → MLS → Liga MX
-const DISPLAY_LEAGUE_IDS = [1, 2, 140, 39, 78, 61, 135, 253, 262];
+// Ordered list: World Cup → UCL → Nations League → La Liga → Premier League → Bundesliga → Ligue 1 → Serie A → MLS → Liga MX → Friendlies (incl. Kirin Cup 916)
+const DISPLAY_LEAGUE_IDS = [1, 2, 5, 140, 39, 78, 61, 135, 253, 262, 10, 916];
 
 type WcPlaceholderKey =
   | "sf1Home"
@@ -70,6 +70,26 @@ const LEAGUE_NAME_OVERRIDES: Record<number, string> = {
   2: "Champions League",
   253: "MLS",
 };
+
+// League IDs whose display names come from i18n instead of LEAGUE_NAME_OVERRIDES
+const I18N_LEAGUE_IDS = new Set([5, 10, 916]);
+
+// Extract Nations League tier letter (A/B/C/D) from round string e.g. "League A - 3"
+function getNationsLeagueTier(round: string | null | undefined): string {
+  if (!round) return "";
+  const m = round.match(/League\s+([A-D])/i);
+  return m ? m[1].toUpperCase() : "";
+}
+
+// Group key used for matchesByLeague — splits Nations League by tier, merges all friendly-type leagues
+function getGroupKey(match: DbMatch): string {
+  if (match.league_id === 5) {
+    const tier = getNationsLeagueTier(match.round);
+    return tier ? `__nl_${tier}` : "__nl_?";
+  }
+  if (match.league_id === 10 || match.league_id === 916) return "__friendly";
+  return cleanLeagueName(match.league_name) || "Unknown League";
+}
 
 function getDisplayLeagueName(
   leagueId: number | undefined,
@@ -146,7 +166,7 @@ function LeagueBlock({
       >
         {leagueId ? (
           <Link
-            href={`/league/${leagueId}`}
+            href={leagueName === "__friendly" ? "/league/10" : `/league/${leagueId}`}
             className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity"
           >
             {(() => {
@@ -167,7 +187,14 @@ function LeagueBlock({
               );
             })()}
             <h3 className="text-[11px] lg:text-[15px] font-medium text-white tracking-wider">
-              {getDisplayLeagueName(leagueId, leagueName)}
+              {leagueId === 5
+                ? (() => {
+                    const tier = leagueName.match(/__nl_([A-D?])/)?.[1] ?? "";
+                    return tier && tier !== "?" ? `${tTabs("leagueNations")} ${tier}` : tTabs("leagueNations");
+                  })()
+                : leagueName === "__friendly"
+                ? tTabs("leagueFriendly")
+                : getDisplayLeagueName(leagueId, leagueName)}
             </h3>
           </Link>
         ) : (
@@ -230,6 +257,7 @@ function LeagueBlock({
 
 interface Props {
   initialMatches: DbMatch[];
+  wcTeamNames?: string[];
 }
 
 const LOCALE_MAP: Record<string, string> = {
@@ -271,7 +299,7 @@ function getCustomDisplayDate(
   });
 }
 
-export default function ScoreList({ initialMatches }: Props) {
+export default function ScoreList({ initialMatches, wcTeamNames = [] }: Props) {
   const tDate = useTranslations("dateLabels");
   const tTabs = useTranslations("matchTabs");
   const appLocale = useLocale();
@@ -406,8 +434,17 @@ export default function ScoreList({ initialMatches }: Props) {
     );
   });
 
-  const live = matchesForDate.filter(isMatchLive);
-  const scheduledOrFinished = matchesForDate.filter((m) => !isMatchLive(m));
+  // For friendly matches (league 10), only show matches where at least one
+  // team participated in the World Cup. Falls back to showing all if no WC
+  // data is available yet.
+  const wcTeamSet = new Set(wcTeamNames);
+  const visibleMatchesForDate = matchesForDate.filter((m) => {
+    if (m.league_id !== 10 || wcTeamSet.size === 0) return true;
+    return wcTeamSet.has(m.home_team) || wcTeamSet.has(m.away_team);
+  });
+
+  const live = visibleMatchesForDate.filter(isMatchLive);
+  const scheduledOrFinished = visibleMatchesForDate.filter((m) => !isMatchLive(m));
 
   const displayDate = getCustomDisplayDate(
     currentDate,
@@ -419,11 +456,11 @@ export default function ScoreList({ initialMatches }: Props) {
     bcp47
   );
 
-  // Group scheduled and finished matches by league
+  // Group scheduled and finished matches by league (Nations League split by tier A/B/C/D)
   const matchesByLeague = scheduledOrFinished.reduce((acc, match) => {
-    const league = cleanLeagueName(match.league_name) || "Unknown League";
-    if (!acc[league]) acc[league] = [];
-    acc[league].push(match);
+    const key = getGroupKey(match);
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(match);
     return acc;
   }, {} as Record<string, DbMatch[]>);
 
@@ -443,9 +480,9 @@ export default function ScoreList({ initialMatches }: Props) {
 
   // Group live matches by league dynamically to match design container structure
   const liveMatchesByLeague = live.reduce((acc, match) => {
-    const league = cleanLeagueName(match.league_name) || "Unknown League";
-    if (!acc[league]) acc[league] = [];
-    acc[league].push(match);
+    const key = getGroupKey(match);
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(match);
     return acc;
   }, {} as Record<string, DbMatch[]>);
 
@@ -455,7 +492,9 @@ export default function ScoreList({ initialMatches }: Props) {
       const idB = b[1][0]?.league_id ?? 999;
       const rankA = DISPLAY_LEAGUE_IDS.indexOf(idA);
       const rankB = DISPLAY_LEAGUE_IDS.indexOf(idB);
-      return (rankA === -1 ? 999 : rankA) - (rankB === -1 ? 999 : rankB);
+      if (rankA !== rankB) return (rankA === -1 ? 999 : rankA) - (rankB === -1 ? 999 : rankB);
+      // Same league (e.g. Nations League tiers): sort by group key alphabetically so A < B < C < D
+      return a[0].localeCompare(b[0]);
     });
 
   return (
@@ -603,7 +642,7 @@ export default function ScoreList({ initialMatches }: Props) {
       )}
 
       {/* FIX: Absolute clean fallback empty state container. Shows ONLY if total count is zero and no placeholder is visible */}
-      {matchesForDate.length === 0 && !showWcPlaceholder && (
+      {visibleMatchesForDate.length === 0 && !showWcPlaceholder && (
         <div className="p-8 text-center text-gray-200 border border-custom-gray rounded-xl">
           {dateLoading ? (
             <div className="w-8 h-8 border-2 border-gray-600 border-t-white rounded-full animate-spin mx-auto" />

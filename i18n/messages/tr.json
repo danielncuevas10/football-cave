@@ -69,7 +69,9 @@
     "zoneQuarterfinals": "Çeyrek Final",
     "zonePlayIn": "Play-In",
     "zoneDirectQualification": "Direkt Kualifikasyon",
-    "zonePlayOff": "Play-off"
+    "zonePlayOff": "Play-off",
+    "leagueNations": "Milletler",
+    "leagueFriendly": "Hazırlık"
   },
   "matchEvents": {
     "matchStarted": "Maç başladı",

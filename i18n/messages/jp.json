@@ -69,7 +69,9 @@
     "zoneQuarterfinals": "準々決勝",
     "zonePlayIn": "プレーイン",
     "zoneDirectQualification": "直接出場権",
-    "zonePlayOff": "プレーオフ"
+    "zonePlayOff": "プレーオフ",
+    "leagueNations": "ネーションズ",
+    "leagueFriendly": "親善試合"
   },
   "matchEvents": {
     "matchStarted": "試合開始",

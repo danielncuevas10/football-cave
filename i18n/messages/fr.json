@@ -69,7 +69,9 @@
     "zoneQuarterfinals": "Quarts de finale",
     "zonePlayIn": "Tour de barrage",
     "zoneDirectQualification": "Qualification directe",
-    "zonePlayOff": "Barrage"
+    "zonePlayOff": "Barrage",
+    "leagueNations": "Nations",
+    "leagueFriendly": "Matchs amicaux"
   },
   "matchEvents": {
     "matchStarted": "Match commencé",

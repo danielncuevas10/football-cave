@@ -188,7 +188,9 @@ export default function StandingsTable({ standings, highlightNames = [] }: Props
         </thead>
         <tbody>
           {hasGroups
-            ? Array.from(groupMap.entries()).flatMap(([groupName, groupTeams]) => [
+            ? Array.from(groupMap.entries())
+                .sort(([a], [b]) => a.localeCompare(b))
+                .flatMap(([groupName, groupTeams]) => [
                 <tr key={`hdr-${groupName}`}>
                   <td
                     colSpan={7}

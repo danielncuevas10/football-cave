@@ -69,7 +69,9 @@
     "zoneQuarterfinals": "8강",
     "zonePlayIn": "플레이인",
     "zoneDirectQualification": "직접 진출",
-    "zonePlayOff": "플레이오프"
+    "zonePlayOff": "플레이오프",
+    "leagueNations": "네이션스",
+    "leagueFriendly": "평가전"
   },
   "matchEvents": {
     "matchStarted": "경기 시작",

@@ -8,7 +8,7 @@ import type { DbMatch } from "@/types/sports";
 // ISR: revalidate every 60 s.
 export const revalidate = 60;
 
-const DISPLAY_LEAGUE_IDS = [1, 2, 140, 39, 78, 61, 135, 253, 262];
+const DISPLAY_LEAGUE_IDS = [1, 2, 5, 10, 916, 140, 39, 78, 61, 135, 253, 262];
 
 // WARNING: this runs on the server in UTC. Users in UTC-offset timezones (e.g. Mexico UTC-5)
 // may have a "today" that extends past midnight UTC. ScoreList always re-fetches on the
@@ -30,10 +30,27 @@ async function getInitialMatches(): Promise<DbMatch[]> {
   return (data ?? []) as DbMatch[];
 }
 
+// Fetch team names that participated in the World Cup from the DB.
+// Used client-side to filter friendly matches (league 10) to WC teams only.
+async function getWCTeamNames(): Promise<string[]> {
+  const { data } = await supabaseAdmin
+    .from("matches")
+    .select("home_team, away_team")
+    .eq("league_id", 1);
+
+  const teams = new Set<string>();
+  for (const m of data ?? []) {
+    teams.add(m.home_team);
+    teams.add(m.away_team);
+  }
+  return Array.from(teams);
+}
+
 export default async function HomePage() {
-  const [t, initialMatches] = await Promise.all([
+  const [t, initialMatches, wcTeamNames] = await Promise.all([
     getTranslations("matchTabs"),
     getInitialMatches(),
+    getWCTeamNames(),
   ]);
 
   return (
@@ -55,7 +72,7 @@ export default async function HomePage() {
                 </div>
               }
             >
-              <ScoreList initialMatches={initialMatches} />
+              <ScoreList initialMatches={initialMatches} wcTeamNames={wcTeamNames} />
             </Suspense>
           </main>
         </div>

@@ -69,7 +69,9 @@
     "zoneQuarterfinals": "Προημιτελικά",
     "zonePlayIn": "Πλέι Ιν",
     "zoneDirectQualification": "Άμεση Πρόκριση",
-    "zonePlayOff": "Μπαράζ"
+    "zonePlayOff": "Μπαράζ",
+    "leagueNations": "Έθνη",
+    "leagueFriendly": "Φιλικά"
   },
   "matchEvents": {
     "matchStarted": "Έναρξη αγώνα",

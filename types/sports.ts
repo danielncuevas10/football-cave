@@ -1,6 +1,7 @@
 export enum League {
     WorldCup = 1,
     ChampionsLeague = 2,
+    NationsLeague = 5,
     Friendly = 10,
     PremierLeague = 39,
     Ligue1 = 61,

@@ -16,7 +16,7 @@ function isFlag(logo: string | null): boolean {
 }
 
 function isNationalTeamMatch(leagueId: number): boolean {
-  const NATIONAL_TEAM_LEAGUES = [1, 4, 5, 6, 9, 10, 17, 25, 29, 30, 32, 34];
+  const NATIONAL_TEAM_LEAGUES = [1, 4, 5, 6, 9, 10, 17, 25, 29, 30, 32, 34, 916];
   return NATIONAL_TEAM_LEAGUES.includes(leagueId);
 }
 

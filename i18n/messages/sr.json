@@ -69,7 +69,9 @@
     "zoneQuarterfinals": "Četvrtfinale",
     "zonePlayIn": "Play-In",
     "zoneDirectQualification": "Direktna kvalifikacija",
-    "zonePlayOff": "Baraž"
+    "zonePlayOff": "Baraž",
+    "leagueNations": "Nacije",
+    "leagueFriendly": "Prijateljske"
   },
   "matchEvents": {
     "matchStarted": "Utakmica počela",

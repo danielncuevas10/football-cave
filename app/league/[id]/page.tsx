@@ -48,9 +48,14 @@ function getLeagueMeta(id: number): { name: string; logo: string } {
         name: "Champions League",
         logo: "https://media.api-sports.io/football/leagues/2.png",
       };
+    case League.NationsLeague:
+      return {
+        name: "Nations League",
+        logo: "https://media.api-sports.io/football/leagues/5.png",
+      };
     case League.Friendly:
       return {
-        name: "International Friendlies",
+        name: "Friendly matches",
         logo: "https://media.api-sports.io/football/leagues/10.png",
       };
     case League.WorldCup:
@@ -101,12 +106,14 @@ export default async function LeaguePage({ params }: PageProps) {
           .from("standings")
           .select("*")
           .eq("league_id", leagueId)
+          .order("group_name", { ascending: true, nullsFirst: false })
           .order("rank", { ascending: true })
       : supabase
           .from("standings")
           .select("*")
           .eq("league_id", leagueId)
           .eq("season", season)
+          .order("group_name", { ascending: true, nullsFirst: false })
           .order("rank", { ascending: true });
 
   const scorersQuery =
@@ -161,6 +168,7 @@ export default async function LeaguePage({ params }: PageProps) {
         .from("standings")
         .select("*")
         .eq("league_id", leagueId)
+        .order("group_name", { ascending: true, nullsFirst: false })
         .order("rank", { ascending: true });
       if (anyStandings?.length) {
         standings = anyStandings;
@@ -178,12 +186,14 @@ export default async function LeaguePage({ params }: PageProps) {
             .from("standings")
             .select("*")
             .eq("league_id", leagueId)
+            .order("group_name", { ascending: true, nullsFirst: false })
             .order("rank", { ascending: true })
         : supabase
             .from("standings")
             .select("*")
             .eq("league_id", leagueId)
             .eq("season", syncSeason)
+            .order("group_name", { ascending: true, nullsFirst: false })
             .order("rank", { ascending: true }));
       if (fresh?.length) standings = fresh;
     }
